@@ -1,5 +1,10 @@
 # ansible
 
+#### Install community.general
+```
+ansible-galaxy collection install community.general
+```
+
 
 #### ping inventory
 ```

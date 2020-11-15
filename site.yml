@@ -1,122 +1,36 @@
-#
-# All
-#
+
+---
+- hosts: localhost
+  roles:
+    - docker
+
 - hosts: all
   remote_user: debian
   become: yes
   gather_facts: no
-
   pre_tasks:
-  - name: Install python3
-    apt:
-      name: python3
+    - name: Install python for Ansible
+      raw: test -e /usr/bin/python3 || (apt install -yq python3)
+      changed_when: False
 
-  - name: Install openjdk-8-jdk
-    apt:
-      name: openjdk-8-jdk
+- hosts: all
+  remote_user: debian
+  become: yes
+  gather_facts: no
+  roles:
+    - elasticsearch
+    - git
 
-### Elastic
-  tasks:
-  - name: Install elastic dependencies
-    apt:
-      name:
-        - wget
-        - gnupg
-
-  - name: Add Elasticsearch apt key
-    apt_key:
-      url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-      state: present
-
-  - name: Install apt-transport-https
-    apt:
-      name:
-        - apt-transport-https
-
-  - name: Add elasticsearch repository
-    apt_repository:
-      repo: deb https://artifacts.elastic.co/packages/{{ elasticsearch.version }}/apt stable main
-      state: present
-      update_cache: true
-
-  - name: Install elasticsearch
-    when: is_elk_server is defined
-    apt:
-      name:
-        - elasticsearch
-
-  - name: Configure elasticsearch
-    when: is_elk_server is defined
-    template:
-      src: elasticsearch.yml.j2
-      dest: /etc/elasticsearch/elasticsearch.yml
-      owner: root
-      group: root
-      mode: 0644
-
-  - name: Install logstash
-    when: is_elk_server is defined
-    apt:
-      name:
-        - logstash
-
-  - name: Configure logstash
-    when: is_elk_server is defined
-    template:
-      src: "{{ item.src }}"
-      dest: "{{ item.dest }}"
-      owner: root
-      group: root
-      mode: 0644
-    loop:
-      - { src: logstash.conf.j2, dest: /etc/logstash/conf.d/logstash.conf }
-      - { src: logstash_patterns, dest: "{{ logstash.path.patterns }}" }
-
-  - name: Install kibana
-    when: is_elk_server is defined
-    apt:
-      name:
-        - kibana
-
-  - name: Configure kibana
-    when: is_elk_server is defined
-    template:
-      src: kibana.yml.j2
-      dest: /etc/kibana/kibana.yml
-      owner: root
-      group: root
-      mode: 0644
-
-  - name: Install filebeat
-    apt:
-      name:
-        - filebeat
-
-  - name: Configure filebeat
-    template:
-      src: filebeat.yml.j2
-      dest: /etc/filebeat/filebeat.yml
-      owner: root
-      group: root
-      mode: 0644
-
-  - name: Install rsyslog
-    apt:
-      name:
-        - filebeat
-
-  - name: Configure rsyslog
-    command: echo "*.* @@{{ logstash.host if is_elk_server is defined else hostvars['stretch01'].docker_ip }}:{{ logstash.inputs.tcp }}" > {{ logstash.path.rsyslog }}
-
-#
-# debian:sid
-#
 - hosts: sid
   remote_user: debian
   become: yes
   gather_facts: no
 
   tasks:
-  - name: Install solr-jetty
-    apt:
-      name: solr-jetty
+    - name: Install ruby-dev
+      apt:
+        name: ruby-dev
+
+    - name: Install solr-jetty
+      apt:
+        name: solr-jetty
