@@ -1,13 +1,65 @@
-
+#
+# All
+#
 - hosts: all
   remote_user: debian
   become: yes
   gather_facts: no
   vars:
     ansible_python_interpreter: /usr/bin/python3
-  
+    elasticsearch_version: 7.x
+
   pre_tasks:
-  - name: Install python for Ansible
-    become: yes
-    raw: test -e /usr/bin/python3 || (apt -y update && apt install -y python3-minimal)
-    changed_when: False
+  - name: Install python3
+    apt:
+      name: python3
+
+### Elastic
+  tasks:
+  - name: Install elastic dependencies
+    apt:
+      name:
+        - wget
+        - gnupg
+
+  - name: Add Elasticsearch apt key
+    apt_key:
+      url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+      state: present
+
+  - name: Install apt-transport-https
+    apt:
+      name:
+        - apt-transport-https
+
+  - name: Add Elasticsearch repository
+    apt_repository:
+      repo: deb https://artifacts.elastic.co/packages/{{ elasticsearch_version }}/apt stable main
+      state: present
+      update_cache: true
+
+  - name: Install filebeat
+    apt:
+      name:
+        - filebeat
+
+  - name: Configure filebeat
+    template:
+      src: filebeat.yml.j2
+      dest: /etc/filebeat/filebeat.yml
+      owner: root
+      group: root
+      mode: 0644
+
+#
+# debian:sid
+#
+- hosts: sid
+  remote_user: debian
+  become: yes
+  gather_facts: no
+
+  tasks:
+  - name: Install solr-jetty
+    apt:
+      name: solr-jetty
