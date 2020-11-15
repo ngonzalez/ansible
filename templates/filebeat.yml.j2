@@ -12,9 +12,16 @@ setup.template.settings:
   index.number_of_shards: 3
 
 {% if elk_server is defined %}
+
 setup.kibana:
   host: "{{ setup_kibana_host }}:{{ setup_kibana_port }}"
-{% endif %}
+
+output.logstash:
+  hosts: ["{{ logstash_output_local }}:{{ logstash_output_port }}"]
+
+{% else %}
 
 output.logstash:
   hosts: ["{{ logstash_output_host }}:{{ logstash_output_port }}"]
+
+{% endif %}
