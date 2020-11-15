@@ -10,6 +10,7 @@ elasticsearch:
     logs: /var/log/elasticsearch
 
 logstash:
+  host: 127.0.0.1
   path:
     patterns: /etc/logstash/patterns
     rsyslog: /etc/rsyslog.d/logstash.conf

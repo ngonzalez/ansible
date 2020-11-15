@@ -17,4 +17,4 @@ setup.kibana:
 {% endif %}
 
 output.logstash:
-  hosts: ["{{ elk_server_host }}:{{ logstash.inputs.beats }}"]
+  hosts: ["{{ logstash.host if is_elk_server is defined else hostvars['stretch01'].docker_ip }}:{{ logstash.inputs.beats }}"]
