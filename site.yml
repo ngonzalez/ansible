@@ -8,16 +8,8 @@
   remote_user: debian
   become: yes
   gather_facts: no
-  pre_tasks:
-    - name: Install python for Ansible
-      raw: test -e /usr/bin/python3 || (apt install -yq python3)
-      changed_when: False
-
-- hosts: all
-  remote_user: debian
-  become: yes
-  gather_facts: no
   roles:
+    - python
     - elasticsearch
     - git
 
