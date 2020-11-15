@@ -33,7 +33,7 @@
       name:
         - apt-transport-https
 
-  - name: Add elasticsearch {{ elasticsearch.version }} repository
+  - name: Add elasticsearch repository
     apt_repository:
       repo: deb https://artifacts.elastic.co/packages/{{ elasticsearch.version }}/apt stable main
       state: present
@@ -63,20 +63,14 @@
   - name: Configure logstash
     when: is_elk_server is defined
     template:
-      src: logstash.conf.j2
-      dest: /etc/logstash/conf.d/logstash.conf
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
       owner: root
       group: root
       mode: 0644
-
-  - name: Add logstash patterns
-    when: is_elk_server is defined
-    template:
-      src: logstash_patterns
-      dest: "{{ logstash.path.patterns }}"
-      owner: root
-      group: root
-      mode: 0644
+    loop:
+      - { src: logstash.conf.j2, dest: /etc/logstash/conf.d/logstash.conf }
+      - { src: logstash_patterns, dest: "{{ logstash.path.patterns }}" }
 
   - name: Install kibana
     when: is_elk_server is defined
@@ -112,7 +106,7 @@
         - filebeat
 
   - name: Configure rsyslog
-    command: echo "*.* @@{{ elk_server_host }}:{{ logstash.inputs.tcp }}" > {{ logstash.path.rsyslog }}
+    command: echo "*.* @@{{ logstash.host if is_elk_server is defined else hostvars['stretch01'].docker_ip }}:{{ logstash.inputs.tcp }}" > {{ logstash.path.rsyslog }}
 
 #
 # debian:sid
