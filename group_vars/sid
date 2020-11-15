@@ -1,0 +1,2 @@
+logstash_output_host: 172.28.5.0
+logstash_output_port: 5044
