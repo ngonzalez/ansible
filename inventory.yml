@@ -1,0 +1,19 @@
+---
+
+sid:
+  hosts:
+    sid01:
+      ansible_host: 192.168.1.10
+      ansible_port: 2200
+      ansible_user: debian
+stretch:
+  hosts:
+    stretch01:
+      ansible_host: 192.168.1.10
+      ansible_port: 2201
+      ansible_user: debian
+
+network:
+  children:
+    sid:
+    stretch:
