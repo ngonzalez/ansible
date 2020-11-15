@@ -1,3 +1,4 @@
+---
 setup_kibana_host: 127.0.0.1
 setup_kibana_port: 5601
 logstash_output_host: 172.28.5.0
