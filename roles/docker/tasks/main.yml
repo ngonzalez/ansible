@@ -1,0 +1,48 @@
+- name: Create a debian-stretch container
+  community.general.docker_container:
+    name: docker-debian-stretch
+    hostname: stretch01
+    image: debian-stretch:latest
+    state: started
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    capabilities:
+      - net_admin
+      - sys_admin
+    networks:
+      - name: br0
+        ipv4_address: "{{ hostvars['stretch01'].docker_ip }}"
+    ports:
+      - "{{ ansible_host }}:2201:22"
+      - "{{ ansible_host }}:8001:80"
+      - "4000:4000"
+      - "5044:5044"
+    dns_search_domains:
+      - home
+    dns_servers:
+      - "{{ ansible_host }}"
+      - 192.168.1.1
+      - 192.168.1.10
+
+- name: Create a debian-sid container
+  community.general.docker_container:
+    name: docker-debian-sid
+    hostname: sid01
+    image: debian-sid:latest
+    state: started
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    capabilities:
+      - net_admin
+      - sys_admin
+    networks:
+      - name: br0
+        ipv4_address: "{{ hostvars['sid01'].docker_ip }}"
+    ports:
+      - "{{ ansible_host }}:2200:22"
+    dns_search_domains:
+      - home
+    dns_servers:
+      - "{{ ansible_host }}"
+      - 192.168.1.1
+      - 192.168.1.10
