@@ -5,7 +5,6 @@
 ansible-galaxy collection install community.general
 ```
 
-
 #### ping inventory
 ```
 ansible -i inventory.yml all -m ping
