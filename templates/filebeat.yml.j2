@@ -11,17 +11,10 @@ filebeat.config.modules:
 setup.template.settings:
   index.number_of_shards: 3
 
-{% if elk_server is defined %}
-
+{% if is_elk_server is defined %}
 setup.kibana:
-  host: "{{ setup_kibana_host }}:{{ setup_kibana_port }}"
-
-output.logstash:
-  hosts: ["{{ logstash_output_local }}:{{ logstash_output_port }}"]
-
-{% else %}
-
-output.logstash:
-  hosts: ["{{ logstash_output_host }}:{{ logstash_output_port }}"]
-
+  host: "{{ kibana.host }}:{{ kibana.port }}"
 {% endif %}
+
+output.logstash:
+  hosts: ["{{ elk_server_host }}:{{ logstash.inputs.beats }}"]

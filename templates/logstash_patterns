@@ -1,0 +1,1 @@
+SYSLOG %{SYSLOGTIMESTAMP:time} %{DATA:host} %{DATA:application} %{GREEDYDATA:message}

@@ -3,7 +3,12 @@
 
 #### ping inventory
 ```
-ansible all -i inventory.yml -m ping
+ansible -i inventory.yml all -m ping
+```
+
+#### gather facts
+```
+ansible -i inventory.yml all -m ansible.builtin.setup
 ```
 
 #### run playbook

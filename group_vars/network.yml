@@ -1,6 +1,23 @@
 ---
-setup_kibana_host: 127.0.0.1
-setup_kibana_port: 5601
-logstash_output_host: 172.28.5.0
-logstash_output_local: 127.0.0.1
-logstash_output_port: 5044
+ansible_python_interpreter: /usr/bin/python3
+
+elasticsearch:
+  version: 7.x
+  host: 127.0.0.1
+  port: 9200
+  path:
+    data: /var/lib/elasticsearch
+    logs: /var/log/elasticsearch
+
+logstash:
+  path:
+    patterns: /etc/logstash/patterns
+    rsyslog: /etc/rsyslog.d/logstash.conf
+  inputs:
+    gelf: 12201
+    beats: 5044
+    tcp: 4000
+
+kibana:
+  host: 127.0.0.1
+  port: 5601
