@@ -1,2 +1,3 @@
 ---
-elk_server: True
+is_elk_server: True
+elk_server_host: 127.0.0.1

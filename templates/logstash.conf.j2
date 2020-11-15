@@ -1,0 +1,54 @@
+input {
+  gelf {
+    port => "{{ logstash.inputs.gelf }}"
+    add_field => { "_input" => "gelf" }
+  }
+  beats {
+    port => "{{ logstash.inputs.beats }}"
+    add_field => { "_input" => "beats" }
+  }
+  tcp {
+    port => "{{ logstash.inputs.tcp }}"
+    add_field => { "_input" => "syslog" }
+  }
+}
+filter {
+  if [_input] == "syslog" {
+    grok {
+      patterns_dir => ["{{ logstash.path.patterns }}"]
+      match => [ "message",  "%{SYSLOG}" ]
+      tag_on_failure => ["grok_not_syslog"]
+      overwrite => [ "host", "message" ]
+    }
+  }
+  if [message] =~ /^{.*}$/ {
+    json {
+      source => "message"
+      target => "app"
+      remove_field => ["message"]
+    }
+  }
+}
+output {
+  if [_input] == "gelf" {
+    elasticsearch {
+      hosts => ["{{ elasticsearch.host }}:{{ elasticsearch.port }}"]
+      user => "logstash"
+      index => "logstash-gelf-%{+YYYY.MM.dd}"
+    }
+  }
+  if [_input] == "syslog" {
+    elasticsearch {
+      hosts => ["{{ elasticsearch.host }}:{{ elasticsearch.port }}"]
+      user => "logstash"
+      index => "logstash-linux-%{+YYYY.MM.dd}"
+    }
+  }
+  if [_input] == "beats" {
+    elasticsearch {
+      hosts => ["{{ elasticsearch.host }}:{{ elasticsearch.port }}"]
+      user => "logstash"
+      index => "logstash-beats-%{+YYYY.MM.dd}"
+    }
+  }
+}
