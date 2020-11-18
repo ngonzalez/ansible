@@ -1,0 +1,14 @@
+- name: Install vim
+  apt:
+    name: vim
+
+- name: Configure vim
+  template:
+    src: vimrc
+    dest: /etc/vim/vimrc.local
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0644
+
+- name: Set vim as default editor for Git
+  command: "echo 'GIT_EDITOR=vim' > /etc/profile.d/git.sh"
