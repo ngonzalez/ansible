@@ -1,4 +1,3 @@
-
 ---
 - hosts: localhost
   roles:
@@ -6,17 +5,20 @@
 
 - hosts: all
   remote_user: debian
-  become: yes
-  gather_facts: no
+  become: True
+  gather_facts: False
   roles:
     - python
+    - debian
+    - locales
     - elasticsearch
     - git
+    - vim
 
 - hosts: sid
   remote_user: debian
-  become: yes
-  gather_facts: no
+  become: True
+  gather_facts: False
 
   tasks:
     - name: Install ruby-dev

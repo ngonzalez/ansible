@@ -1,0 +1,6 @@
+- name: Configure debian
+  command: "{{ item.command }}"
+  loop:
+    - { command: "rm -f /etc/motd" }
+    - { command: "rm -f /etc/localtime" }
+    - { command: "ln -s /usr/share/zoneinfo/Europe/Paris /etc/localtime" }

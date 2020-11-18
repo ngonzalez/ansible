@@ -1,0 +1,7 @@
+export LESS='-R'
+export CLICOLOR='YES'
+export DEBIAN_FRONTEND='interactive'
+
+alias grep='grep --color=auto'
+alias ls='ls --color'
+alias l='ls -alrth'

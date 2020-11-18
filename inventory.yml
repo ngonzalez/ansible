@@ -1,15 +1,14 @@
 ---
-
 sid:
   hosts:
-    sid01:
+    sid.home:
       ansible_host: 0.0.0.0
       ansible_port: 2200
       ansible_user: debian
       docker_ip: 172.28.5.1
 stretch:
   hosts:
-    stretch01:
+    stretch.home:
       ansible_host: 0.0.0.0
       ansible_port: 2201
       ansible_user: debian
