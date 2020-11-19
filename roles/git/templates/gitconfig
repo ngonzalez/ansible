@@ -22,7 +22,7 @@
   co = checkout
   ls = ls-files
 [user]
-  email = nicolas.gonzalez@trainline.com
+  email = ngz@hotmail.fr
   name = Nicolas Gonzalez
 [url "git@github.com:"]
   insteadOf = https://github.com/
