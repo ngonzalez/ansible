@@ -3,7 +3,9 @@
   roles:
     - docker
 
-- hosts: all
+- hosts:
+  - sid.home
+  - stretch.home
   remote_user: debian
   become: True
   gather_facts: False
@@ -15,7 +17,7 @@
     - git
     - vim
 
-- hosts: sid
+- hosts: sid.home
   remote_user: debian
   become: True
   gather_facts: False
