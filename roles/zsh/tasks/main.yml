@@ -10,5 +10,5 @@
     group: root
     mode: 0644
   loop:
-    - { src: zshrc, dest: /root/.zshrc }
-    - { src: zshrc, dest: /home/$APP_USER/.zshrc }
+    - { src: zshrc, dest: "/root/.zshrc" }
+    - { src: zshrc, dest: "/home/{{ ansible_user }}/.zshrc" }
