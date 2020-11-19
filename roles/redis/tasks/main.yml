@@ -1,0 +1,25 @@
+---
+- name: Install redis-server
+  apt:
+    name: redis-server
+
+- name: Configure redis-server
+  template:
+    src: redis.conf.j2
+    dest: "{{ redis_config_file }}"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: systemd daemon_reload
+  systemd:
+    daemon_reload: yes
+
+- name: systemd daemon_reexec
+  systemd:
+    daemon_reexec: yes
+
+- name: Start redis
+  systemd:
+    state: started
+    name: redis

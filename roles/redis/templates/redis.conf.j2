@@ -1,0 +1,12 @@
+bind {{ redis_bind }}
+port {{ redis_port }}
+protected-mode yes
+tcp-backlog 511
+timeout 0
+tcp-keepalive 300
+daemonize yes
+supervised no
+pidfile {{ redis_pid_file }}
+loglevel notice
+logfile {{ redis_log_file }}
+databases 16
