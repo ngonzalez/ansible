@@ -19,5 +19,5 @@ ansible -i inventory.yml all -m ansible.builtin.setup
 ```
 ansible-playbook -i inventory.yml site.yml --list-host
 ansible-playbook -i inventory.yml site.yml --diff --check
-ansible-playbook -i inventory.yml site.yml
+ansible-playbook -i inventory.yml site.yml --flush-cache
 ```
