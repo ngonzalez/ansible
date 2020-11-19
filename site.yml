@@ -11,7 +11,6 @@
   gather_facts: False
   roles:
     - python
-    - ssh
     - debian
     - locales
     - elasticsearch
