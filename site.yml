@@ -16,6 +16,7 @@
     - elasticsearch
     - git
     - vim
+    - zsh
 
 - hosts: sid.home
   remote_user: debian
