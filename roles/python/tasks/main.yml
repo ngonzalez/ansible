@@ -3,3 +3,7 @@
   raw: test -e /usr/bin/python3 || (apt install -yq python3)
   changed_when: False
   retries: 3
+
+- name: Install python3-apt
+  apt:
+    name: python3-apt
