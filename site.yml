@@ -22,12 +22,8 @@
   remote_user: debian
   become: True
   gather_facts: False
-
-  tasks:
-    - name: Install ruby-dev
-      apt:
-        name: ruby-dev
-
-    - name: Install solr-jetty
-      apt:
-        name: solr-jetty
+  roles:
+    - redis
+    - postgresql
+    - jetty
+    - ruby

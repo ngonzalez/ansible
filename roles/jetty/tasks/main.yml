@@ -1,0 +1,17 @@
+---
+- name: Install solr-jetty
+  apt:
+    name: solr-jetty
+
+- name: systemd daemon_reload
+  systemd:
+    daemon_reload: yes
+
+- name: systemd daemon_reexec
+  systemd:
+    daemon_reexec: yes
+
+- name: Start jetty9
+  systemd:
+    state: started
+    name: jetty9

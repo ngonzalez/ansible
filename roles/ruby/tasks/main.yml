@@ -1,0 +1,4 @@
+---
+- name: Install ruby-dev
+  apt:
+    name: ruby-dev
