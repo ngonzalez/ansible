@@ -1,0 +1,57 @@
+- name: Install SSH
+  apt:
+    name:
+      - openssh-client
+      - openssh-server
+
+- name: Configure SSH
+  file:
+    path: "/home/{{ ansible_user }}/.ssh"
+    mode: 0700
+    state: directory
+
+- name: Create SSH config
+  command: "{{ item.command }}"
+  loop:
+    - { command: "echo \"Host *\" > /home/{{ ansible_user }}/.ssh/config" }
+    - { command: "chmod 0644 /home/{{ ansible_user }}/.ssh/config" }
+
+- name: Add GitHub to known hosts
+  command: "{{ item.command }}"
+  loop:
+    - { command: "ssh-keyscan github.com > /home/{{ ansible_user }}/.ssh/known_hosts" }
+
+- name: Copy id_rsa SSH key
+  command: "{{ item.command }}"
+  loop:
+    - { command: "echo {{ id_rsa }} /home/{{ ansible_user }}/.ssh/id_rsa" }
+    - { command: "chmod 0600 /home/{{ ansible_user }}/.ssh/id_rsa" }
+    - { command: "echo \" IdentityFile /home/{{ ansible_user}}/.ssh/id_rsa\" >> /home/{{ ansible_user}}/.ssh/config" }
+    - { command: "echo {{ id_rsa_pub }} /home/{{ ansible_user }}/.ssh/id_rsa" }
+    - { command: "chmod 0644 /home/{{ ansible_user }}/.ssh/id_rsa.pub" }
+
+- name: Copy debian-sid SSH key
+  when: inventory_hostname == "sid.home"
+  command: "{{ item.command }}"
+  loop:
+    - { command: "echo {{ debian_sid_id_rsa }} /home/{{ ansible_user }}/.ssh/id_host" }
+    - { command: "chmod 0600 /home/{{ ansible_user }}/.ssh/id_host" }
+    - { command: "echo \" IdentityFile /home/{{ ansible_user}}/.ssh/id_host\" >> /home/{{ ansible_user}}/.ssh/config" }
+    - { command: "echo {{ debian_sid_id_rsa_pub }} /home/{{ ansible_user }}/.ssh/id_host.pub" }
+    - { command: "chmod 0644 /home/{{ ansible_user }}/.ssh/id_rsa.pub" }
+
+- name: Copy debian-stretch SSH key
+  when: inventory_hostname == "stretch.home"
+  command: "{{ item.command }}"
+  loop:
+    - { command: "echo {{ debian_stretch_id_rsa }} /home/{{ ansible_user }}/.ssh/id_host" }
+    - { command: "chmod 0600 /home/{{ ansible_user }}/.ssh/id_host" }
+    - { command: "echo \" IdentityFile /home/{{ ansible_user}}/.ssh/id_host\" >> /home/{{ ansible_user}}/.ssh/config" }
+    - { command: "echo {{ debian_stretch_id_rsa_pub }} /home/{{ ansible_user }}/.ssh/id_host.pub" }
+    - { command: "chmod 0644 /home/{{ ansible_user }}/.ssh/id_rsa.pub" }
+
+- name: Add id_rsa to authorized keys
+  command: "{{ item.command }}"
+  loop:
+    - { command: "echo \"{{ id_rsa }}\" > /home/{{ ansible_user }}/.ssh/authorized_keys" }
+    - { command: "chmod 600 /home/{{ ansible_user }}/.ssh/authorized_keys" }
