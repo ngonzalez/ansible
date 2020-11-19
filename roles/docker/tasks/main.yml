@@ -1,4 +1,6 @@
 ---
+# https://docs.ansible.com/ansible/latest/collections/community/general/docker_container_module.html
+#
 - name: Create a debian-stretch container
   community.general.docker_container:
     name: docker-debian-stretch
@@ -23,6 +25,11 @@
     dns_servers:
       - 192.168.1.1
 
+- name: Waiting for stretch.home
+  wait_for:
+    host: "{{ hostvars['stretch.home'].docker_ip }}"
+    path: /etc/hosts
+
 - name: Create a debian-sid container
   community.general.docker_container:
     name: docker-debian-sid
@@ -43,3 +50,8 @@
       - home
     dns_servers:
       - 192.168.1.1
+
+- name: Waiting for sid.home
+  wait_for:
+    host: "{{ hostvars['sid.home'].docker_ip }}"
+    path: /etc/hosts

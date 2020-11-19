@@ -1,3 +1,4 @@
+---
 - name: Install git-core
   apt:
     name: git-core
