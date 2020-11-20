@@ -1,4 +1,12 @@
 ---
+- name: Create network br0
+  community.general.docker_network:
+    name: br0
+    ipam_config:
+      - subnet: 172.28.0.0/16
+        gateway: 172.28.5.254
+        iprange: 172.28.5.0/24
+
 - name: Create a debian-stretch container
   community.general.docker_container:
     name: docker-debian-stretch
