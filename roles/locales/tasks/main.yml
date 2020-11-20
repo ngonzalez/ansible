@@ -1,10 +1,10 @@
-- name: Install locales
-  apt:
-    name: locales
-
 - name: Install libc-l10n
   apt:
     name: libc-l10n
+
+- name: Install locales
+  apt:
+    name: locales
 
 - name: Setup locales
   command: "{{ item.command }}"
