@@ -1,6 +1,4 @@
 ---
-# https://docs.ansible.com/ansible/latest/collections/community/general/docker_container_module.html
-#
 - name: Create a debian-stretch container
   community.general.docker_container:
     name: docker-debian-stretch
