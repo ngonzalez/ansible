@@ -88,7 +88,43 @@
 - name: Install rsyslog
   apt:
     name:
-      - filebeat
+      - rsyslog
 
 - name: Configure rsyslog
   command: echo "*.* @@{{ logstash.host if is_elk_server is defined else hostvars['stretch.home'].ipv4_address }}:{{ logstash.inputs.tcp }}" > {{ logstash.path.rsyslog }}
+
+- name: systemd daemon_reload
+  systemd:
+    daemon_reload: yes
+
+- name: systemd daemon_reexec
+  systemd:
+    daemon_reexec: yes
+
+- name: Start elasticsearch service
+  when: is_elk_server is defined
+  systemd:
+    state: started
+    name: elasticsearch
+
+- name: Start logstash service
+  when: is_elk_server is defined
+  systemd:
+    state: started
+    name: logstash
+
+- name: Start kibana service
+  when: is_elk_server is defined
+  systemd:
+    state: started
+    name: kibana
+
+- name: Start filebeat service
+  systemd:
+    state: started
+    name: filebeat
+
+- name: Start rsyslog service
+  systemd:
+    state: started
+    name: rsyslog
