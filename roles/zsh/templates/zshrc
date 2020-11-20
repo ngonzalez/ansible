@@ -5,3 +5,12 @@ export DEBIAN_FRONTEND='interactive'
 alias grep='grep --color=auto'
 alias ls='ls --color'
 alias l='ls -alrth'
+
+if [ -d /etc/profile.d ]; then
+  for i in /etc/profile.d/*.sh; do
+    if [ -r $i ]; then
+      . $i
+    fi
+  done
+  unset i
+fi
