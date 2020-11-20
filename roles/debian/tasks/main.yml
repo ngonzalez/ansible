@@ -1,6 +1,18 @@
-- name: Configure debian
-  command: "{{ item.command }}"
-  loop:
-    - { command: "rm -f /etc/motd" }
-    - { command: "rm -f /etc/localtime" }
-    - { command: "ln -s /usr/share/zoneinfo/Europe/Paris /etc/localtime" }
+---
+- name: Remove motd
+  file:
+    path: /etc/motd
+    state: absent
+
+- name: Remove localtime
+  file:
+    path: /etc/localtime
+    state: absent
+
+- name: Set localtime to Europe/Paris
+  file:
+    src: /usr/share/zoneinfo/Europe/Paris
+    dest: /etc/localtime
+    owner: root
+    group: root
+    state: link
