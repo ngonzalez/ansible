@@ -12,7 +12,7 @@
       - sys_admin
     networks:
       - name: br0
-        ipv4_address: "{{ hostvars['stretch.home'].docker_ip }}"
+        ipv4_address: "{{ hostvars['stretch.home'].ipv4_address }}"
     ports:
       - '2201:22'
       - '80:80'
@@ -23,9 +23,9 @@
     dns_servers:
       - 192.168.1.1
 
-- name: Waiting for stretch.home
+- name: Waiting for debian-stretch
   wait_for:
-    host: "{{ hostvars['stretch.home'].docker_ip }}"
+    host: "{{ hostvars['stretch.home'].ipv4_address }}"
     path: /etc/hosts
 
 - name: Create a debian-sid container
@@ -41,7 +41,7 @@
       - sys_admin
     networks:
       - name: br0
-        ipv4_address: "{{ hostvars['sid.home'].docker_ip }}"
+        ipv4_address: "{{ hostvars['sid.home'].ipv4_address }}"
     ports:
       - '2200:22'
     dns_search_domains:
@@ -49,7 +49,7 @@
     dns_servers:
       - 192.168.1.1
 
-- name: Waiting for sid.home
+- name: Waiting for debian-sid
   wait_for:
-    host: "{{ hostvars['sid.home'].docker_ip }}"
+    host: "{{ hostvars['sid.home'].ipv4_address }}"
     path: /etc/hosts
