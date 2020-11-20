@@ -91,4 +91,4 @@
       - filebeat
 
 - name: Configure rsyslog
-  command: echo "*.* @@{{ logstash.host if is_elk_server is defined else hostvars['stretch.home'].docker_ip }}:{{ logstash.inputs.tcp }}" > {{ logstash.path.rsyslog }}
+  command: echo "*.* @@{{ logstash.host if is_elk_server is defined else hostvars['stretch.home'].ipv4_address }}:{{ logstash.inputs.tcp }}" > {{ logstash.path.rsyslog }}

@@ -19,5 +19,5 @@ setup.kibana:
 output.logstash:
   hosts: ["{{
     logstash.host if is_elk_server is defined
-    else hostvars['stretch.home'].docker_ip
+    else hostvars['stretch.home'].ipv4_address
   }}:{{ logstash.inputs.beats }}"]
