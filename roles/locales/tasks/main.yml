@@ -1,11 +1,4 @@
-- name: Install libc-l10n
-  apt:
-    name: libc-l10n
-
-- name: Install locales
-  apt:
-    name: locales
-
+---
 - name: Set locale to en_US.UTF-8
   community.general.locale_gen:
     name: en_US.UTF-8
