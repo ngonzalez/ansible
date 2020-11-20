@@ -18,3 +18,5 @@ network:
   children:
     sid:
     stretch:
+
+# Docker subnet: 172.28.0.0/16
