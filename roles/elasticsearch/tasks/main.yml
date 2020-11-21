@@ -8,7 +8,7 @@
       - wget
       - gnupg
 
-- name: Add Elasticsearch apt key
+- name: Add elastic.co apt key
   apt_key:
     url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
     state: present
@@ -18,7 +18,7 @@
     name:
       - apt-transport-https
 
-- name: Add elasticsearch repository
+- name: Add elastic.co repository
   apt_repository:
     repo: deb https://artifacts.elastic.co/packages/{{ elasticsearch.version }}/apt stable main
     state: present
@@ -101,30 +101,30 @@
   systemd:
     daemon_reexec: yes
 
-- name: Start elasticsearch service
+- name: Start elasticsearch
   when: is_elk_server is defined
   systemd:
     state: started
     name: elasticsearch
 
-- name: Start logstash service
+- name: Start logstash
   when: is_elk_server is defined
   systemd:
     state: started
     name: logstash
 
-- name: Start kibana service
+- name: Start kibana
   when: is_elk_server is defined
   systemd:
     state: started
     name: kibana
 
-- name: Start filebeat service
+- name: Start filebeat
   systemd:
     state: started
     name: filebeat
 
-- name: Start rsyslog service
+- name: Start rsyslog
   systemd:
     state: started
     name: rsyslog

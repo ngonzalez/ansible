@@ -3,14 +3,14 @@
   apt:
     name: git-core
 
-- name: Configure git-core
+- name: Configure git
   remote_user: debian
   command: "{{ item.command }}"
   loop:
     - { command: "git config --global core.editor vim" }
     - { command: "git config --global core.pager less" }
 
-- name: Add gitconfig
+- name: Add .gitconfig
   remote_user: debian
   template:
     src: gitconfig

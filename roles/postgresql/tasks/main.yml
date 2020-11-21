@@ -1,10 +1,10 @@
 ---
-- name: Install PostgreSQL
+- name: Install postgresql-12
   apt:
     name: postgresql-12
 
-- name: Configure PostgreSQL
-  command: "echo \"host all all 0.0.0.0/0 trust\" >> /etc/postgresql/12/main/pg_hba.conf"
+- name: Configure postgresql
+  command: "echo \"host all all {{ pg_host }}/0 trust\" >> {{ pg_hba_path }}"
 
 - name: systemd daemon_reload
   systemd:
