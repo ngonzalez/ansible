@@ -1,0 +1,9 @@
+---
+  - name: Install nginx
+    apt:
+      - name: nginx
+
+  - name: Configure nginx
+    template:
+      src: nginx.conf
+      dest: "{{ nginx_config_path }}"

@@ -18,6 +18,13 @@
     - vim
     - zsh
 
+- hosts: stretch.home
+  remote_user: debian
+  become: True
+  gather_facts: False
+  roles:
+    - nginx
+
 - hosts: sid.home
   remote_user: debian
   become: True
