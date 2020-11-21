@@ -3,7 +3,7 @@
   apt:
     name: redis-server
 
-- name: Configure redis-server
+- name: Configure redis
   template:
     src: redis.conf.j2
     dest: "{{ redis_config_file }}"

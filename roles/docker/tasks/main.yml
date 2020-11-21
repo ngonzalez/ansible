@@ -7,7 +7,7 @@
         gateway: 172.28.5.254
         iprange: 172.28.5.0/24
 
-- name: Create a new container using debian-stretch image
+- name: Create a container using debian-stretch image
   community.general.docker_container:
     name: docker-debian-stretch
     hostname: stretch.home
@@ -22,21 +22,21 @@
       - name: br0
         ipv4_address: "{{ hostvars['stretch.home'].ipv4_address }}"
     ports:
-      - '2201:22'
-      - '80:80'
-      - '4000:4000'
-      - '5044:5044'
+      - '2201:22'   # ssh
+      - "{{ ansible_host }}:80:5601"   # kibana
+      - '4000:4000' # logstash
+      - '5044:5044' # filebeat
     dns_search_domains:
       - home
     dns_servers:
       - 192.168.1.1
 
-- name: Waiting for new container debian-stretch
+- name: Waiting for container debian-stretch
   wait_for:
     host: "{{ hostvars['stretch.home'].ipv4_address }}"
     path: /etc/hosts
 
-- name: Create a new container using debian-sid image
+- name: Create a container using debian-sid image
   community.general.docker_container:
     name: docker-debian-sid
     hostname: sid.home
@@ -51,13 +51,13 @@
       - name: br0
         ipv4_address: "{{ hostvars['sid.home'].ipv4_address }}"
     ports:
-      - '2200:22'
+      - '2200:22'   # ssh
     dns_search_domains:
       - home
     dns_servers:
       - 192.168.1.1
 
-- name: Waiting for new container debian-sid
+- name: Waiting for container debian-sid
   wait_for:
     host: "{{ hostvars['sid.home'].ipv4_address }}"
     path: /etc/hosts
