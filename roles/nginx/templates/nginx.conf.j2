@@ -8,6 +8,6 @@ server {
     gzip_types *;
 
     location / {
-        proxy_pass http://{{ kibana.host }}:{{ kibana.port }};
+        proxy_pass http://{{ nginx_kibana_host }}:{{ nginx_kibana_port }};
     }
 }
