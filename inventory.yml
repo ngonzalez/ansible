@@ -1,12 +1,5 @@
 ---
-sid:
-  hosts:
-    sid.home:
-      ansible_host: 0.0.0.0
-      ansible_port: 2200
-      ansible_user: debian
-      ipv4_address: 172.28.5.1
-stretch:
+AXwzye7VOM0B8K8y:
   hosts:
     stretch.home:
       ansible_host: 0.0.0.0
@@ -14,7 +7,15 @@ stretch:
       ansible_user: debian
       ipv4_address: 172.28.5.0
 
+OBaWSKRo0EhvWG3G:
+  hosts:
+    sid.home:
+      ansible_host: 0.0.0.0
+      ansible_port: 2200
+      ansible_user: debian
+      ipv4_address: 172.28.5.1
+
 network:
   children:
-    sid:
-    stretch:
+    AXwzye7VOM0B8K8y
+    OBaWSKRo0EhvWG3G
