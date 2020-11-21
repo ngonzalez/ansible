@@ -7,7 +7,7 @@
         gateway: 172.28.5.254
         iprange: 172.28.5.0/24
 
-- name: Create a debian-stretch container
+- name: Create a new container using debian-stretch image
   community.general.docker_container:
     name: docker-debian-stretch
     hostname: stretch.home
@@ -31,12 +31,12 @@
     dns_servers:
       - 192.168.1.1
 
-- name: Waiting for debian-stretch
+- name: Waiting for new container debian-stretch
   wait_for:
     host: "{{ hostvars['stretch.home'].ipv4_address }}"
     path: /etc/hosts
 
-- name: Create a debian-sid container
+- name: Create a new container using debian-sid image
   community.general.docker_container:
     name: docker-debian-sid
     hostname: sid.home
@@ -57,7 +57,7 @@
     dns_servers:
       - 192.168.1.1
 
-- name: Waiting for debian-sid
+- name: Waiting for new container debian-sid
   wait_for:
     host: "{{ hostvars['sid.home'].ipv4_address }}"
     path: /etc/hosts
