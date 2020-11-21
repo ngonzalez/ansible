@@ -83,7 +83,10 @@
       - rsyslog
 
 - name: Configure rsyslog
-  command: echo "*.* @@{{ logstash.host if is_elk_server is defined else hostvars['stretch.home'].ipv4_address }}:{{ logstash.inputs.tcp }}" > {{ logstash.path.rsyslog }}
+  lineinfile:
+    line: "*.* @@{{ logstash.host if is_elk_server is defined else hostvars['stretch.home'].ipv4_address }}:{{ logstash.inputs.tcp }}"
+    dest: "{{ logstash.path.rsyslog }}"
+    create: yes
 
 - name: systemd daemon_reload
   systemd:
