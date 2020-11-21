@@ -1,0 +1,13 @@
+server {
+    listen {{ nginx_port }};
+
+    access_log {{ nginx_access_log }};
+    error_log {{ nginx_error_log }};
+
+    gzip on;
+    gzip_types *;
+
+    location / {
+        proxy_pass http://{{ kibana.host }}:{{ kibana.port }};
+    }
+}

@@ -23,7 +23,7 @@
         ipv4_address: "{{ hostvars['stretch.home'].ipv4_address }}"
     ports:
       - '2201:22'   # ssh
-      - "{{ ansible_host }}:80:5601"   # kibana
+      - "{{ ansible_host }}:8001:80"   # nginx
       - '4000:4000' # logstash
       - '5044:5044' # filebeat
     dns_search_domains:
