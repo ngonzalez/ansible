@@ -35,8 +35,8 @@
   template:
     src: elasticsearch.yml.j2
     dest: /etc/elasticsearch/elasticsearch.yml
-    owner: root
-    group: root
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: 0644
 
 - name: Install logstash
@@ -50,8 +50,8 @@
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
-    owner: root
-    group: root
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: 0644
   loop:
     - { src: logstash.conf.j2, dest: /etc/logstash/conf.d/logstash.conf }
@@ -68,8 +68,8 @@
   template:
     src: kibana.yml.j2
     dest: /etc/kibana/kibana.yml
-    owner: root
-    group: root
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: 0644
 
 - name: Install filebeat
@@ -81,8 +81,8 @@
   template:
     src: filebeat.yml.j2
     dest: /etc/filebeat/filebeat.yml
-    owner: root
-    group: root
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: 0644
 
 - name: Install rsyslog
