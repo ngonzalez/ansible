@@ -85,7 +85,7 @@
 - name: Configure rsyslog
   lineinfile:
     line: "*.* @@{{ logstash.host if is_elk_server is defined else hostvars['stretch.home'].ipv4_address }}:{{ logstash.inputs.tcp }}"
-    dest: "{{ logstash.path.rsyslog }}"
+    dest: "{{ rsyslog.logstash_conf }}"
     create: yes
 
 - name: systemd daemon_reload
