@@ -1,6 +1,6 @@
 ---
 nginx_port: 80
-nginx_config_path: /etc/nginx/conf.d/nginx.conf
+nginx_config_path: /etc/nginx/sites-available/default
 nginx_access_log: /var/log/nginx/access.log
 nginx_error_log: /var/log/nginx/error.log
 nginx_kibana_host: 127.0.0.1
