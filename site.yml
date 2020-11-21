@@ -12,6 +12,7 @@
   roles:
     - python
     - localtime
+    - motd
     - locales
     - elasticsearch
     - git
