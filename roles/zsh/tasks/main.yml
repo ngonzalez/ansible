@@ -2,13 +2,18 @@
   apt:
     name: zsh
 
-- name: Configure zshrc
+- name: Configure zshrc for user
   template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
+    src: zshrc
+    dest: "/home/{{ ansible_user }}/.zshrc"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
-  loop:
-    - { src: zshrc, dest: "/root/.zshrc" }
-    - { src: zshrc, dest: "/home/{{ ansible_user }}/.zshrc" }
+
+- name: Configure zshrc for root
+  template:
+    src: zshrc
+    dest: /root/.zshrc
+    owner: root
+    group: root
+    mode: 0644

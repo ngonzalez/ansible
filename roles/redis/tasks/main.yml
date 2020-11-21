@@ -7,8 +7,6 @@
   template:
     src: redis.conf.j2
     dest: "{{ redis_config_file }}"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
     mode: 0644
 
 - name: systemd daemon_reload
