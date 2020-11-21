@@ -193,7 +193,7 @@ output.logstash:
   hosts: ["{{
     logstash.host if is_elk_server is defined
     else hostvars['stretch.home'].ipv4_address
-  }}:{{ logstash.inputs.beats }}"]
+  }}:{{ logstash.beats_port }}"]
 
   # Optional SSL. By default is off.
   # List of root certificates for HTTPS server verifications

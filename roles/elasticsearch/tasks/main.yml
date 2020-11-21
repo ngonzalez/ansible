@@ -1,16 +1,13 @@
-- name: Install openjdk-8-jdk
-  apt:
-    name: openjdk-8-jdk
-
-- name: Install elastic dependencies
+- name: Install elasticsearch dependencies
   apt:
     name:
       - wget
       - gnupg
+      - openjdk-8-jdk
 
 - name: Add elastic.co apt key
   apt_key:
-    url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    url: "{{ elastic_co_apt_key }}"
     state: present
 
 - name: Install apt-transport-https
@@ -18,9 +15,9 @@
     name:
       - apt-transport-https
 
-- name: Add elastic.co repository
+- name: Add elastic.co apt repository
   apt_repository:
-    repo: deb https://artifacts.elastic.co/packages/{{ elasticsearch.version }}/apt stable main
+    repo: deb {{ elastic_co_apt_repository }} stable main
     state: present
     update_cache: true
 
@@ -34,7 +31,7 @@
   when: is_elk_server is defined
   template:
     src: elasticsearch.yml.j2
-    dest: /etc/elasticsearch/elasticsearch.yml
+    dest: "{{ elasticsearch.config_path }}"
     mode: 0644
 
 - name: Install logstash
@@ -50,8 +47,8 @@
     dest: "{{ item.dest }}"
     mode: 0644
   loop:
-    - { src: logstash.conf.j2, dest: /etc/logstash/conf.d/logstash.conf }
-    - { src: logstash_patterns, dest: "{{ logstash.path.patterns }}" }
+    - { src: logstash.conf.j2, dest: "{{ logstash.config_path }}" }
+    - { src: logstash_patterns, dest: "{{ logstash.patterns_path }}" }
 
 - name: Install kibana
   when: is_elk_server is defined
@@ -63,7 +60,7 @@
   when: is_elk_server is defined
   template:
     src: kibana.yml.j2
-    dest: /etc/kibana/kibana.yml
+    dest: "{{ kibana.config_path }}"
     mode: 0644
 
 - name: Install filebeat
@@ -74,7 +71,7 @@
 - name: Configure filebeat
   template:
     src: filebeat.yml.j2
-    dest: /etc/filebeat/filebeat.yml
+    dest: "{{ filebeat.config_path }}"
     mode: 0644
 
 - name: Install rsyslog
@@ -84,8 +81,8 @@
 
 - name: Configure rsyslog
   lineinfile:
-    line: "*.* @@{{ logstash.host if is_elk_server is defined else hostvars['stretch.home'].ipv4_address }}:{{ logstash.inputs.tcp }}"
-    dest: "{{ rsyslog.logstash_conf }}"
+    line: "*.* @@{{ logstash.host if is_elk_server is defined else hostvars['stretch.home'].ipv4_address }}:{{ logstash.tcp_port }}"
+    dest: "{{ rsyslog.logstash_config_path }}"
     create: yes
 
 - name: systemd daemon_reload
