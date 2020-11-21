@@ -3,6 +3,4 @@
   file:
     src: /usr/share/zoneinfo/Europe/Paris
     dest: /etc/localtime
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
     state: link
