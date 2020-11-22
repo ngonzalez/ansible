@@ -3,4 +3,4 @@ app_database_user: music
 app_database: music
 app_name: music-app
 app_path: /var/www/{{ app_name }}
-app_repository: https://git.io/JkrB8
+app_repository: https://github.com/ngonzalez/music-rails.git

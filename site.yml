@@ -33,4 +33,11 @@
     - postgresql
     - jetty
     - ruby
+
+- hosts: sid.home
+  remote_user: debian
+  become: True
+  gather_facts: True
+  tags: deploy
+  roles:
     - app

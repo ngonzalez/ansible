@@ -1,20 +1,31 @@
 ---
-- name: Create database user
-  tags: deploy
-  command: createuser {{ app_database_user }}
-  become: True
-  become_method: su
-  become_user: postgres
+- name: Install python3-psycopg2
+  apt:
+    name:
+      - libpq-dev
+      - python3-psycopg2
 
-- name: Create database
-  tags: deploy
-  command: createdb {{ app_database }}
+- name: Create postgresql database
   become: True
-  become_method: su
   become_user: postgres
+  become_method: su
+  community.general.postgresql_db:
+    name: "{{ app_database }}"
+    login_host: 0.0.0.0
+    login_user: postgres
+    encoding: UTF-8
+    lc_collate: en_US.UTF-8
+    lc_ctype: en_US.UTF-8
+    template: template0
+
+- name: Create postgresql database user
+  become: True
+  become_user: postgres
+  become_method: su
+  community.general.postgresql_user:
+    name: "{{ app_database_user }}"
 
 - name: Remove application directory
-  tags: deploy
   file:
     path: "{{ app_path }}"
     state: absent
@@ -29,19 +40,16 @@
     mode: 0755
 
 - name: Clone application repository
-  tags: deploy
   git:
     repo: "{{ app_repository }}"
     dest: "{{ app_path }}"
   become_user: "{{ ansible_user }}"
 
-- name: Install apt dependencies
-  tags: deploy
+- name: Install application bundle dependencies
   apt:
     name:
       - build-essential
       - patch
       - zlib1g-dev
       - liblzma-dev
-      - libpq-dev
       - libtag1-dev

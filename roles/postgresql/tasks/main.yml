@@ -4,7 +4,14 @@
     name: postgresql-12
 
 - name: Configure postgresql
-  command: "echo \"host all all {{ pg_host }}/0 trust\" >> {{ pg_hba_path }}"
+  community.general.postgresql_pg_hba:
+    dest: "{{ pg_hba_dest }}"
+    contype: host
+    users: all
+    databases: all
+    source: "{{ pg_hba_source }}"
+    method: trust
+    create: true
 
 - name: systemd daemon_reload
   systemd:

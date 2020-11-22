@@ -4,15 +4,15 @@
     name: git-core
 
 - name: Configure git
-  remote_user: debian
   command: "{{ item.command }}"
   loop:
     - { command: "git config --global core.editor vim" }
     - { command: "git config --global core.pager less" }
 
 - name: Add .gitconfig
-  remote_user: debian
   template:
     src: gitconfig
     dest: /home/{{ ansible_user }}/.gitconfig
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: 0644
