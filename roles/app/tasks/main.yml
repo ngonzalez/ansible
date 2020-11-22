@@ -35,10 +35,10 @@
     mode: 0755
 
 - name: Clone application repository
+  become_user: "{{ ansible_user }}"
   git:
     repo: "{{ app_repository }}"
     dest: "{{ app_path }}"
-  become_user: "{{ ansible_user }}"
 
 - name: Install application bundle dependencies
   apt:
@@ -48,3 +48,9 @@
       - zlib1g-dev
       - liblzma-dev
       - libtag1-dev
+
+- name: Run application bundle
+  become_user: "{{ ansible_user }}"
+  command: /usr/bin/bundle2.7 install --path=vendor/cache
+  args:
+    chdir: "{{ app_path }}"
