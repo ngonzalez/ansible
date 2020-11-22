@@ -1,9 +1,9 @@
 ---
-- name: Install locale
+- name: Install locales
   apt:
     name: locales
 
-- name: Set locale to en_US.UTF-8
+- name: Configure locales en_US.UTF-8
   community.general.locale_gen:
     name: en_US.UTF-8
     state: present
