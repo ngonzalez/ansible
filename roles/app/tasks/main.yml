@@ -1,0 +1,47 @@
+---
+- name: Create database user
+  tags: deploy
+  command: createuser {{ app_database_user }}
+  become: True
+  become_method: su
+  become_user: postgres
+
+- name: Create database
+  tags: deploy
+  command: createdb {{ app_database }}
+  become: True
+  become_method: su
+  become_user: postgres
+
+- name: Remove application directory
+  tags: deploy
+  file:
+    path: "{{ app_path }}"
+    state: absent
+
+- name: Create application directory
+  tags: deploy
+  file:
+    path: "{{ app_path }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+
+- name: Clone application repository
+  tags: deploy
+  git:
+    repo: "{{ app_repository }}"
+    dest: "{{ app_path }}"
+  become_user: "{{ ansible_user }}"
+
+- name: Install apt dependencies
+  tags: deploy
+  apt:
+    name:
+      - build-essential
+      - patch
+      - zlib1g-dev
+      - liblzma-dev
+      - libpq-dev
+      - libtag1-dev

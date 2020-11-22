@@ -3,9 +3,7 @@
   roles:
     - docker
 
-- hosts:
-  - sid.home
-  - stretch.home
+- hosts: sid.home:stretch.home
   remote_user: debian
   become: True
   gather_facts: False
@@ -35,3 +33,4 @@
     - postgresql
     - jetty
     - ruby
+    - app
