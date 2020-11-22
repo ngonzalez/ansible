@@ -1,3 +1,5 @@
 ---
+pg_login_user: postgres
+pg_login_password: postgres
 pg_hba_source: 0.0.0.0/0
 pg_hba_dest: /etc/postgresql/12/main/pg_hba.conf
