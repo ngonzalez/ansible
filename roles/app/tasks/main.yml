@@ -23,6 +23,7 @@
   file:
     path: "{{ app_path }}"
     state: absent
+  no_log: True
 
 - name: Create application directory
   tags: deploy
