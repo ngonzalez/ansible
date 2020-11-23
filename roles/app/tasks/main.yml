@@ -44,25 +44,36 @@
 - name: Include vault vars
   include_vars:
     file: vault.yml
+  no_log: True
 
-- name: Copy ssh key id_rsa
+- name: Copy ssh key id_host
   copy:
     content: "{{ debian_sid_id_rsa }}"
     dest: /home/{{ ansible_user}}/.ssh/id_host
     mode: 0600
     owner: "{{ ansible_user }}"
+  no_log: True
 
-- name: Copy ssh key id_rsa_pub
+- name: Copy ssh key id_host.pub
   copy:
     content: "{{ debian_sid_id_rsa_pub }}"
     dest: /home/{{ ansible_user}}/.ssh/id_host.pub
     mode: 0644
     owner: "{{ ansible_user }}"
 
-- name: Add new ssh key to ssh config
+- name: Add id_host to ssh config
   lineinfile:
     line: " IdentityFile /home/{{ ansible_user }}/.ssh/id_host"
     dest: /home/{{ ansible_user }}/.ssh/config
+    mode: 0644
+    owner: "{{ ansible_user }}"
+
+- name: Add github to known_hosts
+  lineinfile:
+    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    dest: /home/{{ ansible_user }}/.ssh/known_hosts
+    mode: 0644
+    owner: "{{ ansible_user }}"
 
 - name: Clone application repository
   become_user: "{{ ansible_user }}"
