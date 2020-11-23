@@ -1,2 +1,2 @@
 ---
-rsyslog_logstash_config: /etc/rsyslog.d/logstash.conf
+rsyslog_config_path: /etc/rsyslog.d/logstash.conf

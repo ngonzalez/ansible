@@ -7,7 +7,7 @@
 - name: Configure rsyslog
   lineinfile:
     line: "*.* @@{{ logstash_host }}:{{ logstash_tcp_port }}"
-    dest: "{{ rsyslog_logstash_config }}"
+    dest: "{{ rsyslog_config_path }}"
     create: yes
 
 - name: Start rsyslog
