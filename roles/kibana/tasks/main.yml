@@ -12,6 +12,6 @@
 
 - name: Start kibana
   systemd:
-    daemon_reload: yes
+    daemon_reload: True
     state: started
     name: kibana

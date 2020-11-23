@@ -15,6 +15,6 @@
 
 - name: Start postgresql
   systemd:
-    daemon_reload: yes
+    daemon_reload: True
     state: started
     name: postgresql
