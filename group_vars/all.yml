@@ -1,0 +1,12 @@
+---
+ansible_python_interpreter: /usr/bin/python3
+
+elasticsearch_host: 127.0.0.1
+elasticsearch_port: 9200
+
+logstash_gelf_port: 12201
+logstash_beats_port: 5044
+logstash_tcp_port: 4000
+
+kibana_host: 127.0.0.1
+kibana_port: 5601

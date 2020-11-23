@@ -1,0 +1,20 @@
+---
+- name: Install logstash
+  apt:
+    name:
+      - logstash
+
+- name: Configure logstash
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0644
+  loop:
+    - { src: logstash.conf.j2,  dest: "{{ logstash_config_path }}" }
+    - { src: logstash_patterns, dest: "{{ logstash_patterns_path }}" }
+
+- name: Start logstash
+  systemd:
+    daemon_reload: yes
+    state: started
+    name: logstash

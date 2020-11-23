@@ -1,0 +1,17 @@
+---
+- name: Install rsyslog
+  apt:
+    name:
+      - rsyslog
+
+- name: Configure rsyslog
+  lineinfile:
+    line: "*.* @@{{ logstash_host }}:{{ logstash_tcp_port }}"
+    dest: "{{ rsyslog_logstash_config }}"
+    create: yes
+
+- name: Start rsyslog
+  systemd:
+    daemon_reload: yes
+    state: started
+    name: rsyslog

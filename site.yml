@@ -1,8 +1,10 @@
 ---
+  # docker
 - hosts: localhost
   roles:
     - docker
 
+  # requirements
 - hosts: sid.home:stretch.home
   remote_user: debian
   become: True
@@ -12,18 +14,26 @@
     - localtime
     - motd
     - locales
-    - elasticsearch
     - git
     - vim
     - zsh
+    - elastic_co
+    - filebeat
+    - rsyslog
 
+  # elasticsearch
 - hosts: stretch.home
   remote_user: debian
   become: True
   gather_facts: False
+  tags: elasticsearch
   roles:
+    - elasticsearch
+    - logstash
+    - kibana
     - nginx
 
+  # databases, ruby
 - hosts: sid.home
   remote_user: debian
   become: True
@@ -34,6 +44,7 @@
     - jetty
     - ruby
 
+  # application
 - hosts: sid.home
   remote_user: debian
   become: True

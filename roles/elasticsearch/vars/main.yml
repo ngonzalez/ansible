@@ -1,28 +1,4 @@
-elastic_co_apt_key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-elastic_co_apt_repository: https://artifacts.elastic.co/packages/7.x/apt
-
-elasticsearch:
-  host: 127.0.0.1
-  port: 9200
-  config_path: /etc/elasticsearch/elasticsearch.yml
-  data_path: /var/lib/elasticsearch
-  logs_path: /var/log/elasticsearch
-
-logstash:
-  host: 127.0.0.1
-  gelf_port: 12201
-  beats_port: 5044
-  tcp_port: 4000
-  config_path: /etc/logstash/conf.d/logstash.conf
-  patterns_path: /etc/logstash/patterns
-
-kibana:
-  host: 127.0.0.1
-  port: 5601
-  config_path: /etc/kibana/kibana.yml
-
-filebeat:
-  config_path: /etc/filebeat/filebeat.yml
-
-rsyslog:
-  logstash_config_path: /etc/rsyslog.d/logstash.conf
+---
+elasticsearch_config_path: /etc/elasticsearch/elasticsearch.yml
+elasticsearch_data_path: /var/lib/elasticsearch
+elasticsearch_logs_path: /var/log/elasticsearch

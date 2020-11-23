@@ -1,21 +1,21 @@
 input {
   gelf {
-    port => "{{ logstash.gelf_port }}"
+    port => "{{ logstash_gelf_port }}"
     add_field => { "_input" => "gelf" }
   }
   beats {
-    port => "{{ logstash.beats_port }}"
+    port => "{{ logstash_beats_port }}"
     add_field => { "_input" => "beats" }
   }
   tcp {
-    port => "{{ logstash.tcp_port }}"
+    port => "{{ logstash_tcp_port }}"
     add_field => { "_input" => "syslog" }
   }
 }
 filter {
   if [_input] == "syslog" {
     grok {
-      patterns_dir => ["{{ logstash.patterns_path }}"]
+      patterns_dir => ["{{ logstash_patterns_path }}"]
       match => [ "message",  "%{SYSLOG}" ]
       tag_on_failure => ["grok_not_syslog"]
       overwrite => [ "host", "message" ]
@@ -32,21 +32,21 @@ filter {
 output {
   if [_input] == "gelf" {
     elasticsearch {
-      hosts => ["{{ elasticsearch.host }}:{{ elasticsearch.port }}"]
+      hosts => ["{{ elasticsearch_host }}:{{ elasticsearch_port }}"]
       user => "logstash"
       index => "logstash-gelf-%{+YYYY.MM.dd}"
     }
   }
   if [_input] == "syslog" {
     elasticsearch {
-      hosts => ["{{ elasticsearch.host }}:{{ elasticsearch.port }}"]
+      hosts => ["{{ elasticsearch_host }}:{{ elasticsearch_port }}"]
       user => "logstash"
       index => "logstash-linux-%{+YYYY.MM.dd}"
     }
   }
   if [_input] == "beats" {
     elasticsearch {
-      hosts => ["{{ elasticsearch.host }}:{{ elasticsearch.port }}"]
+      hosts => ["{{ elasticsearch_host }}:{{ elasticsearch_port }}"]
       user => "logstash"
       index => "logstash-beats-%{+YYYY.MM.dd}"
     }
