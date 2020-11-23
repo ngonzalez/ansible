@@ -18,9 +18,3 @@
     daemon_reload: yes
     state: started
     name: postgresql
-
-- name: Set postgres user password
-  become_user: postgres
-  community.general.postgresql_user:
-    name: "{{ pg_login_user }}"
-    password: "{{ pg_login_password }}"
