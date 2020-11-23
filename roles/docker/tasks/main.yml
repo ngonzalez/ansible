@@ -11,7 +11,7 @@
   community.general.docker_container:
     name: docker-debian-stretch
     hostname: stretch.home
-    image: debian-stretch:latest
+    image: ngonzalez121/debian-stretch:latest
     state: started
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
@@ -40,7 +40,7 @@
   community.general.docker_container:
     name: docker-debian-sid
     hostname: sid.home
-    image: debian-sid:latest
+    image: ngonzalez121/debian-sid:latest
     state: started
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
