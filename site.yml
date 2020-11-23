@@ -33,16 +33,16 @@
     - kibana
     - nginx
 
-  # databases, ruby
+  # databases
 - hosts: sid.home
   remote_user: debian
   become: True
   gather_facts: False
+  tags: databases
   roles:
     - redis
     - postgresql
     - jetty
-    - ruby
 
   # application
 - hosts: sid.home
