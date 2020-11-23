@@ -7,14 +7,7 @@ ansible-galaxy collection install community.general
 
 #### run playbook
 ```
-ansible-playbook -i inventory.yml site.yml --list-host
-ansible-playbook -i inventory.yml site.yml --diff --check
-ansible-playbook -i inventory.yml site.yml --flush-cache --diff -v
-```
-
-#### deploy application
-```
-ansible-playbook -i inventory.yml site.yml --flush-cache --diff --tag deploy -v
+ansible-playbook -i inventory.yml site.yml --flush-cache --ask-vault-pass -v
 ```
 
 #### ping inventory
