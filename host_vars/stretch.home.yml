@@ -1,2 +1,2 @@
 ---
-is_elk_server: True
+logstash_host: 127.0.0.1

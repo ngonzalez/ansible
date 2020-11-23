@@ -9,15 +9,8 @@
     dest: "{{ redis_config_file }}"
     mode: 0644
 
-- name: systemd daemon_reload
-  systemd:
-    daemon_reload: yes
-
-- name: systemd daemon_reexec
-  systemd:
-    daemon_reexec: yes
-
 - name: Start redis
   systemd:
+    daemon_reload: yes
     state: started
     name: redis

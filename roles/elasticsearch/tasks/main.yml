@@ -1,122 +1,17 @@
-- name: Install elasticsearch dependencies
-  apt:
-    name:
-      - wget
-      - gnupg
-      - openjdk-8-jdk
-
-- name: Add elastic.co apt key
-  apt_key:
-    url: "{{ elastic_co_apt_key }}"
-    state: present
-
-- name: Install apt-transport-https
-  apt:
-    name:
-      - apt-transport-https
-
-- name: Add elastic.co apt repository
-  apt_repository:
-    repo: deb {{ elastic_co_apt_repository }} stable main
-    state: present
-    update_cache: true
-
+---
 - name: Install elasticsearch
-  when: is_elk_server is defined
   apt:
     name:
       - elasticsearch
 
 - name: Configure elasticsearch
-  when: is_elk_server is defined
   template:
     src: elasticsearch.yml.j2
-    dest: "{{ elasticsearch.config_path }}"
+    dest: "{{ elasticsearch_config_path }}"
     mode: 0644
-
-- name: Install logstash
-  when: is_elk_server is defined
-  apt:
-    name:
-      - logstash
-
-- name: Configure logstash
-  when: is_elk_server is defined
-  template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    mode: 0644
-  loop:
-    - { src: logstash.conf.j2, dest: "{{ logstash.config_path }}" }
-    - { src: logstash_patterns, dest: "{{ logstash.patterns_path }}" }
-
-- name: Install kibana
-  when: is_elk_server is defined
-  apt:
-    name:
-      - kibana
-
-- name: Configure kibana
-  when: is_elk_server is defined
-  template:
-    src: kibana.yml.j2
-    dest: "{{ kibana.config_path }}"
-    mode: 0644
-
-- name: Install filebeat
-  apt:
-    name:
-      - filebeat
-
-- name: Configure filebeat
-  template:
-    src: filebeat.yml.j2
-    dest: "{{ filebeat.config_path }}"
-    mode: 0644
-
-- name: Install rsyslog
-  apt:
-    name:
-      - rsyslog
-
-- name: Configure rsyslog
-  lineinfile:
-    line: "*.* @@{{ logstash.host if is_elk_server is defined else hostvars['stretch.home'].ipv4_address }}:{{ logstash.tcp_port }}"
-    dest: "{{ rsyslog.logstash_config_path }}"
-    create: yes
-
-- name: systemd daemon_reload
-  systemd:
-    daemon_reload: yes
-
-- name: systemd daemon_reexec
-  systemd:
-    daemon_reexec: yes
 
 - name: Start elasticsearch
-  when: is_elk_server is defined
   systemd:
+    daemon_reload: yes
     state: started
     name: elasticsearch
-
-- name: Start logstash
-  when: is_elk_server is defined
-  systemd:
-    state: started
-    name: logstash
-
-- name: Start kibana
-  when: is_elk_server is defined
-  systemd:
-    state: started
-    name: kibana
-
-- name: Start filebeat
-  systemd:
-    state: started
-    name: filebeat
-
-- name: Start rsyslog
-  systemd:
-    state: started
-    name: rsyslog

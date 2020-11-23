@@ -1,1 +1,2 @@
 ---
+logstash_host: "{{ hostvars['stretch.home'].ipv4_address }}"

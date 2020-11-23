@@ -9,15 +9,8 @@
     dest: "{{ nginx_config_path }}"
     mode: 0644
 
-- name: systemd daemon_reload
-  systemd:
-    daemon_reload: yes
-
-- name: systemd daemon_reexec
-  systemd:
-    daemon_reexec: yes
-
 - name: Start nginx
   systemd:
+    daemon_reload: yes
     state: started
     name: nginx

@@ -1,0 +1,17 @@
+---
+- name: Install kibana
+  apt:
+    name:
+      - kibana
+
+- name: Configure kibana
+  template:
+    src: kibana.yml.j2
+    dest: "{{ kibana_config_path }}"
+    mode: 0644
+
+- name: Start kibana
+  systemd:
+    daemon_reload: yes
+    state: started
+    name: kibana

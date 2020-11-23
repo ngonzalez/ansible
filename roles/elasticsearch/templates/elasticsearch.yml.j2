@@ -30,11 +30,11 @@
 #
 # Path to directory where to store the data (separate multiple locations by comma):
 #
-path.data: {{ elasticsearch.data_path }}
+path.data: {{ elasticsearch_data_path }}
 #
 # Path to log files:
 #
-path.logs: {{ elasticsearch.logs_path }}
+path.logs: {{ elasticsearch_logs_path }}
 #
 # ----------------------------------- Memory -----------------------------------
 #
@@ -52,17 +52,14 @@ path.logs: {{ elasticsearch.logs_path }}
 #
 # Set the bind address to a specific IP (IPv4 or IPv6):
 #
-#network.host: 192.168.0.1
+network.host: {{ elasticsearch_host }}
 #
 # Set a custom port for HTTP:
 #
-http.port: {{ elasticsearch.port }}
+http.port: {{ elasticsearch_port }}
 #
 # For more information, consult the network module documentation.
 #
-# ---------------------------------- HTTP Cors ---------------------------------
-http.cors.allow-origin: "/.*/"
-http.cors.enabled: true
 # --------------------------------- Discovery ----------------------------------
 #
 # Pass an initial list of hosts to perform discovery when this node is started:
@@ -89,3 +86,6 @@ http.cors.enabled: true
 # Require explicit names when deleting indices:
 #
 #action.destructive_requires_name: true
+# --------------------------------- HTTP Cors ----------------------------------
+http.cors.allow-origin: "/.*/"
+http.cors.enabled: true

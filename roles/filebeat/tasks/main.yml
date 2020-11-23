@@ -1,0 +1,17 @@
+---
+- name: Install filebeat
+  apt:
+    name:
+      - filebeat
+
+- name: Configure filebeat
+  template:
+    src: filebeat.yml.j2
+    dest: "{{ filebeat_config_path }}"
+    mode: 0644
+
+- name: Start filebeat
+  systemd:
+    daemon_reload: yes
+    state: started
+    name: filebeat
