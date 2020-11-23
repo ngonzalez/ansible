@@ -41,6 +41,29 @@
     group: "{{ ansible_user }}"
     mode: 0755
 
+- name: Include vault vars
+  include_vars:
+    file: vault.yml
+
+- name: Copy ssh key id_rsa
+  copy:
+    content: "{{ debian_sid_id_rsa }}"
+    dest: /home/{{ ansible_user}}/.ssh/id_host
+    mode: 0600
+    owner: "{{ ansible_user }}"
+
+- name: Copy ssh key id_rsa_pub
+  copy:
+    content: "{{ debian_sid_id_rsa_pub }}"
+    dest: /home/{{ ansible_user}}/.ssh/id_host.pub
+    mode: 0644
+    owner: "{{ ansible_user }}"
+
+- name: Add new ssh key to ssh config
+  lineinfile:
+    line: " IdentityFile /home/{{ ansible_user }}/.ssh/id_host"
+    dest: /home/{{ ansible_user }}/.ssh/config
+
 - name: Clone application repository
   become_user: "{{ ansible_user }}"
   git:
