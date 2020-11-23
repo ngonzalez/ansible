@@ -3,13 +3,12 @@
   community.general.docker_network:
     name: br0
     ipam_config:
-      - subnet: 172.28.0.0/16
-        gateway: 172.28.5.254
-        iprange: 172.28.5.0/24
+      - subnet: "{{ docker_network_subnet }}"
+        gateway: "{{ docker_network_gateway }}"
+        iprange: "{{ docker_network_iprange }}"
 
 - name: Create a container using debian-stretch image
   community.general.docker_container:
-    name: docker-debian-stretch
     hostname: stretch.home
     image: ngonzalez121/debian-stretch:latest
     state: started
@@ -22,14 +21,14 @@
       - name: br0
         ipv4_address: "{{ hostvars['stretch.home'].ipv4_address }}"
     ports:
-      - '2201:22'   # ssh
-      - "{{ ansible_host }}:8001:80"   # nginx
-      - '4000:4000' # logstash
-      - '5044:5044' # filebeat
+      - "{{ docker_stretch_external_ssh_port }}:22"
+      - "{{ ansible_host }}:{{ docker_stretch_external_http_port }}:80"
+      - "{{ logstash_tcp_port }}:{{ logstash_tcp_port }}"
+      - "{{ logstash_beats_port }}:{{ logstash_beats_port }}"
     dns_search_domains:
       - home
     dns_servers:
-      - 192.168.1.1
+      - "{{ host_dns_server}}"
 
 - name: Waiting for container debian-stretch
   wait_for:
@@ -38,7 +37,6 @@
 
 - name: Create a container using debian-sid image
   community.general.docker_container:
-    name: docker-debian-sid
     hostname: sid.home
     image: ngonzalez121/debian-sid:latest
     state: started
@@ -51,11 +49,11 @@
       - name: br0
         ipv4_address: "{{ hostvars['sid.home'].ipv4_address }}"
     ports:
-      - '2200:22'   # ssh
+      - "{{ docker_sid_external_ssh_port }}:22"
     dns_search_domains:
       - home
     dns_servers:
-      - 192.168.1.1
+      - "{{ host_dns_server}}"
 
 - name: Waiting for container debian-sid
   wait_for:

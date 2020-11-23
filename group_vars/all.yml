@@ -1,6 +1,23 @@
 ---
 ansible_python_interpreter: /usr/bin/python3
 
+# host
+host_dns_server: 192.168.1.1
+
+# docker network
+docker_network_subnet: 172.28.0.0/16
+docker_network_gateway: 172.28.5.254
+docker_network_iprange: 172.28.5.0/24
+
+# docker debian-stretch
+docker_stretch_home_ipv4_address: 172.28.5.0
+docker_stretch_external_ssh_port: 2201
+docker_stretch_external_http_port: 8001
+
+# docker debian-sid
+docker_sid_home_ipv4_address: 172.28.5.1
+docker_sid_external_ssh_port: 2200
+
 # elasticsearch
 elasticsearch_host: 127.0.0.1
 elasticsearch_port: 9200
