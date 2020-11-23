@@ -9,6 +9,7 @@
 
 - name: Create a container using debian-stretch image
   community.general.docker_container:
+    name: debian-stretch
     hostname: stretch.home
     image: ngonzalez121/debian-stretch:latest
     state: started
@@ -37,6 +38,7 @@
 
 - name: Create a container using debian-sid image
   community.general.docker_container:
+    name: debian-sid
     hostname: sid.home
     image: ngonzalez121/debian-sid:latest
     state: started
