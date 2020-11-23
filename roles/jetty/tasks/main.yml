@@ -5,6 +5,6 @@
 
 - name: Start jetty9
   systemd:
-    daemon_reload: yes
+    daemon_reload: True
     state: started
     name: jetty9

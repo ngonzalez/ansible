@@ -11,6 +11,6 @@
 
 - name: Start redis
   systemd:
-    daemon_reload: yes
+    daemon_reload: True
     state: started
     name: redis
