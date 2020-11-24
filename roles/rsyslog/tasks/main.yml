@@ -8,6 +8,7 @@
   lineinfile:
     line: "*.* @@{{ logstash_host }}:{{ logstash_tcp_port }}"
     dest: "{{ rsyslog_config_path }}"
+    create: True
 
 - name: Start rsyslog
   systemd:
