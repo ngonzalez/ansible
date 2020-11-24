@@ -6,7 +6,6 @@
 
   # requirements
 - hosts: sid.home:stretch.home
-  remote_user: debian
   become: True
   gather_facts: False
   roles:
@@ -23,7 +22,6 @@
 
   # elasticsearch
 - hosts: stretch.home
-  remote_user: debian
   become: True
   gather_facts: False
   tags: elasticsearch
@@ -35,7 +33,6 @@
 
   # databases
 - hosts: sid.home
-  remote_user: debian
   become: True
   gather_facts: False
   tags: databases
@@ -46,7 +43,6 @@
 
   # application
 - hosts: sid.home
-  remote_user: debian
   become: True
   gather_facts: True
   tags: deploy

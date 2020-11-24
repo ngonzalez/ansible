@@ -3,7 +3,7 @@ AXwzye7VOM0B8K8y:
   hosts:
     stretch.home:
       ansible_host: 0.0.0.0
-      ansible_port: 2201
+      ansible_port: "{{ docker_stretch_external_ssh_port }}"
       ansible_user: debian
       ipv4_address: "{{ docker_stretch_home_ipv4_address }}"
 
@@ -11,7 +11,7 @@ OBaWSKRo0EhvWG3G:
   hosts:
     sid.home:
       ansible_host: 0.0.0.0
-      ansible_port: 2200
+      ansible_port: "{{ docker_sid_external_ssh_port }}"
       ansible_user: debian
       ipv4_address: "{{ docker_sid_home_ipv4_address }}"
 

@@ -74,6 +74,7 @@
     dest: /home/{{ ansible_user }}/.ssh/known_hosts
     mode: 0644
     owner: "{{ ansible_user }}"
+    create: True
 
 - name: Clone application repository
   become_user: "{{ ansible_user }}"
