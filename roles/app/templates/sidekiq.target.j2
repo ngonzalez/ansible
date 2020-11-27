@@ -1,5 +1,5 @@
 [Unit]
-Description="{{ app_sidekiq_service_description }}"
-Requires="{{ app_sidekiq_service_name }}.target" systemd-networkd.service
-After="{{ app_sidekiq_service_name }}.target" systemd-networkd.service
+Description={{ app_sidekiq_service_description }}
+Requires={{ app_sidekiq_service_name }}.target systemd-networkd.service
+After={{ app_sidekiq_service_name }}.target systemd-networkd.service
 AllowIsolate=yes
