@@ -1,0 +1,5 @@
+[Unit]
+Description="{{ app_sunspot_solr_service_description }}"
+Requires="{{ app_sunspot_solr_service_name }}.target" systemd-networkd.service
+After="{{ app_sunspot_solr_service_name }}.target" systemd-networkd.service
+AllowIsolate=yes

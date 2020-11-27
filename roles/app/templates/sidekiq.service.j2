@@ -1,0 +1,20 @@
+[Unit]
+After=network.target
+Description="{{ app_sidekiq_service_description }}"
+Documentation=http://github.com/ngonzalez
+
+[Service]
+Type=simple
+WorkingDirectory="{{ app_path }}"
+ExecStart=/usr/bin/bundle2.7 exec sidekiq -e production
+EnvironmentFile="{{ app_environment_path }}"
+PIDFile="{{ app_path }}{{ app_sidekiq_pid_path }}"
+Restart=always
+User="{{ ansible_user }}"
+Group="{{ ansible_user }}"
+LimitNOFILE=65535
+TimeoutStopSec=0
+
+[Install]
+WantedBy=multi-user.target
+Alias="{{ app_sidekiq_service_name }}.service"
