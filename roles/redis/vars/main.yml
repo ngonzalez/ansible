@@ -1,6 +1,4 @@
 ---
-redis_bind: 127.0.0.1 ::1
-redis_port: 6379
 redis_pid_file: /var/run/redis/redis-server.pid
 redis_log_file: /var/log/redis/redis-server.log
 redis_config_file: /etc/redis/redis.conf
