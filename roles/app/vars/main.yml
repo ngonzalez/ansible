@@ -20,8 +20,7 @@ app_base_path: /Volumes/Untitled
 app_hls_folder: /tmp/hls
 
 # config
-app_config_path: /config/{{ app_name }}.conf
-app_gcp_config_path: /config/gcp_key.json
+app_gcp_config_path: /etc/gcp_key.json
 app_environment_path: /etc/music-app.conf
 
 # puma
