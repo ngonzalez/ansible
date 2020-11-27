@@ -100,10 +100,15 @@
 - name: Generate application config file
   template:
     src: app.conf.j2
-    dest: "{{ app_config_path }}"
+    dest: "{{ app_environment_path }}"
     mode: 0644
 
-- name: Generate identify file
+- name: Include gcp vault vars
+  include_vars:
+    file: gcp_vault.yml
+  no_log: True
+
+- name: Generate gcp identify file
   template:
     src: gcp_key.conf.j2
     dest: "{{ app_gcp_config_path }}"
