@@ -3,9 +3,17 @@
   apt:
     name: nginx
 
-- name: Configure nginx
+- name: Configure nginx for elasticsearch / kibana
+  when: inventory_hostname == "stretch.home"
   template:
-    src: nginx.conf.j2
+    src: nginx-elk.conf.j2
+    dest: "{{ nginx_config_path }}"
+    mode: 0644
+
+- name: Configure nginx for application
+  when: inventory_hostname == "sid.home"
+  template:
+    src: nginx-app.conf.j2
     dest: "{{ nginx_config_path }}"
     mode: 0644
 

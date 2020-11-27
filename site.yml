@@ -19,6 +19,7 @@
     - elastic_co
     - filebeat
     - rsyslog
+    - nginx
 
   # elasticsearch
 - hosts: stretch.home
@@ -29,7 +30,6 @@
     - elasticsearch
     - logstash
     - kibana
-    - nginx
 
   # databases
 - hosts: sid.home

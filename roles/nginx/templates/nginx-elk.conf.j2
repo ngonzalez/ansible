@@ -52,7 +52,7 @@ server {
 	location / {
 		# First attempt to serve request as file, then
 		# as directory, then fall back to displaying a 404.
-		proxy_pass http://{{ nginx_kibana_host }}:{{ nginx_kibana_port }};
+		proxy_pass http://{{ kibana_host }}:{{ kibana_port }};
 	}
 
 	# pass PHP scripts to FastCGI server
