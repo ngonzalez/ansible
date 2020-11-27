@@ -1,0 +1,20 @@
+[Unit]
+After=network.target
+Description="{{ app_sunspot_solr_service_description }}"
+Documentation=http://github.com/ngonzalez
+
+[Service]
+Type=simple
+WorkingDirectory="{{ app_path }}"
+ExecStart=/usr/bin/bundle2.7 exec sunspot-solr start -p 8982
+EnvironmentFile="{{ app_environment_path }}"
+PIDFile="{{ app_path }}{{ app_sunspot_solr_pid_path }}"
+Restart=always
+User="{{ ansible_user }}"
+Group="{{ ansible_user }}"
+LimitNOFILE=65535
+TimeoutStopSec=0
+
+[Install]
+WantedBy=multi-user.target
+Alias="{{ app_sunspot_solr_service_name }}.service"

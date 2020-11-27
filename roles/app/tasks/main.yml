@@ -24,7 +24,7 @@
 - name: Create postgresql database user
   become_user: postgres
   community.general.postgresql_user:
-    name: "{{ app_database_user }}"
+    name: "{{ app_database_username }}"
 
 - name: Remove application directory
   file:
@@ -96,3 +96,63 @@
   command: /usr/bin/bundle2.7 install --path=vendor/cache
   args:
     chdir: "{{ app_path }}"
+
+- name: Generate application config file
+  template:
+    src: app.conf.j2
+    dest: "{{ app_config_path }}"
+    mode: 0644
+
+- name: Generate identify file
+  template:
+    src: gcp_key.conf.j2
+    dest: "{{ app_gcp_config_path }}"
+    mode: 0644
+
+- name: Copy sunspot-solr service file
+  template:
+    src: sunspot-solr.service.j2
+    dest: "{{ app_sunspot_solr_service_file }}"
+
+- name: Copy sunspot-solr target file
+  template:
+    src: sunspot-solr.target.j2
+    dest: "{{ app_sunspot_solr_target_file }}"
+
+- name: Start sunspot-solr
+  systemd:
+    daemon_reload: True
+    state: started
+    name: sunspot-solr
+
+- name: Copy puma service file
+  template:
+    src: puma.service.j2
+    dest: "{{ app_puma_service_file }}"
+
+- name: Copy puma target file
+  template:
+    src: puma.target.j2
+    dest: "{{ app_puma_target_file }}"
+
+- name: Start puma
+  systemd:
+    daemon_reload: True
+    state: started
+    name: puma
+
+- name: Copy sidekiq service file
+  template:
+    src: sidekiq.service.j2
+    dest: "{{ app_sidekiq_service_file }}"
+
+- name: Copy sidekiq target file
+  template:
+    src: sidekiq.target.j2
+    dest: "{{ app_sidekiq_target_file }}"
+
+- name: Start sidekiq
+  systemd:
+    daemon_reload: True
+    state: started
+    name: sidekiq
