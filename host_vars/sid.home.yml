@@ -1,2 +1,3 @@
 ---
 logstash_host: "{{ hostvars['stretch.home'].ipv4_address }}"
+app_path: /var/www/sid.home

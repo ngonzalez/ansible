@@ -46,3 +46,6 @@ sunspot_solr_port: 8982
 
 # nginx
 nginx_port: 80
+
+# puma
+puma_sock: /tmp/puma.sock
