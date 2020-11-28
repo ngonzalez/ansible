@@ -1,13 +1,13 @@
 ---
 # app
 app_hostname: link12.ddns.net
-app_path: /var/www/{{ app_hostname }}
+app_path: /var/www/app
 app_repository: https://github.com/ngonzalez/music-rails.git
 
 # app config
-app_config_path: /vaw/www/{{ app_hostname }}/config.sh
-app_environment_path: /vaw/www/{{ app_hostname }}/.env
-app_gcp_config_path: /vaw/www/{{ app_hostname }}/gcp.json
+app_config_path: "{{ app_path }}/config.sh"
+app_environment_path: "{{ app_path }}/.env"
+app_gcp_config_path: "{{ app_path }}/gcp.json"
 
 # folders
 app_base_path: /Volumes/Untitled

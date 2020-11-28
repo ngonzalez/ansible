@@ -87,6 +87,7 @@
 
 # bundle
 - name: Install application bundle dependencies
+  become_user: "{{ ansible_user }}"
   apt:
     name:
       - build-essential
@@ -104,20 +105,24 @@
 # config
 - name: Generate application config file
   template:
-    src: app.config.j2
+    src: app.conf.j2
     dest: "{{ app_config_path }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: 0644
 
 - name: Generate application env file
   template:
     src: app.env.j2
     dest: "{{ app_environment_path }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: 0644
 
 # assets
 - name: Precompile assets
   become_user: "{{ ansible_user }}"
-  command: source {{ app_config_path }}; /usr/bin/bundle2.7 exec rake assets:precompile
+  command: sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake assets:precompile
   args:
     chdir: "{{ app_path }}"
 
@@ -131,6 +136,8 @@
   template:
     src: gcp.conf.j2
     dest: "{{ app_gcp_config_path }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: 0644
 
 # sunspot-solr
