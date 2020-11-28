@@ -5,6 +5,7 @@ app_path: /var/www/{{ app_hostname }}
 app_repository: https://github.com/ngonzalez/music-rails.git
 
 # app config
+app_config_path: /vaw/www/{{ app_hostname }}/config.sh
 app_environment_path: /vaw/www/{{ app_hostname }}/.env
 app_gcp_config_path: /vaw/www/{{ app_hostname }}/gcp.json
 
