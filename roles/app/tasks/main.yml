@@ -17,6 +17,7 @@
     name:
       - python3-psycopg2
 
+# postgresql
 - name: Create postgresql database
   become_user: postgres
   community.general.postgresql_db:
@@ -26,11 +27,12 @@
     lc_ctype: en_US.UTF-8
     template: template0
 
-- name: Create postgresql database user
+- name: Create postgresql user
   become_user: postgres
   community.general.postgresql_user:
     name: "{{ app_database_username }}"
 
+# app folder
 - name: Create application directory
   file:
     path: "{{ app_path }}"
@@ -39,11 +41,13 @@
     group: "{{ ansible_user }}"
     mode: 0755
 
+# vault
 - name: Include vault vars
   include_vars:
     file: vault.yml
   no_log: True
 
+# ssh
 - name: Copy ssh key id_host
   copy:
     content: "{{ debian_sid_id_rsa }}"
@@ -74,12 +78,14 @@
     owner: "{{ ansible_user }}"
     create: True
 
+# git
 - name: Clone application repository
   become_user: "{{ ansible_user }}"
   git:
     repo: "{{ app_repository }}"
     dest: "{{ app_path }}"
 
+# bundle
 - name: Install application bundle dependencies
   apt:
     name:
@@ -95,18 +101,27 @@
   args:
     chdir: "{{ app_path }}"
 
+# config
 - name: Generate application config file
   template:
-    src: app.conf.j2
+    src: app.config.j2
+    dest: "{{ app_config_path }}"
+    mode: 0644
+
+- name: Generate application env file
+  template:
+    src: app.env.j2
     dest: "{{ app_environment_path }}"
     mode: 0644
 
+# assets
 - name: Precompile assets
   become_user: "{{ ansible_user }}"
-  command: source {{ app_environment_path }}; /usr/bin/bundle2.7 exec rake assets:precompile
+  command: source {{ app_config_path }}; /usr/bin/bundle2.7 exec rake assets:precompile
   args:
     chdir: "{{ app_path }}"
 
+# gcp
 - name: Include gcp vault vars
   include_vars:
     file: vault_gcp.yml
@@ -118,6 +133,7 @@
     dest: "{{ app_gcp_config_path }}"
     mode: 0644
 
+# sunspot-solr
 - name: Copy sunspot-solr service file
   template:
     src: sunspot-solr.service.j2
@@ -134,6 +150,7 @@
     state: started
     name: sunspot-solr
 
+# puma
 - name: Copy puma service file
   template:
     src: puma.service.j2
@@ -150,6 +167,7 @@
     state: started
     name: puma
 
+# sidekiq
 - name: Copy sidekiq service file
   template:
     src: sidekiq.service.j2
