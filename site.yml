@@ -19,7 +19,6 @@
     - elastic_co
     - filebeat
     - rsyslog
-    - nginx
 
   # elasticsearch
 - hosts: stretch.home
@@ -48,3 +47,10 @@
   tags: deploy
   roles:
     - app
+
+  # nginx
+- hosts: sid.home:stretch.home
+  become: True
+  gather_facts: False
+  roles:
+    - nginx

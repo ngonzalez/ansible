@@ -1,4 +1,9 @@
 ---
+- name: Install ffmpeg
+  apt:
+    name:
+      - ffmpeg
+
 - name: Install ruby-dev
   apt:
     name: ruby-dev
@@ -108,11 +113,17 @@
     file: gcp_vault.yml
   no_log: True
 
-- name: Generate gcp identify file
+- name: Create gcp identify file
   template:
     src: gcp_key.conf.j2
     dest: "{{ app_gcp_config_path }}"
     mode: 0644
+
+- name: Precompile assets
+  become_user: "{{ ansible_user }}"
+  command: /usr/bin/bundle2.7 exec rake assets:precompile
+  args:
+    chdir: "{{ app_path }}"
 
 - name: Copy sunspot-solr service file
   template:

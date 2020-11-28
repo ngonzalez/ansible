@@ -1,7 +1,6 @@
 ---
 app_name: music-app
 app_description: Music app
-app_path: /var/www/{{ app_name }}
 app_repository: https://github.com/ngonzalez/music-rails.git
 app_hostname: link12.ddns.net
 
@@ -29,7 +28,6 @@ app_puma_service_description: Puma
 app_puma_service_file: /etc/systemd/system/puma.service
 app_puma_target_file: /etc/systemd/system/puma.target
 app_puma_pid_path: /tmp/pids/server.pid
-app_puma_sock: /tmp/puma.sock
 
 # sidekiq
 app_sidekiq_service_name: sidekiq
