@@ -7,7 +7,7 @@
         gateway: "{{ docker_network_gateway }}"
         iprange: "{{ docker_network_iprange }}"
 
-- name: Create a container using debian-stretch image
+- name: Create a container from debian-stretch image
   community.general.docker_container:
     name: debian-stretch
     hostname: stretch.home
@@ -36,7 +36,7 @@
     host: "{{ hostvars['stretch.home'].ipv4_address }}"
     path: /etc/hosts
 
-- name: Create a container using debian-sid image
+- name: Create a container from debian-sid image
   community.general.docker_container:
     name: debian-sid
     hostname: sid.home
@@ -52,6 +52,7 @@
         ipv4_address: "{{ hostvars['sid.home'].ipv4_address }}"
     ports:
       - "{{ docker_sid_external_ssh_port }}:22"
+      - "{{ ansible_host }}:{{ docker_sid_external_http_port }}:80"
     dns_search_domains:
       - home
     dns_servers:
