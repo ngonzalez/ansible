@@ -220,11 +220,13 @@
   template:
     src: puma.service.j2
     dest: "{{ app_puma_service_file }}"
+  no_log: True
 
 - name: Copy puma target file
   template:
     src: puma.target.j2
     dest: "{{ app_puma_target_file }}"
+  no_log: True
 
 - name: Start puma
   systemd:
@@ -238,11 +240,13 @@
   template:
     src: sidekiq.service.j2
     dest: "{{ app_sidekiq_service_file }}"
+  no_log: True
 
 - name: Copy sidekiq target file
   template:
     src: sidekiq.target.j2
     dest: "{{ app_sidekiq_target_file }}"
+  no_log: True
 
 - name: Start sidekiq
   systemd:
