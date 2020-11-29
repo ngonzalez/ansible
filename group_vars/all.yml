@@ -39,10 +39,12 @@ postgresql_port: 5432
 # redis
 redis_host: 127.0.0.1
 redis_port: 6379
+redis_db: 0
 
 # sunspot_solr
 sunspot_solr_host: 127.0.0.1
 sunspot_solr_port: 8982
+sunspot_solr_path: /solr/default
 
 # nginx
 nginx_port: 80
