@@ -33,6 +33,11 @@
     name: "{{ app_database_username }}"
 
 # app folder
+- name: Remove application directory
+  file:
+    path: "{{ app_path }}"
+    state: absent
+
 - name: Create application directory
   file:
     path: "{{ app_path }}"
@@ -87,7 +92,6 @@
 
 # bundle
 - name: Install application bundle dependencies
-  become_user: "{{ ansible_user }}"
   apt:
     name:
       - build-essential
