@@ -191,7 +191,7 @@
     mode: 0644
   no_log: True
 
-- name: Generate application env file
+- name: Generate application environment file
   become_user: "{{ ansible_user }}"
   template:
     src: app.env.j2
@@ -231,6 +231,7 @@
     daemon_reload: True
     state: started
     name: puma
+  no_log: True
 
 # sidekiq
 - name: Copy sidekiq service file
@@ -248,3 +249,4 @@
     daemon_reload: True
     state: started
     name: sidekiq
+  no_log: True
