@@ -1,9 +1,18 @@
 ---
 - name: Install postgresql-13
   apt:
-    name: postgresql-13
+    name:
+      - postgresql-13
+      - libpq-dev
+      - python3-psycopg2
 
-- name: Configure postgresql
+- name: Include pg vault vars
+  include_vars:
+    file: vault_pg.yml
+  no_log: True
+
+- name: Add host to pg hba file
+  become_user: postgres
   community.general.postgresql_pg_hba:
     dest: "{{ postgresql_pg_hba_dest }}"
     contype: host
@@ -18,3 +27,21 @@
     daemon_reload: True
     state: started
     name: postgresql
+
+- name: Set postgresql user credentials
+  become_user: postgres
+  community.general.postgresql_user:
+    name: "{{ postgresql_username }}"
+    password: "{{ postgresql_password }}"
+
+- name: Create postgresql database
+  become_user: postgres
+  community.general.postgresql_db:
+    name: "{{ postgresql_database }}"
+    login_user: "{{ postgresql_username }}"
+    login_password: "{{ postgresql_password }}"
+    encoding: UTF-8
+    lc_collate: en_US.UTF-8
+    lc_ctype: en_US.UTF-8
+    template: template0
+

@@ -52,6 +52,6 @@
 - hosts: sid.home:stretch.home
   become: True
   gather_facts: False
-  tags: deploy
+  tags: nginx
   roles:
     - nginx

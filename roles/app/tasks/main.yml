@@ -1,55 +1,16 @@
 ---
-# dependencies
-- name: Install ffmpeg
-  apt:
-    name: ffmpeg
-
-- name: Install ruby-dev
-  apt:
-    name: ruby-dev
-
-# postgresql
-- name: Install pg dependencies
+# application dependencies
+- name: Install application dependencies
   apt:
     name:
-      - libpq-dev
-      - python3-psycopg2
+      - ffmpeg
+      - ruby-dev
 
+# postgresql
 - name: Include pg vault vars
   include_vars:
     file: vault_pg.yml
   no_log: True
-
-- name: Create postgresql user
-  become_user: postgres
-  community.general.postgresql_user:
-    name: "{{ app_postgresql_username }}"
-    password: "{{ app_postgresql_password }}"
-
-- name: Create postgresql database
-  become_user: postgres
-  community.general.postgresql_db:
-    name: "{{ app_postgresql_db }}"
-    login_user: "{{ app_postgresql_username }}"
-    login_password: "{{ app_postgresql_password }}"
-    encoding: UTF-8
-    lc_collate: en_US.UTF-8
-    lc_ctype: en_US.UTF-8
-    template: template0
-
-# app folder
-- name: Remove application directory
-  file:
-    path: "{{ app_path }}"
-    state: absent
-
-- name: Create application directory
-  file:
-    path: "{{ app_path }}"
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0755
 
 # ssh
 - name: Include ssh vault vars
@@ -87,12 +48,41 @@
     owner: "{{ ansible_user }}"
     create: True
 
+# app folder
+- name: Remove application directory
+  file:
+    path: "{{ app_path }}"
+    state: absent
+
+- name: Create application directory
+  file:
+    path: "{{ app_path }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+
 # git
 - name: Clone application repository
   become_user: "{{ ansible_user }}"
   git:
     repo: "{{ app_repository }}"
     dest: "{{ app_path }}"
+
+# gcp
+- name: Include gcp vault vars
+  include_vars:
+    file: vault_gcp.yml
+  no_log: True
+
+- name: Create gcp identify file
+  become_user: "{{ ansible_user }}"
+  template:
+    src: gcp.conf.j2
+    dest: "{{ app_gcp_config_path }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0644
 
 # bundle
 - name: Install application bundle dependencies
@@ -104,14 +94,70 @@
       - liblzma-dev
       - libtag1-dev
 
-- name: Run application bundle
+- name: Install google cloud storage
+  become_user: "{{ ansible_user }}"
+  gem:
+    name: google-cloud-storage
+    state: latest
+
+- name: Download bundle archive
+  become_user: "{{ ansible_user }}"
+  command: bin/download_bundle
+  args:
+    chdir: "{{ app_path }}"
+
+- name: Check if bundle archive exists
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: "/home/{{ ansible_user }}/.bundle.tar.bz2"
+  register: archive_bundle_exists
+
+- name: Remove bundle directory
+  become_user: "{{ ansible_user }}"
+  file:
+    path: "{{ app_path }}/vendor/cache"
+    state: absent
+
+- name: Create bundle directory
+  file:
+    path: "{{ app_path }}/vendor/cache"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+
+- name: Unarchive bundle
+  become_user: "{{ ansible_user }}"
+  unarchive:
+    src: "/home/{{ ansible_user }}/.bundle.tar.bz2"
+    dest: "{{ app_path }}/vendor"
+    remote_src: yes
+  when: archive_bundle_exists.stat.exists
+
+- name: Install bundle
   become_user: "{{ ansible_user }}"
   command: /usr/bin/bundle2.7 install --path=vendor/cache
   args:
     chdir: "{{ app_path }}"
 
+- name: Archive bundle
+  become_user: "{{ ansible_user }}"
+  archive:
+    path: "{{ app_path }}/vendor/cache"
+    dest: "/home/{{ ansible_user }}/.bundle.tar.bz2"
+    format: bz2
+  when: not archive_bundle_exists.stat.exists
+
+- name: Upload bundle
+  become_user: "{{ ansible_user }}"
+  command: bin/upload_bundle
+  args:
+    chdir: "{{ app_path }}"
+  when: not archive_bundle_exists.stat.exists
+
 # config
 - name: Generate application config file
+  become_user: "{{ ansible_user }}"
   template:
     src: app.conf.j2
     dest: "{{ app_config_path }}"
@@ -120,6 +166,7 @@
     mode: 0644
 
 - name: Generate application env file
+  become_user: "{{ ansible_user }}"
   template:
     src: app.env.j2
     dest: "{{ app_environment_path }}"
@@ -133,20 +180,6 @@
   command: sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake assets:precompile
   args:
     chdir: "{{ app_path }}"
-
-# gcp
-- name: Include gcp vault vars
-  include_vars:
-    file: vault_gcp.yml
-  no_log: True
-
-- name: Create gcp identify file
-  template:
-    src: gcp.conf.j2
-    dest: "{{ app_gcp_config_path }}"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0644
 
 # sunspot-solr
 - name: Copy sunspot-solr service file
