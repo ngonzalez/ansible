@@ -1,26 +1,21 @@
 ---
 # app
-app_hostname: link12.ddns.net
 app_path: /var/www/app
 app_repository: https://github.com/ngonzalez/music-rails.git
 
 # app config
+app_base_path: /Volumes/Untitled
 app_config_path: "{{ app_path }}/config.sh"
 app_environment_path: "{{ app_path }}/.env"
 app_gcp_config_path: "{{ app_path }}/gcp.json"
-
-# folders
-app_base_path: /Volumes/Untitled
+app_gcp_project_id: hebe-001
+app_gcp_storage_bucket: hebe-001.appspot.com
 app_hls_folder: /tmp/hls
-
-# postgresql
-app_database_username: music
-app_database: music
-
-# redis
+app_hostname: link12.ddns.net
+app_postgresql_db: "{{ app_postgresql_db }}"
+app_postgresql_password: "{{ app_postgresql_password }}"
+app_postgresql_username: "{{ app_postgresql_username }}"
 app_redis_db: 0
-
-# solr
 app_solr_path: /solr/default
 
 # puma

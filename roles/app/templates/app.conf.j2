@@ -7,9 +7,9 @@ export HOST_NAME="{{ app_hostname }}"
 # postgresql
 export POSTGRESQL_HOST="{{ postgresql_host }}"
 export POSTGRESQL_PORT="{{ postgresql_port }}"
-export POSTGRESQL_DB="{{ app_database }}"
-export POSTGRESQL_USERNAME="{{ app_database_username }}"
-export POSTGRESQL_PASSWORD=""
+export POSTGRESQL_USERNAME="{{ app_postgresql_username }}"
+export POSTGRESQL_PASSWORD="{{ app_postgresql_password }}"
+export POSTGRESQL_DB="{{ app_postgresql_db }}"
 
 # redis
 export REDIS_HOST="{{ redis_host }}"
@@ -20,3 +20,7 @@ export REDIS_DB="{{ app_redis_db }}"
 export SUNSPOT_SOLR_HOSTNAME="{{ sunspot_solr_host }}"
 export SUNSPOT_SOLR_PORT="{{ sunspot_solr_port }}"
 export SUNSPOT_SOLR_PATH="{{ app_solr_path }}"
+
+# gcp
+export APP_GCP_PROJECT_ID="{{ app_gcp_project_id }}"
+export APP_GCP_STORAGE_BUCKET="{{ app_gcp_storage_bucket }}"

@@ -1,15 +1,15 @@
 ---
-- name: Install postgresql-12
+- name: Install postgresql-13
   apt:
-    name: postgresql-12
+    name: postgresql-13
 
 - name: Configure postgresql
   community.general.postgresql_pg_hba:
-    dest: "{{ pg_hba_dest }}"
+    dest: "{{ postgresql_pg_hba_dest }}"
     contype: host
     users: all
     databases: all
-    source: "{{ pg_hba_source }}"
+    source: "{{ postgresql_pg_hba_source }}"
     method: trust
     create: true
 
