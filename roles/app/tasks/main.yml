@@ -92,7 +92,6 @@
 
 # bundle
 - name: Install application bundle dependencies
-  become_user: "{{ ansible_user }}"
   apt:
     name:
       - build-essential
