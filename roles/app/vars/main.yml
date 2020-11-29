@@ -15,6 +15,10 @@ app_gcp_config_path: "{{ app_path }}/gcp.json"
 app_gcp_project_id: hebe-001
 app_gcp_storage_bucket: hebe-001.appspot.com
 
+# bundle
+app_bundle_archive_path: /home/{{ ansible_user }}/.bundle.tar.bz2
+app_bundle_archive_remote_path: cache/bundle.tar.bz2
+
 # puma
 app_puma_service_name: puma
 app_puma_service_description: Puma

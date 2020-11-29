@@ -107,6 +107,19 @@
     name: google-cloud-storage
     state: latest
 
+- name: Generate application bundle helpers
+  become_user: "{{ ansible_user }}"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  with_items:
+    - { src: bundle_dl.rb.j2, dest: "{{ app_path }}/bin/download_bundle" }
+    - { src: bundle_ul.rb.j2, dest: "{{ app_path }}/bin/upload_bundle" }
+  no_log: True
+
 - name: Download bundle archive
   become_user: "{{ ansible_user }}"
   command: bin/download_bundle
@@ -116,7 +129,7 @@
 - name: Check if bundle archive exists
   become_user: "{{ ansible_user }}"
   stat:
-    path: "/home/{{ ansible_user }}/.bundle.tar.bz2"
+    path: "{{ app_bundle_archive_path }}"
   register: archive_bundle_exists
 
 - name: Remove bundle directory
@@ -138,7 +151,7 @@
 - name: Unarchive bundle
   become_user: "{{ ansible_user }}"
   unarchive:
-    src: "/home/{{ ansible_user }}/.bundle.tar.bz2"
+    src: "{{ app_bundle_archive_path }}"
     dest: "{{ app_path }}/vendor"
     remote_src: yes
   when: archive_bundle_exists.stat.exists
@@ -155,7 +168,7 @@
   become_user: "{{ ansible_user }}"
   archive:
     path: "{{ app_path }}/vendor/cache"
-    dest: "/home/{{ ansible_user }}/.bundle.tar.bz2"
+    dest: "{{ app_bundle_archive_path }}"
     format: bz2
   when: not archive_bundle_exists.stat.exists
   no_log: True
