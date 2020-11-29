@@ -32,6 +32,7 @@
     dest: /home/{{ ansible_user}}/.ssh/id_host.pub
     mode: 0644
     owner: "{{ ansible_user }}"
+  no_log: True
 
 - name: Add id_host to ssh config
   lineinfile:
@@ -39,6 +40,7 @@
     dest: /home/{{ ansible_user }}/.ssh/config
     mode: 0644
     owner: "{{ ansible_user }}"
+  no_log: True
 
 - name: Add github to known_hosts
   lineinfile:
@@ -47,12 +49,14 @@
     mode: 0644
     owner: "{{ ansible_user }}"
     create: True
+  no_log: True
 
 # app folder
 - name: Remove application directory
   file:
     path: "{{ app_path }}"
     state: absent
+  no_log: True
 
 - name: Create application directory
   file:
@@ -61,6 +65,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0755
+  no_log: True
 
 # git
 - name: Clone application repository
@@ -83,6 +88,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
+  no_log: True
 
 # bundle
 - name: Install application bundle dependencies
@@ -93,6 +99,7 @@
       - zlib1g-dev
       - liblzma-dev
       - libtag1-dev
+  no_log: True
 
 - name: Install google cloud storage
   become_user: "{{ ansible_user }}"
@@ -117,6 +124,7 @@
   file:
     path: "{{ app_path }}/vendor/cache"
     state: absent
+  no_log: True
 
 - name: Create bundle directory
   file:
@@ -125,6 +133,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0755
+  no_log: True
 
 - name: Unarchive bundle
   become_user: "{{ ansible_user }}"
@@ -133,12 +142,14 @@
     dest: "{{ app_path }}/vendor"
     remote_src: yes
   when: archive_bundle_exists.stat.exists
+  no_log: True
 
 - name: Install bundle
   become_user: "{{ ansible_user }}"
   command: /usr/bin/bundle2.7 install --path=vendor/cache
   args:
     chdir: "{{ app_path }}"
+  no_log: True
 
 - name: Archive bundle
   become_user: "{{ ansible_user }}"
@@ -147,6 +158,7 @@
     dest: "/home/{{ ansible_user }}/.bundle.tar.bz2"
     format: bz2
   when: not archive_bundle_exists.stat.exists
+  no_log: True
 
 - name: Upload bundle
   become_user: "{{ ansible_user }}"
@@ -164,6 +176,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
+  no_log: True
 
 - name: Generate application env file
   become_user: "{{ ansible_user }}"
@@ -173,6 +186,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
+  no_log: True
 
 # assets
 - name: Precompile assets
