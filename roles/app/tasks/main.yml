@@ -1,23 +1,20 @@
 ---
+# dependencies
 - name: Install ffmpeg
   apt:
-    name:
-      - ffmpeg
+    name: ffmpeg
 
 - name: Install ruby-dev
   apt:
     name: ruby-dev
 
-- name: Install libpq-dev
-  apt:
-    name: libpq-dev
-
-- name: Install python3-psycopg2
+# postgresql
+- name: Install pg dependencies
   apt:
     name:
+      - libpq-dev
       - python3-psycopg2
 
-# postgresql
 - name: Include pg vault vars
   include_vars:
     file: vault_pg.yml
@@ -32,7 +29,7 @@
 - name: Create postgresql database
   become_user: postgres
   community.general.postgresql_db:
-    name: "{{ app_database }}"
+    name: "{{ app_postgresql_db }}"
     login_user: "{{ app_postgresql_username }}"
     login_password: "{{ app_postgresql_password }}"
     encoding: UTF-8
