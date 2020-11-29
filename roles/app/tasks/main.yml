@@ -196,21 +196,11 @@
     chdir: "{{ app_path }}"
 
 # sunspot-solr
-- name: Copy sunspot-solr service file
-  template:
-    src: sunspot-solr.service.j2
-    dest: "{{ app_sunspot_solr_service_file }}"
-
-- name: Copy sunspot-solr target file
-  template:
-    src: sunspot-solr.target.j2
-    dest: "{{ app_sunspot_solr_target_file }}"
-
 - name: Start sunspot-solr
-  systemd:
-    daemon_reload: True
-    state: started
-    name: sunspot-solr
+  become_user: "{{ ansible_user }}"
+  command: sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake sunspot:solr:start
+  args:
+    chdir: "{{ app_path }}"
 
 # puma
 - name: Copy puma service file
