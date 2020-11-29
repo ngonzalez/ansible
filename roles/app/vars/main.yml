@@ -42,4 +42,4 @@ app_sunspot_solr_service_name: sunspot-solr
 app_sunspot_solr_service_description: Sunspot Solr
 app_sunspot_solr_service_file: /etc/systemd/system/sunspot-solr.service
 app_sunspot_solr_target_file: /etc/systemd/system/sunspot-solr.target
-app_sunspot_solr_pid_path: /tmp/pids/sidekiq.pid
+app_sunspot_solr_pid_path: /tmp/pids/sunspot-solr.pid
