@@ -5,6 +5,7 @@
     name:
       - ffmpeg
       - ruby-dev
+  no_log: True
 
 # postgresql
 - name: Include pg vault vars
@@ -286,7 +287,7 @@
                  -f {{ app_pg_dump_archive_path }}  \
                  {{ postgresql_database }}"
   when: database_backup.stat.exists
-  # no_log: True
+  no_log: True
 
 # sunspot-solr
 - name: Start sunspot-solr

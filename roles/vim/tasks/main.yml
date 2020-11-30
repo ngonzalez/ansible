@@ -1,12 +1,15 @@
 - name: Install vim
   apt:
     name: vim
+  no_log: True
 
 - name: Configure vim
   template:
     src: vimrc
     dest: /etc/vim/vimrc.local
     mode: 0644
+  no_log: True
 
 - name: Set vim as default editor for Git
   command: "echo 'GIT_EDITOR=vim' > /etc/profile.d/git.sh"
+  no_log: True

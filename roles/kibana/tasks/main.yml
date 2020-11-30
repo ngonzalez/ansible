@@ -3,15 +3,18 @@
   apt:
     name:
       - kibana
+  no_log: True
 
 - name: Configure kibana
   template:
     src: kibana.yml.j2
     dest: "{{ kibana_config_path }}"
     mode: 0644
+  no_log: True
 
 - name: Start kibana
   systemd:
     daemon_reload: True
     state: started
     name: kibana
+  no_log: True

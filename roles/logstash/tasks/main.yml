@@ -3,6 +3,7 @@
   apt:
     name:
       - logstash
+  no_log: True
 
 - name: Configure logstash
   template:
@@ -12,9 +13,11 @@
   loop:
     - { src: logstash.conf.j2,  dest: "{{ logstash_config_path }}" }
     - { src: logstash_patterns, dest: "{{ logstash_patterns_path }}" }
+  no_log: True
 
 - name: Start logstash
   systemd:
     daemon_reload: True
     state: started
     name: logstash
+  no_log: True
