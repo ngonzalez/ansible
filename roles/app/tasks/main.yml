@@ -204,11 +204,60 @@
   no_log: True
 
 # assets
+- name: Create assets directory
+  file:
+    path: "{{ app_path }}/public/assets"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0644
+  no_log: True
+
 - name: Precompile assets
   become_user: "{{ ansible_user }}"
   command: sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake assets:precompile
   args:
     chdir: "{{ app_path }}"
+
+# permissions
+- name: Change application directory ownership
+  command: chown -R {{ ansible_user }} {{ app_path }}
+
+# database backup
+- name: Generate database backup helpers
+  become_user: "{{ ansible_user }}"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  with_items:
+    - { src: pg_dump.rb.j2, dest: "{{ app_path }}/bin/download_pg_dump" }
+  no_log: True
+
+- name: Download database backup
+  become_user: "{{ ansible_user }}"
+  command: bin/download_pg_dump
+  args:
+    chdir: "{{ app_path }}"
+
+- name: Check if database backup exists
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: "{{ app_pg_dump_archive_path }}"
+  register: database_backup
+  no_log: True
+
+- name: Load database backup
+  become_user: "{{ ansible_user }}"
+  command: "psql -U {{ postgresql_username }}       \
+                 -h {{ postgresql_host }}           \
+                 -p {{ postgresql_port }}           \
+                 -f {{ app_pg_dump_archive_path }}  \
+                 {{ postgresql_database }}"
+  when: database_backup.stat.exists
+  no_log: True
 
 # puma
 - name: Copy puma service file
@@ -248,45 +297,6 @@
     daemon_reload: True
     state: started
     name: sidekiq
-  no_log: True
-
-# permissions
-- name: Change application directory ownership
-  command: chown -R {{ ansible_user }} {{ app_path }}
-
-# database backup
-- name: Generate database backup helpers
-  become_user: "{{ ansible_user }}"
-  template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0755
-  with_items:
-    - { src: pg_dump.rb.j2, dest: "{{ app_path }}/bin/download_pg_dump" }
-  no_log: True
-
-- name: Download database backup
-  become_user: "{{ ansible_user }}"
-  command: bin/download_pg_dump
-  args:
-    chdir: "{{ app_path }}"
-
-- name: Check if database backup exists
-  become_user: "{{ ansible_user }}"
-  stat:
-    path: "{{ app_pg_dump_archive_path }}"
-  register: database_backup
-  no_log: True
-
-- name: Load database backup
-  command: "psql -U {{ postgresql_username }}       \
-                 -h {{ postgresql_host }}           \
-                 -p {{ postgresql_port }}           \
-                 -f {{ app_pg_dump_archive_path }}  \
-                 {{ postgresql_database }}"
-  when: database_backup.stat.exists
   no_log: True
 
 # sunspot-solr
