@@ -292,10 +292,12 @@
 # sunspot-solr
 - name: Start sunspot-solr
   become_user: "{{ ansible_user }}"
-  command: sh {{ app_config_path }} && /usr/bin/bundle2.7 exec sunspot-solr start -p {{ sunspot_solr_port }}
+  command: sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake sunspot:solr:start
   args:
     chdir: "{{ app_path }}"
 
-- name: Reindex solr database
-  command: chown -R {{ ansible_user }} {{ app_path }}
+- name: Reindex sunspot-solr database
+  become_user: "{{ ansible_user }}"
   command: sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake sunspot:solr:reindex
+  args:
+    chdir: "{{ app_path }}"
