@@ -2,7 +2,9 @@
 - name: Install python3
   raw: test -e /usr/bin/python3 || apt install -yq python3
   changed_when: False
+  no_log: True
 
 - name: Install python3-apt
   apt:
     name: python3-apt
+  no_log: True

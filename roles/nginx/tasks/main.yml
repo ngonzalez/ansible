@@ -2,6 +2,7 @@
 - name: Install nginx
   apt:
     name: nginx
+  no_log: True
 
 - name: Configure nginx for elasticsearch / kibana
   when: inventory_hostname == "stretch.home"
@@ -9,6 +10,7 @@
     src: nginx.stretch.home.conf.j2
     dest: "{{ nginx_config_path }}"
     mode: 0644
+  no_log: True
 
 - name: Configure nginx for application
   when: inventory_hostname == "sid.home"
@@ -16,9 +18,11 @@
     src: nginx.sid.home.conf.j2
     dest: "{{ nginx_config_path }}"
     mode: 0644
+  no_log: True
 
 - name: Start nginx
   systemd:
     daemon_reload: True
     state: started
     name: nginx
+  no_log: True

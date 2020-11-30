@@ -1,6 +1,7 @@
 - name: Install zsh
   apt:
     name: zsh
+  no_log: True
 
 - name: Configure zshrc for user
   template:
@@ -9,6 +10,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
+  no_log: True
 
 - name: Configure zshrc for root
   template:
@@ -17,3 +19,4 @@
     owner: root
     group: root
     mode: 0644
+  no_log: True

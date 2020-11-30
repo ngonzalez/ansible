@@ -4,3 +4,4 @@
     src: /usr/share/zoneinfo/Europe/Paris
     dest: /etc/localtime
     state: link
+  no_log: True

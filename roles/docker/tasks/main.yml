@@ -6,6 +6,7 @@
       - subnet: "{{ docker_network_subnet }}"
         gateway: "{{ docker_network_gateway }}"
         iprange: "{{ docker_network_iprange }}"
+  no_log: True
 
 - name: Create a container from debian-stretch image
   community.general.docker_container:
@@ -30,11 +31,13 @@
       - home
     dns_servers:
       - "{{ host_dns_server}}"
+  no_log: True
 
 - name: Waiting for container debian-stretch
   wait_for:
     host: "{{ hostvars['stretch.home'].ipv4_address }}"
     path: /etc/hosts
+  no_log: True
 
 - name: Create a container from debian-sid image
   community.general.docker_container:
@@ -57,8 +60,10 @@
       - home
     dns_servers:
       - "{{ host_dns_server}}"
+  no_log: True
 
 - name: Waiting for container debian-sid
   wait_for:
     host: "{{ hostvars['sid.home'].ipv4_address }}"
     path: /etc/hosts
+  no_log: True

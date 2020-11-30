@@ -2,12 +2,14 @@
 - name: Install git-core
   apt:
     name: git-core
+  no_log: True
 
 - name: Configure git
   command: "{{ item.command }}"
   loop:
     - { command: "git config --global core.editor vim" }
     - { command: "git config --global core.pager less" }
+  no_log: True
 
 - name: Add .gitconfig
   template:
@@ -16,3 +18,4 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
+  no_log: True

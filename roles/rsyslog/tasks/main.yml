@@ -3,15 +3,18 @@
   apt:
     name:
       - rsyslog
+  no_log: True
 
 - name: Configure rsyslog
   lineinfile:
     line: "*.* @@{{ logstash_host }}:{{ logstash_tcp_port }}"
     dest: "{{ rsyslog_config_path }}"
     create: True
+  no_log: True
 
 - name: Start rsyslog
   systemd:
     daemon_reload: True
     state: started
     name: rsyslog
+  no_log: True

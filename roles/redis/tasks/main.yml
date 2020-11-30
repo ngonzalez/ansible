@@ -2,15 +2,18 @@
 - name: Install redis-server
   apt:
     name: redis-server
+  no_log: True
 
 - name: Configure redis
   template:
     src: redis.conf.j2
     dest: "{{ redis_config_file }}"
     mode: 0644
+  no_log: True
 
 - name: Start redis
   systemd:
     daemon_reload: True
     state: started
     name: redis
+  no_log: True

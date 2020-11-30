@@ -3,3 +3,4 @@
   file:
     path: /etc/motd
     state: absent
+  no_log: True

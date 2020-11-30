@@ -5,11 +5,12 @@
       - postgresql-13
       - libpq-dev
       - python3-psycopg2
+  no_log: True
 
 - name: Include pg vault vars
   include_vars:
     file: vault_pg.yml
-  # no_log: True
+  no_log: True
 
 - name: Add host to pg hba file
   become_user: postgres
@@ -21,18 +22,21 @@
     source: "{{ postgresql_pg_hba_source }}"
     method: trust
     create: true
+  no_log: True
 
 - name: Start postgresql
   systemd:
     daemon_reload: True
     state: started
     name: postgresql
+  no_log: True
 
 - name: Set postgresql user credentials
   become_user: postgres
   community.general.postgresql_user:
     name: "{{ postgresql_username }}"
     password: "{{ postgresql_password }}"
+  no_log: True
 
 - name: Create postgresql database
   become_user: postgres
@@ -44,4 +48,4 @@
     lc_collate: en_US.UTF-8
     lc_ctype: en_US.UTF-8
     template: template0
-
+  no_log: True
