@@ -9,7 +9,7 @@
 - name: Include pg vault vars
   include_vars:
     file: vault_pg.yml
-  no_log: True
+  # no_log: True
 
 - name: Add host to pg hba file
   become_user: postgres
