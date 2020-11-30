@@ -209,13 +209,6 @@
   args:
     chdir: "{{ app_path }}"
 
-# sunspot-solr
-- name: Start sunspot-solr
-  become_user: "{{ ansible_user }}"
-  command: sh {{ app_config_path }} && /usr/bin/bundle2.7 exec sunspot-solr start -p {{ sunspot_solr_port }}
-  args:
-    chdir: "{{ app_path }}"
-
 # puma
 - name: Copy puma service file
   template:
@@ -260,7 +253,7 @@
 - name: Change application directory ownership
   command: chown -R {{ ansible_user }} {{ app_path }}
 
-# load sql dump
+# database backup
 - name: Generate database backup helpers
   become_user: "{{ ansible_user }}"
   template:
@@ -287,15 +280,21 @@
   no_log: True
 
 - name: Load database backup
-  command: psql -U {{ postgresql_username }} \
-                -h {{ postgresql_host }}
-                -p {{ postgresql_port }}
-                -f {{ app_path }}/backup.sql
-                \{{ app_pg_dump_archive_path}}
+  command: "psql -U {{ postgresql_username }}       \
+                 -h {{ postgresql_host }}           \
+                 -p {{ postgresql_port }}           \
+                 -f {{ app_pg_dump_archive_path }}  \
+                 {{ postgresql_database }}"
   when: database_backup.stat.exists
-  no_log: True
+  # no_log: True
 
-# reindex
+# sunspot-solr
+- name: Start sunspot-solr
+  become_user: "{{ ansible_user }}"
+  command: sh {{ app_config_path }} && /usr/bin/bundle2.7 exec sunspot-solr start -p {{ sunspot_solr_port }}
+  args:
+    chdir: "{{ app_path }}"
+
 - name: Reindex solr database
   command: chown -R {{ ansible_user }} {{ app_path }}
   command: sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake sunspot:solr:reindex
