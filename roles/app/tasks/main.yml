@@ -108,6 +108,17 @@
     name: google-cloud-storage
     state: latest
 
+- name: Get stats from Gemfile.lock
+  stat:
+    path: "{{ app_path }}/Gemfile.lock"
+  register: app_gemfile
+  no_log: True
+
+- set_fact:
+    app_bundle_archive_path: "{{ app_bundle_src_path }}-{{ app_gemfile.stat.checksum }}.tar.bz2"
+    app_bundle_archive_remote_path: "{{ app_bundle_src_remote_path }}-{{ app_gemfile.stat.checksum }}.tar.bz2"
+  no_log: True
+
 - name: Generate application bundle helpers
   become_user: "{{ ansible_user }}"
   template:
@@ -180,7 +191,6 @@
   command: bin/upload_bundle
   args:
     chdir: "{{ app_path }}"
-  when: not archive_bundle.stat.exists
 
 # config
 - name: Generate application config file
@@ -210,12 +220,14 @@
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: 0644
+    mode: 0744
   no_log: True
 
 - name: Precompile assets
   become_user: "{{ ansible_user }}"
-  command: sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake assets:precompile
+  shell: 
+    chdir: "{{ app_path }}"
+    cmd:  sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake assets:precompile RAILS_ENV=production
   args:
     chdir: "{{ app_path }}"
 
@@ -302,12 +314,16 @@
 # sunspot-solr
 - name: Start sunspot-solr
   become_user: "{{ ansible_user }}"
-  command: sh {{ app_config_path }} && /usr/bin/bundle2.7 exec sunspot-solr start -p 8982
+  shell: 
+    chdir: "{{ app_path }}"
+    cmd:  sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake sunspot:solr:start RAILS_ENV=production
   args:
     chdir: "{{ app_path }}"
 
 - name: Reindex sunspot-solr database
   become_user: "{{ ansible_user }}"
-  command: sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake sunspot:solr:reindex
+  shell: 
+    chdir: "{{ app_path }}"
+    cmd:  sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake sunspot:solr:reindex RAILS_ENV=production
   args:
     chdir: "{{ app_path }}"

@@ -16,8 +16,8 @@ app_gcp_project_id: hebe-001
 app_gcp_storage_bucket: hebe-001.appspot.com
 
 # bundle
-app_bundle_archive_path: /home/{{ ansible_user }}/.bundle.tar.bz2
-app_bundle_archive_remote_path: cache/bundle.tar.bz2
+app_bundle_src_path: /home/{{ ansible_user }}/bundle
+app_bundle_src_remote_path: cache/bundle
 
 # pg dump
 app_pg_dump_archive_path: /home/{{ ansible_user }}/backup.sql
