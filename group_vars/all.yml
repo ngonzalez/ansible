@@ -51,3 +51,6 @@ nginx_port: 80
 
 # puma
 puma_sock: /tmp/puma.sock
+
+# jetty
+jetty_host: 127.0.0.1
