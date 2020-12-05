@@ -5,6 +5,5 @@ jetty_share_path: /usr/share/solr
 jetty_user: jetty
 
 # jetty core configuration
-jetty_app_core_name: app
 jetty_app_data_path: /var/lib/solr/{{ jetty_app_core_name }}/data
 jetty_app_share_path: /usr/share/solr/{{ jetty_app_core_name }}

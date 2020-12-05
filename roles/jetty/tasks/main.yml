@@ -4,6 +4,24 @@
     name: solr-jetty
   no_log: True
 
+- name: Create jetty core configuration file
+  template:
+    src: "solr.xml.j2"
+    dest: "{{ jetty_share_path }}/solr.xml"
+    owner: "{{ jetty_user }}"
+    group: "{{ jetty_user }}"
+    mode: 0644
+  no_log: True
+
+- name: Create jetty configuration file
+  template:
+    src: "jetty.conf.j2"
+    dest: "{{ jetty_config_path }}"
+    owner: "{{ jetty_user }}"
+    group: "{{ jetty_user }}"
+    mode: 0644
+  no_log: True
+
 - name: Create jetty data directory
   file:
     path: "{{ jetty_app_data_path }}"
@@ -22,28 +40,10 @@
     mode: 0644
   no_log: True
 
-- name: Create jetty configuration file
-  template:
-    src: "jetty.conf.j2"
-    dest: "{{ jetty_config_path }}"
-    owner: "{{ jetty_user }}"
-    group: "{{ jetty_user }}"
-    mode: 0644
-  no_log: True
-
-- name: Create jetty core configuration file
-  template:
-    src: "solr.xml.j2"
-    dest: "{{ jetty_app_share_path }}"
-    owner: "{{ jetty_user }}"
-    group: "{{ jetty_user }}"
-    mode: 0644
-  no_log: True
-
 - name: Create jetty app configuration file
   template:
     src: "app.xml.j2"
-    dest: "{{ jetty_app_data_path }}"
+    dest: "{{ jetty_app_share_path }}/config"
     owner: "{{ jetty_user }}"
     group: "{{ jetty_user }}"
     mode: 0644
