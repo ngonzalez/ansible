@@ -38,7 +38,7 @@
   adminPath: RequestHandler path to manage cores.
     If 'null' (or absent), cores will not be manageable via request handler
   -->
-  <cores adminPath="/admin/cores" defaultCoreName="{{ jetty_app_core_name }}">
-    <core name="{{ jetty_app_core_name }}" instanceDir="{{ jetty_app_core_name }}" dataDir="{{ jetty_app_data_path }}" />
+  <cores adminPath="/admin/cores" defaultCoreName="{{ jetty_app }}">
+    <core name="{{ jetty_app }}" instanceDir="{{ jetty_app }}" dataDir="{{ jetty_app_data_path }}" />
   </cores>
 </solr>

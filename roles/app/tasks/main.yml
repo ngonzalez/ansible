@@ -310,20 +310,3 @@
     state: started
     name: sidekiq
   no_log: True
-
-# sunspot-solr
-- name: Start sunspot-solr
-  become_user: "{{ ansible_user }}"
-  shell: 
-    chdir: "{{ app_path }}"
-    cmd:  sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake sunspot:solr:start RAILS_ENV=production
-  args:
-    chdir: "{{ app_path }}"
-
-- name: Reindex sunspot-solr database
-  become_user: "{{ ansible_user }}"
-  shell: 
-    chdir: "{{ app_path }}"
-    cmd:  sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake sunspot:solr:reindex RAILS_ENV=production
-  args:
-    chdir: "{{ app_path }}"
