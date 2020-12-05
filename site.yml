@@ -36,9 +36,9 @@
   gather_facts: False
   tags: databases
   roles:
-    - redis
-    - postgresql
     - jetty
+    - postgresql
+    - redis
 
   # application
 - hosts: sid.home
