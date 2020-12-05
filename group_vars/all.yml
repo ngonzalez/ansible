@@ -41,16 +41,13 @@ redis_host: 127.0.0.1
 redis_port: 6379
 redis_db: 0
 
-# sunspot_solr
-sunspot_solr_host: 127.0.0.1
-sunspot_solr_port: 8982
-sunspot_solr_path: /solr/default
+# jetty
+jetty_host: 127.0.0.1
+jetty_port: 8080
+jetty_app_core_name: app
 
 # nginx
 nginx_port: 80
 
 # puma
 puma_sock: /tmp/puma.sock
-
-# jetty
-jetty_host: 127.0.0.1
