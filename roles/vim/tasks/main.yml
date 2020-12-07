@@ -10,6 +10,6 @@
     mode: 0644
   no_log: True
 
-- name: Set vim as default editor for Git
+- name: Update vim defaults
   command: "echo 'GIT_EDITOR=vim' > /etc/profile.d/git.sh"
   no_log: True
