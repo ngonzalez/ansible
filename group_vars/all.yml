@@ -44,7 +44,7 @@ redis_db: 0
 # jetty
 jetty_host: 127.0.0.1
 jetty_port: 8080
-jetty_app_core_name: app
+jetty_app: app
 
 # nginx
 nginx_port: 80
