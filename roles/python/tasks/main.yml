@@ -1,6 +1,6 @@
 ---
-- name: Install python3.8
-  raw: test -e /usr/bin/python3.8 || apt install -yq python3.8
+- name: Install python3
+  raw: test -e /usr/bin/python3 || apt install -yq python3
   changed_when: False
   no_log: True
 
