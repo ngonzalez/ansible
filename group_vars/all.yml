@@ -1,5 +1,6 @@
 ---
-ansible_python_interpreter: /usr/bin/python3.8
+# python
+ansible_python_interpreter: /usr/bin/python3
 
 # host
 host_dns_server: 192.168.1.1

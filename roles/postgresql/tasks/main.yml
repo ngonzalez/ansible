@@ -4,7 +4,6 @@
     name:
       - postgresql-13
       - libpq-dev
-      - python3-psycopg2
   no_log: True
 
 - name: Include pg vault vars
