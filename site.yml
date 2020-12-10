@@ -36,9 +36,9 @@
   gather_facts: False
   tags: databases
   roles:
-    - jetty
     - postgresql
     - redis
+    - solr
 
   # application
 - hosts: sid.home
