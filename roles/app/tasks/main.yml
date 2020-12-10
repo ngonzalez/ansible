@@ -115,8 +115,8 @@
   no_log: True
 
 - set_fact:
-    app_bundle_archive_path: "{{ app_bundle_src_path }}-{{ app_gemfile.stat.checksum }}.tar.bz2"
-    app_bundle_archive_remote_path: "{{ app_bundle_src_remote_path }}-{{ app_gemfile.stat.checksum }}.tar.bz2"
+    app_bundle_archive_path: "{{ app_bundle_src_path }}-{{ app_gemfile.stat.checksum [:10] }}"
+    app_bundle_archive_remote_path: "{{ app_bundle_src_remote_path }}-{{ app_gemfile.stat.checksum [:10] }}"
   no_log: True
 
 - name: Generate application bundle helpers
@@ -182,7 +182,7 @@
   archive:
     path: "{{ app_path }}/vendor/cache"
     dest: "{{ app_bundle_archive_path }}"
-    format: bz2
+    format: xz
   when: not archive_bundle.stat.exists
   no_log: True
 
@@ -213,6 +213,26 @@
     mode: 0644
   no_log: True
 
+# yarn
+- name: Add yarnpkg apt key
+  apt_key:
+    url: "{{ yarn_apt_key_url }}"
+    state: present
+  no_log: True
+
+- name: Add yarnpkg apt repository
+  apt_repository:
+    repo: "deb {{ yarn_repository_url }} stable main"
+    state: present
+    update_cache: true
+  no_log: True
+
+- name: Install yarn
+  apt:
+    name:
+      - yarn
+  no_log: True
+
 # assets
 - name: Create assets directory
   file:
@@ -227,7 +247,7 @@
   become_user: "{{ ansible_user }}"
   shell: 
     chdir: "{{ app_path }}"
-    cmd:  sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake assets:precompile RAILS_ENV=production
+    cmd:  /usr/bin/bundle2.7 exec rake assets:precompile RAILS_ENV=production
   args:
     chdir: "{{ app_path }}"
   no_log: True

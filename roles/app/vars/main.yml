@@ -36,3 +36,7 @@ app_sidekiq_service_description: Sidekiq
 app_sidekiq_service_file: /etc/systemd/system/sidekiq.service
 app_sidekiq_target_file: /etc/systemd/system/sidekiq.target
 app_sidekiq_pid_path: /tmp/pids/sidekiq.pid
+
+# yarn
+yarn_apt_key_url: https://dl.yarnpkg.com/debian/pubkey.gpg
+yarn_repository_url: https://dl.yarnpkg.com/debian/
