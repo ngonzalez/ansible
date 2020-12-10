@@ -37,6 +37,20 @@
   when: not solr_local_src_path.stat.exists
   no_log: True
 
+- name: Create solr group
+  tags: solr
+  group:
+    name: "{{ solr_user }}"
+    state: present
+  no_log: True
+
+- name: Create solr user
+  tags: solr
+  user:
+    name: "{{ solr_user }}"
+    group: "{{ solr_user }}"
+  no_log: True
+
 - name: Set permissions on solr installation directory
   tags: solr
   file:
@@ -64,7 +78,7 @@
 - name: Check solr core status
   tags: solr
   uri:
-    url: http://{{ solr_host }}:{{ solr_port }}/solr/admin/cores?action=STATUS&core={{ solr_core_name }}
+    url: http://{{ solr_host }}:{{ solr_port }}/solr/admin/cores?action=STATUS&core={{ solr_core }}
     method: GET
     return_content: yes
     status_code: 200
@@ -75,8 +89,8 @@
 - name: Create solr core
   tags: solr
   become_user: "{{ solr_user }}"
-  command: "./{{ solr_folder_name }}/bin/solr create -c {{ solr_core_name }} -p {{ solr_port }}"
+  command: "./{{ solr_folder_name }}/bin/solr create -c {{ solr_core }} -p {{ solr_port }}"
   args:
     chdir: "{{ solr_local_path }}"
-  when: "'index' not in solr_core_http_response.json.status.{{ solr_core_name }}"
+  when: "'index' not in solr_core_http_response.json.status.{{ solr_core }}"
   no_log: True
