@@ -1,9 +1,0 @@
----
-jetty_config_path: /etc/default/jetty
-jetty_jdk_path: /usr/lib/jvm/java-8-openjdk-amd64
-jetty_share_path: /usr/share/solr
-jetty_user: jetty
-
-# jetty core configuration
-jetty_app_data_path: /var/lib/solr/{{ jetty_app }}/data
-jetty_app_share_path: /usr/share/solr/{{ jetty_app }}

@@ -1,0 +1,8 @@
+---
+solr_core_name: app
+solr_download_url: https://mirrors.ircam.fr/pub/apache/lucene/solr/8.7.0/solr-8.7.0.tgz
+solr_folder_name: solr-8.7.0
+solr_install_sh: "{{ solr_folder_name }}/bin/install_solr_service.sh"
+solr_local_path: /usr/local/src
+solr_opt_bin_path: /opt/solr/bin/solr
+solr_user: solr

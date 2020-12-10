@@ -17,9 +17,9 @@ export REDIS_PORT="{{ redis_port }}"
 export REDIS_DB="{{ redis_db }}"
 
 # solr
-export SUNSPOT_SOLR_HOSTNAME="{{ jetty_host }}"
-export SUNSPOT_SOLR_PORT="{{ jetty_port }}"
-export SUNSPOT_SOLR_PATH="/solr/{{ jetty_app }}"
+export SUNSPOT_SOLR_HOSTNAME="{{ solr_host }}"
+export SUNSPOT_SOLR_PORT="{{ solr_port }}"
+export SUNSPOT_SOLR_PATH="/solr/{{ solr_core_name }}"
 
 # gcp
 export APP_GCP_PROJECT_ID="{{ app_gcp_project_id }}"
