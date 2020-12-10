@@ -44,6 +44,7 @@ redis_db: 0
 # solr
 solr_host: 127.0.0.1
 solr_port: 8983
+solr_core: app
 
 # nginx
 nginx_port: 80
