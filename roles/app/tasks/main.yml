@@ -230,10 +230,16 @@
     cmd:  sh {{ app_config_path }} && /usr/bin/bundle2.7 exec rake assets:precompile RAILS_ENV=production
   args:
     chdir: "{{ app_path }}"
+  no_log: True
 
 # permissions
 - name: Change application directory ownership
-  command: chown -R {{ ansible_user }} {{ app_path }}
+  file:
+    dest: "{{ app_path }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
+  no_log: True
 
 # database backup
 - name: Generate database backup helpers

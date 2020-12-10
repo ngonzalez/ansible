@@ -44,7 +44,7 @@
     owner: "{{ solr_user }}"
     group: "{{ solr_user }}"
     recurse: yes
-  # no_log: True
+  no_log: True
 
 - name: Get stats from solr bin path
   tags: solr
