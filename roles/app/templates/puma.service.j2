@@ -12,6 +12,7 @@ PIDFile={{ app_path }}{{ app_puma_pid_path }}
 Restart=always
 User={{ ansible_user }}
 Group={{ ansible_user }}
+SyslogIdentifier=puma
 LimitNOFILE=65535
 TimeoutStopSec=0
 
