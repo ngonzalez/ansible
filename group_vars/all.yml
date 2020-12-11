@@ -4,7 +4,7 @@ ansible_python_interpreter: /usr/bin/python3
 # app server
 app_server_host: 0.0.0.0
 app_server_port: 80
-app_server_path: /tmp/hls
+app_server_path: /hls
 
 # backup server
 backup_server_host: 192.168.1.10
@@ -17,9 +17,9 @@ dns_server_search_domain: home
 
 # docker network
 docker_network_name: br0
-docker_network_subnet: 172.28.0.0/16
 docker_network_gateway: 172.28.5.254
 docker_network_iprange: 172.28.5.0/24
+docker_network_subnet: 172.28.0.0/16
 
 # docker debian-stretch
 docker_stretch_home_hostname: stretch.home
@@ -36,8 +36,8 @@ elasticsearch_host: 127.0.0.1
 elasticsearch_port: 9200
 
 # logstash
-logstash_gelf_port: 12201
 logstash_beats_port: 5044
+logstash_gelf_port: 12201
 logstash_tcp_port: 4000
 
 # kibana
@@ -54,9 +54,9 @@ redis_port: 6379
 redis_db: 0
 
 # solr
+solr_core: app
 solr_host: 127.0.0.1
 solr_port: 8983
-solr_core: app
 
 # nginx
 nginx_port: 80
