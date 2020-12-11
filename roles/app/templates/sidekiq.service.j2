@@ -12,6 +12,7 @@ PIDFile={{ app_path }}{{ app_sidekiq_pid_path }}
 Restart=always
 User={{ ansible_user }}
 Group={{ ansible_user }}
+SyslogIdentifier=sidekiq
 LimitNOFILE=65535
 TimeoutStopSec=0
 
