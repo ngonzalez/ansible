@@ -1,17 +1,26 @@
 ---
 - name: Install postgresql-13
+  tags: postgresql
   apt:
     name:
       - postgresql-13
+  no_log: True
+
+- name: Install postgresql dependencies
+  tags: postgresql
+  apt:
+    name:
       - libpq-dev
   no_log: True
 
 - name: Include pg vault vars
+  tags: postgresql
   include_vars:
     file: vault_pg.yml
   no_log: True
 
 - name: Add host to pg hba file
+  tags: postgresql
   become_user: postgres
   community.general.postgresql_pg_hba:
     dest: "{{ postgresql_pg_hba_dest }}"
@@ -24,6 +33,7 @@
   no_log: True
 
 - name: Start postgresql
+  tags: postgresql
   systemd:
     daemon_reload: True
     state: started
@@ -31,6 +41,7 @@
   no_log: True
 
 - name: Set postgresql user credentials
+  tags: postgresql
   become_user: postgres
   community.general.postgresql_user:
     name: "{{ postgresql_username }}"
@@ -38,6 +49,7 @@
   no_log: True
 
 - name: Create postgresql database
+  tags: postgresql
   become_user: postgres
   community.general.postgresql_db:
     name: "{{ postgresql_database }}"
