@@ -5,6 +5,7 @@
     name:
       - ffmpeg
       - imagemagick
+      - lame
       - ruby-dev
   no_log: True
 
@@ -210,6 +211,7 @@
     owner: "{{ nginx_user }}"
     group: "{{ nginx_user }}"
     recurse: yes
+  no_log: True
 
 # yarn
 - name: Add yarnpkg apt key

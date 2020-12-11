@@ -1,8 +1,18 @@
 ---
 ansible_python_interpreter: /usr/bin/python3
 
-# host
-host_dns_server: 192.168.1.1
+# dns
+dns_server_host: 192.168.1.1
+
+# app server
+app_server_host: 0.0.0.0
+app_server_port: 80
+app_server_path: /tmp/hls
+
+# backup server
+backup_server_host: 192.168.1.10
+backup_server_port: 8080
+backup_server_path: /Volumes/Untitled
 
 # docker network
 docker_network_subnet: 172.28.0.0/16
