@@ -1,17 +1,17 @@
 ---
-- name: Create network br0
+- name: Create docker network
   community.general.docker_network:
-    name: br0
+    name: "{{ docker_network_name }}"
     ipam_config:
       - subnet: "{{ docker_network_subnet }}"
         gateway: "{{ docker_network_gateway }}"
         iprange: "{{ docker_network_iprange }}"
   no_log: True
 
-- name: Create a container from debian-stretch image
+- name: Create docker container debian-stretch
   community.general.docker_container:
     name: debian-stretch
-    hostname: stretch.home
+    hostname: "{{ docker_stretch_home_hostname }}"
     image: ngonzalez121/debian-stretch-with-python:latest
     state: started
     volumes:
@@ -20,29 +20,29 @@
       - net_admin
       - sys_admin
     networks:
-      - name: br0
-        ipv4_address: "{{ hostvars['stretch.home'].ipv4_address }}"
+      - name: "{{ docker_network_name }}"
+        ipv4_address: "{{ hostvars[docker_stretch_home_hostname].ipv4_address }}"
     ports:
-      - "{{ docker_stretch_external_ssh_port }}:22"
-      - "{{ ansible_host }}:{{ docker_stretch_external_http_port }}:{{ nginx_port }}"
+      - "{{ docker_stretch_home_ssh_port }}:{{ ssh_port }}"
+      - "{{ ansible_host }}:{{ kibana_port }}:{{ nginx_port }}"
       - "{{ logstash_tcp_port }}:{{ logstash_tcp_port }}"
       - "{{ logstash_beats_port }}:{{ logstash_beats_port }}"
     dns_search_domains:
-      - home
+      - "{{ dns_server_search_domain }}"
     dns_servers:
       - "{{ dns_server_host }}"
   no_log: True
 
 - name: Waiting for container debian-stretch
   wait_for:
-    host: "{{ hostvars['stretch.home'].ipv4_address }}"
+    host: "{{ hostvars[docker_stretch_home_hostname].ipv4_address }}"
     path: /etc/hosts
   no_log: True
 
-- name: Create a container from debian-sid image
+- name: Create container debian-sid
   community.general.docker_container:
     name: debian-sid
-    hostname: sid.home
+    hostname: "{{ docker_sid_home_hostname }}"
     image: ngonzalez121/debian-sid-with-python:latest
     state: started
     volumes:
@@ -51,20 +51,20 @@
       - net_admin
       - sys_admin
     networks:
-      - name: br0
-        ipv4_address: "{{ hostvars['sid.home'].ipv4_address }}"
+      - name: "{{ docker_network_name }}"
+        ipv4_address: "{{ hostvars[docker_sid_home_hostname].ipv4_address }}"
     ports:
-      - "{{ docker_sid_external_ssh_port }}:22"
-      - "{{ ansible_host }}:{{ docker_sid_external_http_port }}:{{ nginx_port }}"
-      - "{{ ansible_host }}:{{ solr_port }}:{{ solr_port }}"
+      - "{{ docker_sid_home_ssh_port }}:{{ ssh_port }}"
+      - "{{ ansible_host }}:{{ app_server_port }}:{{ nginx_port }}"
+      - "{{ solr_port }}:{{ solr_port }}"
     dns_search_domains:
-      - home
+      - "{{ dns_server_search_domain }}"
     dns_servers:
       - "{{ dns_server_host }}"
   no_log: True
 
 - name: Waiting for container debian-sid
   wait_for:
-    host: "{{ hostvars['sid.home'].ipv4_address }}"
+    host: "{{ hostvars[docker_sid_home_hostname].ipv4_address }}"
     path: /etc/hosts
   no_log: True
