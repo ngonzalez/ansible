@@ -4,13 +4,8 @@
   apt:
     name:
       - ffmpeg
+      - imagemagick
       - ruby-dev
-  no_log: True
-
-# postgresql
-- name: Include pg vault vars
-  include_vars:
-    file: vault_pg.yml
   no_log: True
 
 # ssh
@@ -192,15 +187,10 @@
   args:
     chdir: "{{ app_path }}"
 
-# config
-- name: Generate application config file
-  become_user: "{{ ansible_user }}"
-  template:
-    src: app.conf.j2
-    dest: "{{ app_config_path }}"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0644
+# environment
+- name: Include pg vault vars
+  include_vars:
+    file: vault_pg.yml
   no_log: True
 
 - name: Generate application environment file
@@ -212,6 +202,26 @@
     group: "{{ ansible_user }}"
     mode: 0644
   no_log: True
+
+# # logs
+# - name: Touch log files
+#   file:
+#     path: "{{ item.path }}"
+#     owner: "{{ ansible_user }}"
+#     group: "{{ ansible_user }}"
+#     mode: 0644
+#     state: touch
+#   with_items:
+#     - { path: "{{ app_path }}/log/development.log" }
+#     - { path: "{{ app_path }}/log/production.log" }
+
+# public folder
+- name: Change public folder ownership and permissions
+  file:
+    path: "{{ app_path }}/public"
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    recurse: yes
 
 # yarn
 - name: Add yarnpkg apt key
@@ -240,25 +250,14 @@
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: 0744
+    mode: 0755
   no_log: True
 
 - name: Precompile assets
   become_user: "{{ ansible_user }}"
-  shell: 
+  shell:
     chdir: "{{ app_path }}"
     cmd:  /usr/bin/bundle2.7 exec rake assets:precompile RAILS_ENV=production
-  args:
-    chdir: "{{ app_path }}"
-  no_log: True
-
-# permissions
-- name: Change application directory ownership
-  file:
-    dest: "{{ app_path }}"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    recurse: yes
   no_log: True
 
 # database backup
@@ -295,6 +294,16 @@
                  -f {{ app_pg_dump_archive_path }}  \
                  {{ postgresql_database }}"
   when: database_backup.stat.exists
+  no_log: True
+
+# solr
+- name: Update solr database
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ app_path }}"
+    cmd:  /usr/bin/bundle2.7 exec rake data:index RAILS_ENV=production
+  args:
+    chdir: "{{ app_path }}"
   no_log: True
 
 # puma
