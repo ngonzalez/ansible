@@ -30,7 +30,7 @@
     dns_search_domains:
       - home
     dns_servers:
-      - "{{ host_dns_server}}"
+      - "{{ dns_server_host }}"
   no_log: True
 
 - name: Waiting for container debian-stretch
@@ -55,12 +55,12 @@
         ipv4_address: "{{ hostvars['sid.home'].ipv4_address }}"
     ports:
       - "{{ docker_sid_external_ssh_port }}:22"
-      - "{{ ansible_host }}:{{ docker_sid_external_http_port }}:80"
+      - "{{ ansible_host }}:{{ docker_sid_external_http_port }}:{{ nginx_port }}"
       - "{{ ansible_host }}:{{ solr_port }}:{{ solr_port }}"
     dns_search_domains:
       - home
     dns_servers:
-      - "{{ host_dns_server}}"
+      - "{{ dns_server_host }}"
   no_log: True
 
 - name: Waiting for container debian-sid
