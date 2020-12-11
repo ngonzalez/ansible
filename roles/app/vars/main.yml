@@ -2,7 +2,6 @@
 # app
 app_path: /var/www/app
 app_repository: https://github.com/ngonzalez/music-rails.git
-app_config_path: "{{ app_path }}/config.sh"
 app_environment_path: "{{ app_path }}/.env"
 
 # app config

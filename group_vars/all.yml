@@ -48,6 +48,7 @@ solr_core: app
 
 # nginx
 nginx_port: 80
+nginx_user: www-data
 
 # puma
 puma_sock: /tmp/puma.sock
