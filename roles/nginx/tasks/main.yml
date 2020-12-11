@@ -5,7 +5,7 @@
     name: nginx
   no_log: True
 
-- name: Configure nginx for elasticsearch / kibana
+- name: Configure nginx {{ docker_stretch_home_hostname }}
   tags: nginx
   when: inventory_hostname == "{{ docker_stretch_home_hostname }}"
   template:
@@ -14,7 +14,7 @@
     mode: 0644
   no_log: True
 
-- name: Configure nginx for application
+- name: Configure nginx {{ docker_sid_home_hostname }}
   tags: nginx
   when: inventory_hostname == "{{ docker_sid_home_hostname }}"
   template:
