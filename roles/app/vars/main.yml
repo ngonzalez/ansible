@@ -19,8 +19,7 @@ app_pg_dump_archive_remote_path: cache/backup.sql
 
 # puma
 app_puma_service_name: puma
-app_puma_service_description: |
-Puma is a simple, fast, threaded, and highly concurrent HTTP 1.1 server for Ruby/Rack applications.
+app_puma_service_description: Puma is a simple, fast, threaded, and highly concurrent HTTP 1.1 server for Ruby/Rack applications.
 app_puma_service_file: /etc/systemd/system/puma.service
 app_puma_target_file: /etc/systemd/system/puma.target
 app_puma_pid_path: /tmp/pids/server.pid
