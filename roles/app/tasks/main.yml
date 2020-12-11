@@ -203,18 +203,6 @@
     mode: 0644
   no_log: True
 
-# # logs
-# - name: Touch log files
-#   file:
-#     path: "{{ item.path }}"
-#     owner: "{{ ansible_user }}"
-#     group: "{{ ansible_user }}"
-#     mode: 0644
-#     state: touch
-#   with_items:
-#     - { path: "{{ app_path }}/log/development.log" }
-#     - { path: "{{ app_path }}/log/production.log" }
-
 # public folder
 - name: Change public folder ownership and permissions
   file:
@@ -250,7 +238,7 @@
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: 0744
+    mode: 0644
   no_log: True
 
 - name: Precompile assets
