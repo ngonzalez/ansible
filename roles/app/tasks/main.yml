@@ -204,15 +204,6 @@
     mode: 0644
   no_log: True
 
-# public folder
-- name: Change public folder ownership and permissions
-  file:
-    path: "{{ app_path }}/public"
-    owner: "{{ nginx_user }}"
-    group: "{{ nginx_user }}"
-    recurse: yes
-  no_log: True
-
 # yarn
 - name: Add yarnpkg apt key
   apt_key:
@@ -234,20 +225,20 @@
   no_log: True
 
 # assets
-- name: Create assets directory
-  file:
-    path: "{{ app_path }}/public/assets"
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0744
-  no_log: True
-
 - name: Precompile assets
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ app_path }}"
     cmd:  /usr/bin/bundle2.7 exec rake assets:precompile RAILS_ENV=production
+  no_log: True
+
+# public folder
+- name: Change public folder ownership and permissions
+  file:
+    path: "{{ app_path }}/public"
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    recurse: yes
   no_log: True
 
 # database backup
@@ -312,7 +303,7 @@
 - name: Start puma
   systemd:
     daemon_reload: True
-    state: started
+    state: restarted
     name: puma
   no_log: True
 
@@ -332,6 +323,6 @@
 - name: Start sidekiq
   systemd:
     daemon_reload: True
-    state: started
+    state: restarted
     name: sidekiq
   no_log: True
