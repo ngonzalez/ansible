@@ -48,6 +48,14 @@
   roles:
     - app
 
+  # update db
+- hosts: sid.home
+  become: True
+  gather_facts: True
+  tags: update_db
+  roles:
+    - update_db
+
   # nginx
 - hosts: sid.home:stretch.home
   become: True

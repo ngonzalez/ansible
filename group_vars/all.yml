@@ -67,3 +67,6 @@ puma_sock: /tmp/puma.sock
 
 # ssh
 ssh_port: 22
+
+# app
+app_path: /var/www/app

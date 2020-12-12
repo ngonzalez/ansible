@@ -1,0 +1,39 @@
+---
+# postgresql
+- name: Include pg vault vars
+  tags: postgresql
+  include_vars:
+    file: vault_pg.yml
+  no_log: True
+
+- name: Check if postgresql backup exists
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: "/home/{{ ansible_user }}/backup.sql"
+  register: database_backup
+  no_log: True
+
+- name: Restore postgresql backup
+  become_user: "{{ ansible_user }}"
+  command: "psql -U {{ postgresql_username }}           \
+                 -h {{ postgresql_host }}               \
+                 -p {{ postgresql_port }}               \
+                 -f /home/{{ ansible_user }}/backup.sql \
+                 {{ postgresql_database }}"
+  when: database_backup.stat.exists
+  no_log: True
+
+# solr
+- name: Update solr database
+  become_user: "{{ ansible_user }}"
+  command:  /usr/bin/bundle2.7 exec rake data:index RAILS_ENV=production
+  args:
+    chdir: "{{ app_path }}"
+  no_log: True
+
+# redis
+- name: Flush redis db
+  community.general.redis:
+    command: flush
+    db: "{{ redis_db }}"
+    flush_mode: all
