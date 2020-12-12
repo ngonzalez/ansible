@@ -277,16 +277,6 @@
   when: database_backup.stat.exists
   no_log: True
 
-# solr
-- name: Update solr database
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ app_path }}"
-    cmd:  /usr/bin/bundle2.7 exec rake data:index RAILS_ENV=production
-  args:
-    chdir: "{{ app_path }}"
-  no_log: True
-
 # puma
 - name: Copy puma service file
   template:

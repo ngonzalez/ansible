@@ -1,0 +1,8 @@
+---
+# solr
+- name: Update solr database
+  become_user: "{{ ansible_user }}"
+  command:  /usr/bin/bundle2.7 exec rake data:index RAILS_ENV=production
+  args:
+    chdir: "{{ solr_app_path }}"
+  no_log: True
