@@ -48,13 +48,13 @@
   roles:
     - app
 
-  # update solr database
+  # update db
 - hosts: sid.home
   become: True
   gather_facts: True
-  tags: app_update_solr
+  tags: update_db
   roles:
-    - app_update_solr
+    - update_db
 
   # nginx
 - hosts: sid.home:stretch.home

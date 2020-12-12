@@ -198,7 +198,7 @@
   become_user: "{{ ansible_user }}"
   template:
     src: app.env.j2
-    dest: "{{ app_environment_path }}"
+    dest: "{{ app_path }}/.env"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
@@ -259,23 +259,6 @@
   command: bin/download_pg_dump
   args:
     chdir: "{{ app_path }}"
-
-- name: Check if database backup exists
-  become_user: "{{ ansible_user }}"
-  stat:
-    path: "{{ app_pg_dump_archive_path }}"
-  register: database_backup
-  no_log: True
-
-- name: Load database backup
-  become_user: "{{ ansible_user }}"
-  command: "psql -U {{ postgresql_username }}       \
-                 -h {{ postgresql_host }}           \
-                 -p {{ postgresql_port }}           \
-                 -f {{ app_pg_dump_archive_path }}  \
-                 {{ postgresql_database }}"
-  when: database_backup.stat.exists
-  no_log: True
 
 # puma
 - name: Copy puma service file
