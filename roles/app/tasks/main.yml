@@ -260,6 +260,16 @@
   args:
     chdir: "{{ app_path }}"
 
+# hls
+- name: Create hls directory
+  file:
+    path: "/tmp{{ app_server_path }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  no_log: True
+
 # puma
 - name: Copy puma service file
   template:
