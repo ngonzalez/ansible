@@ -1,21 +1,17 @@
 ---
-AXwzye7VOM0B8K8y:
+DB66BA012A9:
   hosts:
-    stretch.home:
-      ansible_host: 0.0.0.0
-      ansible_port: "{{ docker_stretch_home_ssh_port }}"
+    app-deployment-7974c59cb9-f6zsw:
+      ansible_host: 10.24.0.5
+      ansible_port: 22
       ansible_user: debian
-      ipv4_address: "{{ docker_stretch_home_ipv4_address }}"
-
-OBaWSKRo0EhvWG3G:
+  vars:
+    ansible_ssh_common_args: -o ProxyCommand="ssh -W %h:%p -q ngonzalez@35.228.135.21"
+126CD1CD310:
   hosts:
-    sid.home:
-      ansible_host: 0.0.0.0
-      ansible_port: "{{ docker_sid_home_ssh_port }}"
+    app-deployment-7974c59cb9-qp2ls:
+      ansible_host: 10.24.2.5
+      ansible_port: 22
       ansible_user: debian
-      ipv4_address: "{{ docker_sid_home_ipv4_address }}"
-
-network:
-  children:
-    AXwzye7VOM0B8K8y
-    OBaWSKRo0EhvWG3G
+  vars:
+    ansible_ssh_common_args: -o ProxyCommand="ssh -W %h:%p -q ngonzalez@35.228.96.208"
