@@ -48,12 +48,6 @@ kube.nodes.map { |item| item[:external_ip][:address] }.each do |node_ip|
 	end
 end
 
-kube.pods.map { |item| item[:pod_ip] }.each do |pod_ip|
-	if `ssh-keygen -F #{pod_ip}`.empty?
-		`ssh-keyscan -H #{pod_ip} >> ~/.ssh/known_hosts`
-	end
-end
-
 File.open('inventory.yml', 'w') do |f|
 	f.write inventory_hash.to_yaml
 end
