@@ -5,11 +5,6 @@
 ansible-galaxy collection install community.general
 ```
 
-#### disable ssh host key checking
-```
-ANSIBLE_HOST_KEY_CHECKING=False
-```
-
 #### generate inventory
 ```
 ./inventory.rb --namespace <NS> --account <example@gmail.com> --user <ANSIBLE_USER> --port <ANSIBLE_PORT>
