@@ -28,21 +28,20 @@ class Kubernetes
 	end
 	def nodes
 		@nodes ||= JSON.parse `kubectl -n #{namespace} get no -o json | jq -r '[.items[] | {
-	name:.metadata.name,
-	external_ip:.status.addresses[] | select(.type=="ExternalIP"),
-	internal_ip:.status.addresses[] | select(.type=="InternalIP")
-}]'`
+			name:.metadata.name,
+			external_ip:.status.addresses[] | select(.type=="ExternalIP"),
+			internal_ip:.status.addresses[] | select(.type=="InternalIP")
+		}]'`
 	end
 	def pods
 		@pods ||= JSON.parse `kubectl -n #{namespace} get po -o json | jq -r '[.items[] | {
-	name:.metadata.name,
-	host_ip:.status.hostIP,
-	pod_ip:.status.podIP
-}]'`
+			name:.metadata.name,
+			host_ip:.status.hostIP,
+			pod_ip:.status.podIP
+		}]'`
 	end
 end
 
-# gather informations
 kube = Kubernetes.new options[:namespace]
 
 inventory_hash = kube.pods.each_with_object({}) do |item, hash|
