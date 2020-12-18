@@ -49,7 +49,7 @@ inventory_hash = kube.pods.each_with_object({}) do |pod, hash|
 	random_id = Digest::SHA256.hexdigest(SecureRandom.uuid)[0..10].upcase
 
 	node = kube.nodes.detect { |node| node[:internal_ip][:address] == pod[:host_ip] }
-	
+
 	hash[random_id] = {
 		'hosts' => {
 			pod[:name] => {
@@ -59,7 +59,7 @@ inventory_hash = kube.pods.each_with_object({}) do |pod, hash|
 			}
 		},
 		'vars' => {
-			'ansible_ssh_common_args' => "-o ProxyCommand=\"ssh -W %h:%p -q #{options[:account]}@#{node[:external_ip][:address]}\"",
+			'ansible_ssh_common_args' => "-o ProxyCommand='ssh -W %h:%p -q #{options[:account]}@#{node[:external_ip][:address]}'",
 		},
 	}
 
