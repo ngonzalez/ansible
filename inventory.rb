@@ -31,37 +31,35 @@ class Kubernetes
 			name:.metadata.name,
 			external_ip:.status.addresses[] | select(.type=="ExternalIP"),
 			internal_ip:.status.addresses[] | select(.type=="InternalIP")
-		}]'`
+		}]'`, symbolize_names: true
 	end
 	def pods
 		@pods ||= JSON.parse `kubectl -n #{namespace} get po -o json | jq -r '[.items[] | {
 			name:.metadata.name,
 			host_ip:.status.hostIP,
 			pod_ip:.status.podIP
-		}]'`
+		}]'`, symbolize_names: true
 	end
 end
 
 kube = Kubernetes.new options[:namespace]
 
-inventory_hash = kube.pods.each_with_object({}) do |item, hash|
+inventory_hash = kube.pods.each_with_object({}) do |pod, hash|
 
 	random_id = Digest::SHA256.hexdigest(SecureRandom.uuid)[0..10].upcase
 
-	item_node = kube.nodes.detect { |node| node['internal_ip']['address'] == item['host_ip'] }
+	node = kube.nodes.detect { |node| node[:internal_ip][:address] == pod[:host_ip] }
 	
-	item_external_ip_address = item_node['external_ip']['address']
-
 	hash[random_id] = {
 		'hosts' => {
-			item['name'] => {
-				'ansible_host' => item['pod_ip'],
+			pod[:name] => {
+				'ansible_host' => pod[:pod_ip],
 				'ansible_port' => options[:port].to_i,
 				'ansible_user' => options[:user],
 			}
 		},
 		'vars' => {
-			'ansible_ssh_common_args' => "-o ProxyCommand=\"ssh -W %h:%p -q #{options[:account]}@#{item_external_ip_address}\"",
+			'ansible_ssh_common_args' => "-o ProxyCommand=\"ssh -W %h:%p -q #{options[:account]}@#{node[:external_ip][:address]}\"",
 		},
 	}
 
