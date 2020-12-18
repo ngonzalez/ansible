@@ -10,6 +10,11 @@ ansible-galaxy collection install community.general
 ANSIBLE_HOST_KEY_CHECKING=False
 ```
 
+#### generate inventory
+```
+. ./config.sh; ./inventory.rb
+```
+
 #### run playbook
 ```
 ansible-playbook -i inventory.yml site.yml --flush-cache --diff --ask-vault-pass -v
