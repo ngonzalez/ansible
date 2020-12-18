@@ -1,5 +1,3 @@
-# ansible
-
 #### Install community.general
 ```
 ansible-galaxy collection install community.general
@@ -18,4 +16,9 @@ ansible -i inventory.yml all -m ping
 #### gather facts
 ```
 ansible -i inventory.yml all -m ansible.builtin.setup
+```
+
+#### run playbook
+```
+ansible-playbook -i inventory.yml site.yml --flush-cache --diff --ask-vault-pass -vv
 ```

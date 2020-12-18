@@ -17,30 +17,7 @@ options = {}
 option_parser.parse!(into: options)
 options.each_with_index { |(k,v),i| options[k] = ARGV[i] }
 
-class Kubernetes
-	attr_accessor :namespace, :namespaces, :nodes, :pods
-	def initialize(namespace)
-		@namespace = namespace
-		raise "Invalid namespace" unless namespaces.include? namespace
-	end
-	def namespaces
-		@namespaces ||= JSON.parse `kubectl get namespaces -o json | jq -r '[.items[] | .metadata.name ]'`
-	end
-	def nodes
-		@nodes ||= JSON.parse `kubectl -n #{namespace} get no -o json | jq -r '[.items[] | {
-			name:.metadata.name,
-			external_ip:.status.addresses[] | select(.type=="ExternalIP"),
-			internal_ip:.status.addresses[] | select(.type=="InternalIP")
-		}]'`, symbolize_names: true
-	end
-	def pods
-		@pods ||= JSON.parse `kubectl -n #{namespace} get po -o json | jq -r '[.items[] | {
-			name:.metadata.name,
-			host_ip:.status.hostIP,
-			pod_ip:.status.podIP
-		}]'`, symbolize_names: true
-	end
-end
+require_relative 'kubernetes'
 
 kube = Kubernetes.new options[:namespace]
 
@@ -71,7 +48,7 @@ kube.nodes.map { |item| item[:external_ip][:address] }.each do |node_ip|
 	end
 end
 
-File.open("inventory.yml", "w") do |f|
+File.open('inventory.yml', 'w') do |f|
 	f.write inventory_hash.to_yaml
 end
 
