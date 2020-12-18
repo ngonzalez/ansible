@@ -33,7 +33,7 @@ inventory_hash = kube.pods.each_with_object({}) do |pod, hash|
 				'ansible_host' => pod[:pod_ip],
 				'ansible_port' => options[:port].to_i,
 				'ansible_user' => options[:user],
-			}
+			},
 		},
 		'vars' => {
 			'ansible_ssh_common_args' => "-o ProxyCommand='ssh -W %h:%p -q #{options[:account]}@#{node[:external_ip][:address]}'",
