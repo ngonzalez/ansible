@@ -5,9 +5,9 @@ require 'json'
 require 'securerandom'
 require 'yaml'
 
-ansible_port 	= ENV['ANSIBLE_PORT'].to_i
-ansible_user 	= ENV['ANSIBLE_USER']
-namespace 		= ENV['NAMESPACE']
+ansible_port		= ENV['ANSIBLE_PORT'].to_i
+ansible_user		= ENV['ANSIBLE_USER']
+namespace		= ENV['NAMESPACE']
 gcloud_user		= ENV['GCLOUD_USER']
 
 namespaces = JSON.parse `kubectl get namespaces -o json | jq -r '[.items[] | .metadata.name ]'`
@@ -20,7 +20,7 @@ nodes = JSON.parse `kubectl -n #{namespace} get no -o json | jq -r '[.items[] | 
 	internal_ip:.status.addresses[] | select(.type=="InternalIP")
 }]'`
 
-raise "No nodes found" unless nodes.any?
+raise "No nodes found" if nodes.empty?
 
 pods = JSON.parse `kubectl -n #{namespace} get po -o json | jq -r '[.items[] | {
 	name:.metadata.name,
@@ -28,7 +28,7 @@ pods = JSON.parse `kubectl -n #{namespace} get po -o json | jq -r '[.items[] | {
 	pod_ip:.status.podIP
 }]'`
 
-raise "No nodes found" unless nodes.any?
+raise "No pods found" if pods.empty?
 
 inventory_hash = pods.each_with_object({}) do |item, hash|
 
