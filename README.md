@@ -25,5 +25,5 @@ ansible -i inventory.yml all -m ansible.builtin.setup
 
 #### run playbook
 ```
-ansible-playbook -i inventory.yml kibana.yml --flush-cache --diff --ask-vault-pass -vv
+ansible-playbook -i inventory.yml app.yml --flush-cache --diff --ask-vault-pass -vv
 ```
