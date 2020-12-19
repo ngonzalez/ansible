@@ -1,5 +1,0 @@
-check process puma with pidfile /tmp/puma.pid
-	start program = "/sbin/runuser {{ ansible_user }} -l -c 'cd {{ app_path }} && /usr/bin/bundle2.7 exec puma -C config/puma.rb -e production -b unix:///{{ puma_sock }}'"
-
-check process sidekiq with pidfile /tmp/sidekiq.pid
-	start program = "/sbin/runuser {{ ansible_user }} -l -c 'cd {{ app_path }} && /usr/bin/bundle2.7 exec sidekiq -e production'"
