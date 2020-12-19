@@ -1,11 +1,13 @@
 ---
 - name: Install monit
+  tags: monit
   apt:
     name:
       - monit
   no_log: True
 
 - name: Configure monit
+  tags: monit
   template:
     src: monit.default.j2
     dest: "{{ monit_config_path }}"
@@ -15,6 +17,7 @@
   no_log: True
 
 - name: Start monit
+  tags: monit
   service:
     state: started
     name: monit
