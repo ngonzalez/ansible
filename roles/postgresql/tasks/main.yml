@@ -34,11 +34,10 @@
 
 - name: Start postgresql
   tags: postgresql
-  systemd:
-    daemon_reload: True
+  service:
     state: started
     name: postgresql
-  no_log: True
+    enabled: True
 
 - name: Set postgresql user credentials
   tags: postgresql

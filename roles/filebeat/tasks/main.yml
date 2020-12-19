@@ -1,11 +1,13 @@
 ---
 - name: Install filebeat
+  tags: filebeat
   apt:
     name:
       - filebeat
   no_log: True
 
 - name: Configure filebeat
+  tags: filebeat
   template:
     src: filebeat.yml.j2
     dest: "{{ filebeat_config_path }}"
@@ -13,8 +15,8 @@
   no_log: True
 
 - name: Start filebeat
-  systemd:
-    daemon_reload: True
+  tags: filebeat
+  service:
     state: started
     name: filebeat
-  no_log: True
+    enabled: True

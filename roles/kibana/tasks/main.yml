@@ -1,11 +1,13 @@
 ---
 - name: Install kibana
+  tags: kibana
   apt:
     name:
       - kibana
   no_log: True
 
 - name: Configure kibana
+  tags: kibana
   template:
     src: kibana.yml.j2
     dest: "{{ kibana_config_path }}"
@@ -13,8 +15,8 @@
   no_log: True
 
 - name: Start kibana
-  systemd:
-    daemon_reload: True
+  tags: kibana
+  service:
     state: started
     name: kibana
-  no_log: True
+    enabled: True

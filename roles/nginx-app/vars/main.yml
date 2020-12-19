@@ -2,4 +2,4 @@
 nginx_config_path: /etc/nginx/sites-available/default
 nginx_access_log: /var/log/nginx/access.log
 nginx_error_log: /var/log/nginx/error.log
-nginx_app_assets_path: /var/www/app/public/
+nginx_app_assets_path: /var/www/app/public
