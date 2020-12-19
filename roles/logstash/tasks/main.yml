@@ -1,11 +1,13 @@
 ---
 - name: Install logstash
+  tags: logstash
   apt:
     name:
       - logstash
   no_log: True
 
 - name: Configure logstash
+  tags: logstash
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
@@ -15,9 +17,14 @@
     - { src: logstash_patterns, dest: "{{ logstash_patterns_path }}" }
   no_log: True
 
+- name: Logstash system-install
+  tags: logstash
+  command: /usr/share/logstash/bin/system-install /etc/logstash/startup.options sysv
+  no_log: True
+
 - name: Start logstash
-  systemd:
-    daemon_reload: True
+  tags: logstash
+  service:
     state: started
     name: logstash
-  no_log: True
+    enabled: True

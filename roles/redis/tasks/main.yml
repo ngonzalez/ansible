@@ -15,8 +15,7 @@
 
 - name: Start redis
   tags: redis
-  systemd:
-    daemon_reload: True
+  service:
     state: started
-    name: redis
-  no_log: True
+    name: redis-server
+    enabled: True

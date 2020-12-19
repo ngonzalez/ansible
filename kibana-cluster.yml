@@ -1,0 +1,21 @@
+---
+- hosts: '*'
+  become: True
+  gather_facts: False
+  roles:
+    # base
+    - python
+    - localtime
+    - motd
+    - locales
+    - vim
+    - zsh
+    - rsyslog
+    - elastic_co
+    - filebeat
+
+    # elk / nginx
+    - elasticsearch
+    - logstash
+    - kibana
+    - nginx-kibana

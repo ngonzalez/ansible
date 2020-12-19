@@ -22,6 +22,7 @@ app_puma_service_description: Puma is a simple, fast, threaded, and highly concu
 app_puma_service_file: /etc/systemd/system/puma.service
 app_puma_target_file: /etc/systemd/system/puma.target
 app_puma_pid_path: /tmp/pids/server.pid
+app_puma_service_file_sysv: /etc/init.d/puma
 
 # sidekiq
 app_sidekiq_service_name: sidekiq

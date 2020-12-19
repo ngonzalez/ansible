@@ -1,41 +1,26 @@
 ---
 ansible_python_interpreter: /usr/bin/python3
 
+# nginx
+nginx_port: 8000
+nginx_user: www-data
+
 # app server
 app_server_host: 0.0.0.0
 app_server_port: 80
 app_server_path: /hls
 
 # backup server
-backup_server_host: 192.168.1.10
+backup_server_host: link12.ddns.net
 backup_server_port: 8080
 backup_server_path: /Volumes/Untitled
-
-# dns
-dns_server_host: 192.168.1.1
-dns_server_search_domain: home
-
-# docker network
-docker_network_name: br0
-docker_network_gateway: 172.28.5.254
-docker_network_iprange: 172.28.5.0/24
-docker_network_subnet: 172.28.0.0/16
-
-# docker debian-stretch
-docker_stretch_home_hostname: stretch.home
-docker_stretch_home_ipv4_address: 172.28.5.0
-docker_stretch_home_ssh_port: 2201
-
-# docker debian-sid
-docker_sid_home_hostname: sid.home
-docker_sid_home_ipv4_address: 172.28.5.1
-docker_sid_home_ssh_port: 2200
 
 # elasticsearch
 elasticsearch_host: 127.0.0.1
 elasticsearch_port: 9200
 
 # logstash
+logstash_host: "{{ lookup('env', 'LOGSTASH_HOST') }}"
 logstash_beats_port: 5044
 logstash_gelf_port: 12201
 logstash_tcp_port: 4000
@@ -58,15 +43,8 @@ solr_core: app
 solr_host: 127.0.0.1
 solr_port: 8983
 
-# nginx
-nginx_port: 80
-nginx_user: www-data
-
 # puma
 puma_sock: /tmp/puma.sock
-
-# ssh
-ssh_port: 22
 
 # app
 app_path: /var/www/app

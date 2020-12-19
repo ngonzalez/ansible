@@ -1,2 +1,0 @@
----
-logstash_host: "{{ hostvars[docker_stretch_home_hostname].ipv4_address }}"

@@ -1,11 +1,13 @@
 ---
 - name: Install elasticsearch
+  tags: elasticsearch
   apt:
     name:
       - elasticsearch
   no_log: True
 
 - name: Configure elasticsearch
+  tags: elasticsearch
   template:
     src: elasticsearch.yml.j2
     dest: "{{ elasticsearch_config_path }}"
@@ -13,8 +15,8 @@
   no_log: True
 
 - name: Start elasticsearch
-  systemd:
-    daemon_reload: True
+  tags: elasticsearch
+  service:
     state: started
     name: elasticsearch
-  no_log: True
+    enabled: True
