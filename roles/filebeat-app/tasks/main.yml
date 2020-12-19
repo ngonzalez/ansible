@@ -1,0 +1,22 @@
+---
+- name: Install filebeat
+  tags: filebeat
+  apt:
+    name:
+      - filebeat
+  no_log: True
+
+- name: Configure filebeat
+  tags: filebeat
+  template:
+    src: filebeat.yml.j2
+    dest: "{{ filebeat_config_path }}"
+    mode: 0644
+  no_log: True
+
+- name: Start filebeat
+  tags: filebeat
+  service:
+    state: started
+    name: filebeat
+    enabled: True
