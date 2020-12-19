@@ -3,19 +3,19 @@
   become: True
   gather_facts: False
   roles:
-    # base
     - python
     - localtime
     - motd
     - locales
     - vim
     - zsh
-    - rsyslog
+    - rsyslog-app
     - elastic_co
-    - filebeat
-
-    # elk / nginx
-    - elasticsearch
-    - logstash
-    - kibana
-    - nginx-kibana
+    - filebeat-app
+    - postgresql
+    - redis
+    - solr
+    - git
+    - nginx-app
+    - app
+    - monit

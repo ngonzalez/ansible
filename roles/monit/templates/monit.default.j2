@@ -1,0 +1,5 @@
+check process puma
+	start program = "/sbin/runuser {{ ansible_user }} -l -c 'cd {{ app_path }} && /usr/bin/bundle2.7 exec puma -C config/puma.rb -e production -b unix:///{{ puma_sock }}'"
+
+check process sidekiq
+	start program = "/sbin/runuser {{ ansible_user }} -l -c 'cd {{ app_path }} && /usr/bin/bundle2.7 exec sidekiq -e production'"

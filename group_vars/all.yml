@@ -20,10 +20,11 @@ elasticsearch_host: 127.0.0.1
 elasticsearch_port: 9200
 
 # logstash
-logstash_host: "{{ lookup('env', 'LOGSTASH_HOST') }}"
+logstash_host: 127.0.0.1
 logstash_beats_port: 5044
 logstash_gelf_port: 12201
 logstash_tcp_port: 4000
+logstash_host_remote: "{{ lookup('env', 'KIBANA_IP') }}"
 
 # kibana
 kibana_host: 127.0.0.1

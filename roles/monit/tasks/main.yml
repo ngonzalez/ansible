@@ -1,0 +1,21 @@
+---
+- name: Install monit
+  apt:
+    name:
+      - monit
+  no_log: True
+
+- name: Configure monit
+  template:
+    src: monit.default.j2
+    dest: "{{ monit_config_path }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0644
+  no_log: True
+
+- name: Start monit
+  service:
+    state: started
+    name: monit
+    enabled: True

@@ -241,6 +241,16 @@
     recurse: yes
   no_log: True
 
+# hls
+- name: Create hls directory
+  file:
+    path: "/tmp{{ app_server_path }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  no_log: True
+
 # database backup
 - name: Generate database backup helpers
   become_user: "{{ ansible_user }}"
@@ -260,29 +270,37 @@
   args:
     chdir: "{{ app_path }}"
 
-# hls
-- name: Create hls directory
-  file:
-    path: "/tmp{{ app_server_path }}"
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0755
+- name: Check if postgresql backup exists
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: "{{ app_pg_dump_archive_path }}"
+  register: database_backup
   no_log: True
 
-# puma
-- name: Copy puma service file
-  template:
-    src: puma.service.sysv.j2
-    dest: "{{ app_puma_service_file_sysv }}"
-  no_log: True
-
-- name: Start puma
-  service:
-    state: started
-    name: puma
-    enabled: True
-
+# - name: Restore postgresql backup
+#   become_user: "{{ ansible_user }}"
+#   command: "/usr/bin/psql -U {{ postgresql_username }}       \
+#                           -h {{ postgresql_host }}           \
+#                           -p {{ postgresql_port }}           \
+#                           -f {{ database_backup.stat.path }} \
+#                           {{ postgresql_database }}"
+#   when: database_backup.stat.exists
+#   no_log: True
+#
+# # solr
+# - name: Update solr database
+#   become_user: "{{ ansible_user }}"
+#   command:  /usr/bin/bundle2.7 exec rake data:index RAILS_ENV=production
+#
+# # redis
+# - name: Flush redis db
+#   become_user: "{{ ansible_user }}"
+#   command: "/usr/bin/redis-cli -d {{ redis_db }}   \
+#                                -h {{ redis_host }} \
+#                                -p {{ redis_port}}  \
+#                                flushall"
+#
+# # puma
 # - name: Copy puma service file
 #   template:
 #     src: puma.service.j2
@@ -300,8 +318,7 @@
 #     daemon_reload: True
 #     state: restarted
 #     name: puma
-#   no_log: True
-
+#
 # # sidekiq
 # - name: Copy sidekiq service file
 #   template:
@@ -320,4 +337,3 @@
 #     daemon_reload: True
 #     state: restarted
 #     name: sidekiq
-#   no_log: True

@@ -1,0 +1,2 @@
+---
+monit_config_path: /etc/monit/conf.d/default
