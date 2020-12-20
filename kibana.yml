@@ -9,10 +9,10 @@
     - locales
     - vim
     - zsh
-    - rsyslog-kibana
+    - rsyslog
     - elastic_co
-    - filebeat-kibana
+    - filebeat
     - elasticsearch
     - logstash
     - kibana
-    - nginx-kibana
+    - nginx
