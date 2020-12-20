@@ -12,6 +12,12 @@
     - rsyslog
     - elastic_co
     - filebeat
+
+- hosts: '*'
+  become: True
+  gather_facts: False
+  tags: deploy
+  roles:
     - elasticsearch
     - logstash
     - kibana
