@@ -34,3 +34,13 @@ app_sidekiq_pid_path: /tmp/pids/sidekiq.pid
 # yarn
 yarn_apt_key_url: https://dl.yarnpkg.com/debian/pubkey.gpg
 yarn_repository_url: https://dl.yarnpkg.com/debian/
+
+# app server
+app_server_host: 0.0.0.0
+app_server_port: 80
+app_server_path: /hls
+
+# backup server
+backup_server_host: link12.ddns.net
+backup_server_port: 8080
+backup_server_path: /Volumes/Untitled

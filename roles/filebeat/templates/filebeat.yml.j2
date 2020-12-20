@@ -187,7 +187,7 @@ setup.kibana:
 # ------------------------------ Logstash Output -------------------------------
 output.logstash:
   # The Logstash hosts
-  hosts: ["{{ logstash_host_remote }}:{{ logstash_beats_port }}"]
+  hosts: ["{{ logstash_host if cluster_name == 'kibana' else kibana_cluster_ip }}:{{ logstash_beats_port }}"]
 
   # Optional SSL. By default is off.
   # List of root certificates for HTTPS server verifications
