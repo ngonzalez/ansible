@@ -19,15 +19,38 @@
     file: vault_pg.yml
   no_log: True
 
-- name: Add host to pg hba file
+- name: Configure postgresql
   tags: postgresql
-  become_user: postgres
+  template:
+    src: postgresql.conf.j2
+    dest: "{{ postgresql_conf }}"
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_user }}"
+    mode: 0644
+  no_log: True
+
+- name: Add 0.0.0.0/32 to pg hba file
+  tags: postgresql
+  become_user: "{{ postgresql_user }}"
   community.general.postgresql_pg_hba:
-    dest: "{{ postgresql_pg_hba_dest }}"
+    dest: "{{ postgresql_pg_hba_file }}"
     contype: host
     users: all
     databases: all
-    source: "{{ postgresql_pg_hba_source }}"
+    source: "0.0.0.0/32"
+    method: trust
+    create: true
+  no_log: True
+
+- name: Add 10.0.0.1/32 to pg hba file
+  tags: postgresql
+  become_user: "{{ postgresql_user }}"
+  community.general.postgresql_pg_hba:
+    dest: "{{ postgresql_pg_hba_file }}"
+    contype: host
+    users: all
+    databases: all
+    source: "10.0.0.1/32"
     method: trust
     create: true
   no_log: True
@@ -41,7 +64,7 @@
 
 - name: Set postgresql user credentials
   tags: postgresql
-  become_user: postgres
+  become_user: "{{ postgresql_user }}"
   community.general.postgresql_user:
     name: "{{ postgresql_username }}"
     password: "{{ postgresql_password }}"
@@ -49,7 +72,7 @@
 
 - name: Create postgresql database
   tags: postgresql
-  become_user: postgres
+  become_user: "{{ postgresql_user }}"
   community.general.postgresql_db:
     name: "{{ postgresql_database }}"
     login_user: "{{ postgresql_username }}"

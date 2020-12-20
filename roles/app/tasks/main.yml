@@ -251,32 +251,6 @@
     mode: 0755
   no_log: True
 
-# database backup
-- name: Generate database backup helpers
-  become_user: "{{ ansible_user }}"
-  template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0755
-  with_items:
-    - { src: pg_dump.rb.j2, dest: "{{ app_path }}/bin/download_pg_dump" }
-  no_log: True
-
-- name: Download database backup
-  become_user: "{{ ansible_user }}"
-  command: bin/download_pg_dump
-  args:
-    chdir: "{{ app_path }}"
-
-- name: Check if postgresql backup exists
-  become_user: "{{ ansible_user }}"
-  stat:
-    path: "{{ app_pg_dump_archive_path }}"
-  register: database_backup
-  no_log: True
-
 # puma
 - name: Copy puma service file
   template:
