@@ -12,6 +12,6 @@
     - rsyslog
     - elastic_co
     - filebeat
-    - git
-    - nginx
-    - app
+    - postgresql
+    - redis
+    - solr

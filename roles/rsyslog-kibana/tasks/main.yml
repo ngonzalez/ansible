@@ -16,7 +16,7 @@
 
 - name: Start rsyslog
   tags: rsyslog
-  service:
+  systemd:
+    daemon_reload: True
     state: started
     name: rsyslog
-    enabled: True

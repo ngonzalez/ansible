@@ -1,11 +1,11 @@
-#### Install community.general
-```
-ansible-galaxy collection install community.general
-```
-
 #### load config
 ```
 source config.sh
+```
+
+#### Install community.general
+```
+ansible-galaxy collection install community.general
 ```
 
 #### generate inventory
@@ -25,5 +25,5 @@ ansible -i inventory.yml all -m ansible.builtin.setup
 
 #### run playbook
 ```
-ansible-playbook -i inventory.yml app.yml --flush-cache --diff --ask-vault-pass -vv
+ansible-playbook -i inventory.yml <FILE_PATH> --flush-cache --diff --ask-vault-pass -vv
 ```
