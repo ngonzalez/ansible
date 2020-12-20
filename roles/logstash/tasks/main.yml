@@ -24,7 +24,7 @@
 
 - name: Start logstash
   tags: logstash
-  service:
+  systemd:
+    daemon_reload: True
     state: started
     name: logstash
-    enabled: True

@@ -277,63 +277,40 @@
   register: database_backup
   no_log: True
 
-# - name: Restore postgresql backup
-#   become_user: "{{ ansible_user }}"
-#   command: "/usr/bin/psql -U {{ postgresql_username }}       \
-#                           -h {{ postgresql_host }}           \
-#                           -p {{ postgresql_port }}           \
-#                           -f {{ database_backup.stat.path }} \
-#                           {{ postgresql_database }}"
-#   when: database_backup.stat.exists
-#   no_log: True
-#
-# # solr
-# - name: Update solr database
-#   become_user: "{{ ansible_user }}"
-#   command:  /usr/bin/bundle2.7 exec rake data:index RAILS_ENV=production
-#
-# # redis
-# - name: Flush redis db
-#   become_user: "{{ ansible_user }}"
-#   command: "/usr/bin/redis-cli -d {{ redis_db }}   \
-#                                -h {{ redis_host }} \
-#                                -p {{ redis_port}}  \
-#                                flushall"
-#
-# # puma
-# - name: Copy puma service file
-#   template:
-#     src: puma.service.j2
-#     dest: "{{ app_puma_service_file }}"
-#   no_log: True
-#
-# - name: Copy puma target file
-#   template:
-#     src: puma.target.j2
-#     dest: "{{ app_puma_target_file }}"
-#   no_log: True
-#
-# - name: Start puma
-#   systemd:
-#     daemon_reload: True
-#     state: restarted
-#     name: puma
-#
-# # sidekiq
-# - name: Copy sidekiq service file
-#   template:
-#     src: sidekiq.service.j2
-#     dest: "{{ app_sidekiq_service_file }}"
-#   no_log: True
-#
-# - name: Copy sidekiq target file
-#   template:
-#     src: sidekiq.target.j2
-#     dest: "{{ app_sidekiq_target_file }}"
-#   no_log: True
-#
-# - name: Start sidekiq
-#   systemd:
-#     daemon_reload: True
-#     state: restarted
-#     name: sidekiq
+# puma
+- name: Copy puma service file
+  template:
+    src: puma.service.j2
+    dest: "{{ app_puma_service_file }}"
+  no_log: True
+
+- name: Copy puma target file
+  template:
+    src: puma.target.j2
+    dest: "{{ app_puma_target_file }}"
+  no_log: True
+
+- name: Start puma
+  systemd:
+    daemon_reload: True
+    state: restarted
+    name: puma
+
+# sidekiq
+- name: Copy sidekiq service file
+  template:
+    src: sidekiq.service.j2
+    dest: "{{ app_sidekiq_service_file }}"
+  no_log: True
+
+- name: Copy sidekiq target file
+  template:
+    src: sidekiq.target.j2
+    dest: "{{ app_sidekiq_target_file }}"
+  no_log: True
+
+- name: Start sidekiq
+  systemd:
+    daemon_reload: True
+    state: restarted
+    name: sidekiq

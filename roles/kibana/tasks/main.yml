@@ -16,7 +16,7 @@
 
 - name: Start kibana
   tags: kibana
-  service:
+  systemd:
+    daemon_reload: True
     state: started
     name: kibana
-    enabled: True

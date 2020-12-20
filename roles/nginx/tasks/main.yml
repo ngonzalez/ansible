@@ -15,7 +15,7 @@
 
 - name: Start nginx
   tags: nginx
-  service:
+  systemd:
+    daemon_reload: True
     state: started
     name: nginx
-    enabled: True
