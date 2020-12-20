@@ -13,10 +13,10 @@
       - libpq-dev
   no_log: True
 
-- name: Include pg vault vars
+- name: Include vault vars
   tags: postgresql
   include_vars:
-    file: vault_pg.yml
+    file: vault.yml
   no_log: True
 
 - name: Configure postgresql
