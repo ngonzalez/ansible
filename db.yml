@@ -21,3 +21,4 @@
     - postgresql
     - redis
     - solr
+    - update_db

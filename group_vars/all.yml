@@ -44,3 +44,7 @@ puma_sock: /tmp/puma.sock
 
 # app
 app_path: /var/www/app
+
+# gcp
+gcp_project_id: hebe-001
+gcp_storage_bucket: hebe-001.appspot.com

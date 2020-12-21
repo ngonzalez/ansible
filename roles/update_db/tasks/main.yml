@@ -1,0 +1,80 @@
+---
+- name: Install application dependencies
+  tags: update_db
+  apt:
+    name:
+      - ruby-dev
+  no_log: True
+
+- name: Install google cloud storage
+  tags: update_db
+  become_user: "{{ ansible_user }}"
+  gem:
+    name: google-cloud-storage
+    state: latest
+
+- name: Include gcp vault vars
+  tags: update_db
+  include_vars:
+    file: vault_gcp.yml
+  no_log: True
+
+- name: Create gcp identify file
+  tags: update_db
+  become_user: "{{ ansible_user }}"
+  template:
+    src: gcp.conf.j2
+    dest: "{{ update_db_gcp_config_path }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0644
+  no_log: True
+
+- name: Generate database backup helpers
+  tags: update_db
+  become_user: "{{ ansible_user }}"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  with_items:
+    - { src: pg_dump.rb.j2, dest: "{{ update_db_pg_dump_download_bin }}" }
+  no_log: True
+
+- name: Download database backup
+  tags: update_db
+  become_user: "{{ ansible_user }}"
+  command: "{{ update_db_pg_dump_download_bin }}"
+
+- name: Check if postgresql backup exists
+  tags: update_db
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: "{{ update_db_pg_dump_archive_path }}"
+  register: database_backup
+  no_log: True
+
+- name: Include pg vault vars
+  tags: update_db
+  include_vars:
+    file: vault_pg.yml
+  no_log: True
+
+- name: Restore postgresql backup
+  tags: update_db
+  become_user: "{{ postgresql_user }}"
+  command: "/usr/bin/psql -U {{ postgresql_username }}       \
+                          -f {{ database_backup.stat.path }} \
+                          {{ postgresql_database }}"
+  when: database_backup.stat.exists
+  no_log: True
+
+- name: Flush redis db
+  tags: update_db
+  become_user: "{{ ansible_user }}"
+  command: "/usr/bin/redis-cli -d {{ redis_db }}   \
+                               -h {{ redis_host }} \
+                               -p {{ redis_port }}  \
+                               flushall"
