@@ -78,3 +78,10 @@
                                -h {{ redis_host }} \
                                -p {{ redis_port }}  \
                                flushall"
+
+- name: Reindex database
+  tags: update_db_app
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ app_path }}"
+    cmd:  /usr/bin/bundle2.7 exec rake data:index RAILS_ENV=production
