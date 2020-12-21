@@ -1,0 +1,6 @@
+---
+postgresql_user: postgres
+update_db_gcp_config_path: /home/{{ ansible_user }}/gcp.json
+update_db_pg_dump_archive_path: /home/{{ ansible_user }}/backup.sql
+update_db_pg_dump_archive_remote_path: cache/backup.sql
+update_db_pg_dump_download_bin: /home/{{ ansible_user }}/download_pg_dump

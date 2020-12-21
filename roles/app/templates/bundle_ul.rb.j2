@@ -3,11 +3,11 @@
 require "google/cloud/storage"
 
 storage = Google::Cloud::Storage.new(
-	project_id: '{{ app_gcp_project_id }}',
+	project_id: '{{ gcp_project_id }}',
 	credentials: 'gcp.json'
 )
 
-bucket = storage.bucket '{{ app_gcp_storage_bucket }}'
+bucket = storage.bucket '{{ gcp_storage_bucket }}'
 
 if File.exists? '{{ app_bundle_archive_path }}'
 
