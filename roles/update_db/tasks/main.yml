@@ -65,9 +65,10 @@
 - name: Restore postgresql backup
   tags: update_db
   become_user: "{{ postgresql_user }}"
-  command: "/usr/bin/psql -U {{ postgresql_username }}       \
-                          -f {{ database_backup.stat.path }} \
-                          {{ postgresql_database }}"
+  command: "PGPASSWORD='{{ postgresql_password }}' /usr/bin/psql -U {{ postgresql_username }}       \
+                                                                 -f {{ database_backup.stat.path }} \
+                                                                 -h {{ postgresql_host }} \
+                                                                 -d {{ postgresql_database }}"
   when: database_backup.stat.exists
   no_log: True
 
