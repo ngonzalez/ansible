@@ -4,7 +4,7 @@
     name:
       - wget
       - gnupg
-      - openjdk-8-jdk
+      - openjdk-11-jdk
   no_log: True
 
 - name: Add elastic.co apt key

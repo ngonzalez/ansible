@@ -20,4 +20,4 @@
   roles:
     - postgresql
     - redis
-    - solr
+    # - solr
