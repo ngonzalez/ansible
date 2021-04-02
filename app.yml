@@ -20,4 +20,4 @@
   roles:
     - git
     - nginx
-    - app
+    # - app

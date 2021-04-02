@@ -1,8 +1,3 @@
-#### load config
-```
-source config.sh
-```
-
 #### Install community.general
 ```
 ansible-galaxy collection install community.general
@@ -26,4 +21,5 @@ ansible -i inventory.yml all -m ansible.builtin.setup
 #### run playbook
 ```
 ansible-playbook -i inventory.yml $CLUSTER_NAME.yml --flush-cache --diff --ask-vault-pass --tags "deploy" -vv
+# ansible-playbook -i inventory.yml $CLUSTER_NAME.yml --flush-cache --diff --ask-vault-pass -vv
 ```
