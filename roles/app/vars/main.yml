@@ -11,10 +11,6 @@ app_bundle_version: 2.2.15
 app_bundle_src_path: /home/{{ ansible_user }}/bundle
 app_bundle_src_remote_path: cache/bundle
 
-# pg dump
-app_pg_dump_archive_path: /home/{{ ansible_user }}/backup.sql
-app_pg_dump_archive_remote_path: cache/backup.sql
-
 # puma
 app_puma_service_name: puma
 app_puma_service_description: Puma is a simple, fast, threaded, and highly concurrent HTTP 1.1 server for Ruby/Rack applications.
