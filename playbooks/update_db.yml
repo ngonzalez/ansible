@@ -1,6 +1,0 @@
----
-- hosts: '*'
-  become: True
-  gather_facts: False
-  roles:
-    - update_db
