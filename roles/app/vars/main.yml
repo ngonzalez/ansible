@@ -7,6 +7,7 @@ app_environment_path: "{{ app_path }}/.env"
 app_gcp_config_path: "{{ app_path }}/gcp.json"
 
 # bundle
+app_bundle_version: 2.2.15
 app_bundle_src_path: /home/{{ ansible_user }}/bundle
 app_bundle_src_remote_path: cache/bundle
 

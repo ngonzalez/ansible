@@ -98,6 +98,12 @@
       - libtag1-dev
   no_log: True
 
+- name: Install bundler
+  become_user: "{{ ansible_user }}"
+  gem:
+    name: bundler
+    version: "{{ app_bundle_version }}"
+
 - name: Install google cloud storage
   become_user: "{{ ansible_user }}"
   gem:
