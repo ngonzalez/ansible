@@ -230,6 +230,13 @@
       - yarn
   no_log: True
 
+# spring
+- name: Stop spring
+  become_user: "{{ ansible_user }}"
+  command: /usr/bin/bundle2.7 exec bin/spring stop
+  args:
+    chdir: "{{ app_path }}"
+
 # database migrations
 - name: Run database migrations
   become_user: "{{ ansible_user }}"
