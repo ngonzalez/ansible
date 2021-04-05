@@ -1,6 +1,6 @@
+export NAMESPACE='ns'
 export PROJECT_NAME='project'
 export BUCKET_NAME='storage'
-export NAMESPACE='ns'
 export ACCOUNT='ngonzalez'
 export ANSIBLE_USER='debian'
 export ANSIBLE_PORT='22'
