@@ -20,7 +20,6 @@ class Kubernetes
 	def set_nodes
 		JSON.parse `kubectl -n #{namespace} get no -o json | jq -r '[.items[] | {
 			name:.metadata.name,
-			external_ip:.status.addresses[] | select(.type=="ExternalIP"),
 			internal_ip:.status.addresses[] | select(.type=="InternalIP")
 		}]'`, symbolize_names: true
 	end
