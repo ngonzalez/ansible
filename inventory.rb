@@ -36,13 +36,13 @@ inventory_hash = kube.pods.each_with_object({}) do |pod, hash|
 			},
 		},
 		'vars' => {
-			'ansible_ssh_common_args' => "-o ProxyCommand='ssh -W %h:%p -q #{options[:account]}@#{node[:external_ip][:address]}'",
+			'ansible_ssh_common_args' => "-o ProxyCommand='ssh -W %h:%p -q #{options[:account]}@#{node[:internal_ip][:address]}'",
 		},
 	}
 
 end
 
-kube.nodes.map { |item| item[:external_ip][:address] }.each do |node_ip|
+kube.nodes.map { |item| item[:internal_ip][:address] }.each do |node_ip|
 	if `ssh-keygen -F #{node_ip}`.empty?
 		`ssh-keyscan -H #{node_ip} >> ~/.ssh/known_hosts`
 	end
