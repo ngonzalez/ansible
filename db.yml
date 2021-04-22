@@ -3,6 +3,7 @@
   become: True
   gather_facts: False
   roles:
+	- apt
     - python
     - localtime
     - motd
@@ -20,4 +21,3 @@
   roles:
     - postgresql
     - redis
-    # - solr
