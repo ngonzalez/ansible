@@ -6,14 +6,6 @@
       - rsyslog
   no_log: True
 
-- name: Configure rsyslog
-  tags: rsyslog
-  lineinfile:
-    line: "*.* @@{{ logstash_host if cluster_name == 'kibana' else kibana_cluster_ip }}:{{ logstash_tcp_port }}"
-    dest: "{{ rsyslog_config_path }}"
-    create: True
-  no_log: True
-
 - name: Start rsyslog
   tags: rsyslog
   systemd:
