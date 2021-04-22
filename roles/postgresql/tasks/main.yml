@@ -42,7 +42,7 @@
     create: true
   no_log: True
 
-- name: Add 10.0.0.1/32 to pg hba file
+- name: Add 10.100.0.1/32 to pg hba file
   tags: postgresql
   become_user: "{{ postgresql_user }}"
   community.general.postgresql_pg_hba:
@@ -50,7 +50,20 @@
     contype: host
     users: all
     databases: all
-    source: "10.0.0.1/32"
+    source: "10.100.0.1/32"
+    method: trust
+    create: true
+  no_log: True
+
+- name: Add 172.17.0.1/32 to pg hba file
+  tags: postgresql
+  become_user: "{{ postgresql_user }}"
+  community.general.postgresql_pg_hba:
+    dest: "{{ postgresql_pg_hba_file }}"
+    contype: host
+    users: all
+    databases: all
+    source: "172.17.0.1/32"
     method: trust
     create: true
   no_log: True
