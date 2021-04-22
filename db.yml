@@ -3,7 +3,7 @@
   become: True
   gather_facts: False
   roles:
-	- apt
+    - apt
     - python
     - localtime
     - motd
