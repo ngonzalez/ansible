@@ -11,8 +11,6 @@
     - vim
     - zsh
     - rsyslog
-    - elastic_co
-    - filebeat
 
 - hosts: '*'
   become: True
