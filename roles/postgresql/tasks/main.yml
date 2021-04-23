@@ -29,17 +29,14 @@
     mode: 0644
   no_log: True
 
-- name: Add 0.0.0.0/32 to pg hba file
+- name: Configure postgresql hba
   tags: postgresql
-  become_user: "{{ postgresql_user }}"
-  community.general.postgresql_pg_hba:
+  template:
+    src: pg_hba.conf.j2
     dest: "{{ postgresql_pg_hba_file }}"
-    contype: host
-    users: all
-    databases: all
-    source: "0.0.0.0/32"
-    method: trust
-    create: true
+    owner: "{{ postgresql_user }}"
+    group: "{{ postgresql_user }}"
+    mode: 0644
   no_log: True
 
 - name: Add 10.100.0.1/32 to pg hba file
@@ -50,8 +47,8 @@
     contype: host
     users: all
     databases: all
-    source: "10.100.0.1/32"
-    method: trust
+    source: 10.100.0.1/32
+    method: md5
     create: true
   no_log: True
 
@@ -63,8 +60,8 @@
     contype: host
     users: all
     databases: all
-    source: "172.17.0.1/32"
-    method: trust
+    source: 172.17.0.1/32
+    method: md5
     create: true
   no_log: True
 
@@ -74,12 +71,15 @@
     daemon_reload: True
     state: started
     name: postgresql
+  no_log: True
 
 - name: Set postgresql user credentials
   tags: postgresql
   become_user: "{{ postgresql_user }}"
   community.general.postgresql_user:
     name: "{{ postgresql_username }}"
+    login_user: "{{ postgresql_username }}"
+    login_password: "{{ postgresql_password }}"
     password: "{{ postgresql_password }}"
   no_log: True
 
