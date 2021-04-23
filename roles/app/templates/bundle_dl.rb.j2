@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+
+require "google/cloud/storage"
+
+storage = Google::Cloud::Storage.new(
+	project_id: '{{ gcp_project_id }}',
+	credentials: 'gcp.json'
+)
+
+bucket = storage.bucket '{{ gcp_storage_bucket }}'
+
+file = bucket.file '{{ app_bundle_archive_remote_path }}'
+
+if !file.nil?
+
+	file.download '{{ app_bundle_archive_path }}'
+
+end
+
+exit 0
