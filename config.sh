@@ -1,10 +1,10 @@
 # ansible
 export ACCOUNT='docker'
-export ANSIBLE_USER='debian'
+export ANSIBLE_USER='ansible_user'
 export ANSIBLE_PORT='22'
 
 # gcp
-export NAMESPACE='k8s'
+export NAMESPACE='namespace'
 export PROJECT_NAME='project'
 export BUCKET_NAME='storage'
 export CLUSTER_NAME='app'
