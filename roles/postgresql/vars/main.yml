@@ -1,6 +1,0 @@
----
-postgresql_user: postgres
-postgresql_data_directory: /var/lib/postgresql/13/main
-postgresql_ident_file: /etc/postgresql/13/main/pg_ident.conf
-postgresql_pg_hba_file: /etc/postgresql/13/main/pg_hba.conf
-postgresql_conf: /etc/postgresql/13/main/postgresql.conf

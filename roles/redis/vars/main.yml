@@ -1,4 +1,0 @@
----
-redis_pid_file: /var/run/redis/redis-server.pid
-redis_log_file: /var/log/redis/redis-server.log
-redis_config_file: /etc/redis/redis.conf

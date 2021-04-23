@@ -1,3 +1,0 @@
----
-logstash_config_path: /etc/logstash/conf.d/logstash.conf
-logstash_patterns_path: /etc/logstash/patterns

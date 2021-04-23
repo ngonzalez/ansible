@@ -1,3 +1,0 @@
----
-elastic_co_apt_key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-elastic_co_apt_repository: https://artifacts.elastic.co/packages/7.x/apt
