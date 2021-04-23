@@ -1,0 +1,20 @@
+export LESS='-R'
+export CLICOLOR='YES'
+export DEBIAN_FRONTEND='interactive'
+export PROMPT='%(?.%F{green}▱▱▱.%F{red}?%?)%f %B%F{240}%1~%f%b %# '
+export RPROMPT="%n:%m"
+
+alias grep='grep --color=auto'
+alias ls='ls --color'
+alias l='ls -alrth'
+
+if [ -d /etc/profile.d ]; then
+  for i in /etc/profile.d/*.sh; do
+    if [ -r $i ]; then
+      . $i
+    fi
+  done
+  unset i
+fi
+
+cd ~

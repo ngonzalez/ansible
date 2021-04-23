@@ -1,21 +1,28 @@
 # ansible
 
-⚠️ Please follow the link of the name of the project
+![formation-ansible](https://user-images.githubusercontent.com/26479/113611957-81d90b80-964f-11eb-95c9-2fb0dfa3cb0b.png)
 
-#### Vagrant setup
- * https://github.com/ngonzalez/ansible/tree/virtualbox
+#### Install community.general
+```
+ansible-galaxy collection install community.general
+```
 
-#### Debian setup
- * https://github.com/ngonzalez/ansible/tree/debian
+#### generate inventory
+```
+./inventory.rb --namespace $NAMESPACE --account $ACCOUNT --user $ANSIBLE_USER --port $ANSIBLE_PORT
+```
 
-#### Database project
- * https://github.com/ngonzalez/ansible/tree/database
+#### ping inventory
+```
+ansible -i inventory.yml all -m ping
+```
 
-#### Backend project
- * https://github.com/ngonzalez/ansible/tree/backend
+#### gather facts
+```
+ansible -i inventory.yml all -m ansible.builtin.setup
+```
 
-#### Frontend project
- * https://github.com/ngonzalez/ansible/tree/frontend
-
-#### Stream project
- * https://github.com/ngonzalez/ansible/tree/stream
+#### run playbook
+```
+ansible-playbook -i inventory.yml $CLUSTER_NAME.yml --flush-cache --diff --ask-vault-pass -vv
+```
