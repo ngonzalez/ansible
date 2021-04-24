@@ -36,6 +36,6 @@ app_server_port: 80
 app_server_path: /hls
 
 # backup server
-backup_server_host: 90.79.191.78
+backup_server_host: 192.168.1.11
 backup_server_port: 8080
 backup_server_path: /Volumes/Untitled
