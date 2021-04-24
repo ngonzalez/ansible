@@ -2,18 +2,6 @@
 - hosts: '*'
   become: True
   gather_facts: False
-  roles:
-    - python
-    - localtime
-    - motd
-    - locales
-    - vim
-    - zsh
-    - rsyslog
-
-- hosts: '*'
-  become: True
-  gather_facts: False
   tags: deploy
   roles:
     - git
