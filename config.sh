@@ -5,6 +5,7 @@ export ANSIBLE_PORT='22'
 
 # gcp
 export NAMESPACE='k8s'
+export GCP_ENABLED='false'
 export PROJECT_NAME='project'
 export BUCKET_NAME='storage'
 export CLUSTER_NAME='app'
