@@ -6,6 +6,7 @@
       - ffmpeg
       - imagemagick
       - lame
+      - libpq-dev
       - ruby-dev
   no_log: True
 

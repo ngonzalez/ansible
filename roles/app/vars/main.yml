@@ -7,7 +7,7 @@ app_environment_path: "{{ app_path }}/.env"
 app_gcp_config_path: "{{ app_path }}/gcp.json"
 
 # bundle
-app_bundle_version: 2.2.15
+app_bundle_version: 2.2.16
 app_bundle_src_path: /home/{{ ansible_user }}/bundle
 app_bundle_src_remote_path: cache/bundle
 
@@ -39,3 +39,12 @@ app_server_path: /hls
 backup_server_host: 192.168.1.11
 backup_server_port: 8080
 backup_server_path: /Volumes/Untitled
+
+# postgresql
+postgresql_host: 0.0.0.0
+postgresql_port: 5432
+
+# redis
+redis_host: 0.0.0.0
+redis_port: 6379
+redis_db: 0

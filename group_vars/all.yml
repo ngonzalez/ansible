@@ -6,6 +6,7 @@ cluster_name: "{{ lookup('env', 'CLUSTER_NAME') }}"
 app_cluster_ip: "{{ lookup('env', 'APP_CLUSTER_IP') }}"
 db_cluster_ip: "{{ lookup('env', 'DB_CLUSTER_IP') }}"
 kibana_cluster_ip: "{{ lookup('env', 'KIBANA_CLUSTER_IP') }}"
+gcp_enabled: "{{ lookup('env', 'GCP_ENABLED') }}"
 
 # gcp
 gcp_project_id: "{{ lookup('env', 'PROJECT_NAME') }}"
