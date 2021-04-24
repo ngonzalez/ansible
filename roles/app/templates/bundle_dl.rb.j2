@@ -18,7 +18,6 @@ if GCP_ENABLED == 'false'
   end
 else
 
-  # download file from gcp bucket
   storage = Google::Cloud::Storage.new(
   	project_id: '{{ gcp_project_id }}',
   	credentials: 'gcp.json'
@@ -30,6 +29,7 @@ else
 
   if !file.nil?
 
+    # download file from gcp bucket
   	file.download '{{ app_bundle_archive_path }}'
 
   end
