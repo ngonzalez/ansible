@@ -1,0 +1,12 @@
+---
+- hosts: '*'
+  become: True
+  gather_facts: False
+  roles:
+    - python
+    - localtime
+    - motd
+    - locales
+    - vim
+    - zsh
+    - rsyslog
