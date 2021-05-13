@@ -1,13 +1,13 @@
 # ansible
 export ACCOUNT='docker'
-export ANSIBLE_USER='ansible_user'
+export ANSIBLE_USER='debian'
 export ANSIBLE_PORT='22'
 
 # gcp
-export NAMESPACE='namespace'
-export PROJECT_NAME='project'
-export BUCKET_NAME='storage'
-export CLUSTER_NAME='cluster'
-export APP_CLUSTER_IP='APP_CLUSTER_IP'
-export DB_CLUSTER_IP='DB_CLUSTER_IP'
-export KIBANA_CLUSTER_IP='KIBANA_CLUSTER_IP'
+export NAMESPACE='k8s'
+export GCP_ENABLED='true'
+export PROJECT_NAME='app-56468'
+export BUCKET_NAME="$PROJECT_NAME-storage"
+export CLUSTER_NAME='db'
+export APP_CLUSTER_IP='10.110.185.251'
+export DB_CLUSTER_IP='10.99.7.128'

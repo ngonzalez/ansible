@@ -5,8 +5,8 @@ ansible_python_interpreter: /usr/bin/python3
 cluster_name: "{{ lookup('env', 'CLUSTER_NAME') }}"
 app_cluster_ip: "{{ lookup('env', 'APP_CLUSTER_IP') }}"
 db_cluster_ip: "{{ lookup('env', 'DB_CLUSTER_IP') }}"
-kibana_cluster_ip: "{{ lookup('env', 'KIBANA_CLUSTER_IP') }}"
 
 # gcp
+gcp_enabled: "{{ lookup('env', 'GCP_ENABLED') }}"
 gcp_project_id: "{{ lookup('env', 'PROJECT_NAME') }}"
 gcp_storage_bucket: "{{ lookup('env', 'BUCKET_NAME') }}"
