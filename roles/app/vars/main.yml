@@ -36,9 +36,9 @@ app_server_port: 80
 app_server_path: /hls
 
 # backup server
-backup_server_host: 192.168.1.11
-backup_server_port: 8080
+backup_server_host: enyo-macbook.local
 backup_server_path: /Volumes/Samsung_T5
+backup_server_port: 8080
 
 # postgresql
 postgresql_host: 0.0.0.0
