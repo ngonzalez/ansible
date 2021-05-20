@@ -24,5 +24,5 @@ ansible -i inventory.yml all -m ansible.builtin.setup
 
 #### run playbook
 ```
-ansible-playbook -i inventory.yml $CLUSTER_NAME.yml --flush-cache --diff --ask-vault-pass -vv
+ansible-playbook -i inventory.yml main.yml --flush-cache --diff --ask-vault-pass -vv
 ```
