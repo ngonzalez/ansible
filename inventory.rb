@@ -11,6 +11,8 @@ option_parser = OptionParser.new do |opts|
   opts.on '-a', '--account', 'Kubernetes account'
   opts.on '-u', '--user', 'Ansible user'
   opts.on '-p', '--port', 'Ansible port'
+  opts.on '-i', '--ingress_name', 'Ingress Name'
+  opts.on '-d', '--database_loadbalancer', 'Database Loadbalancer'
 end
 
 options = {}
@@ -19,7 +21,7 @@ options.each_with_index { |(k,v),i| options[k] = ARGV[i] }
 
 require_relative 'kubernetes'
 
-kube = Kubernetes.new options[:namespace]
+kube = Kubernetes.new options[:namespace], options[:ingress_name], options[:database_loadbalancer]
 
 inventory_hash = kube.pods.each_with_object({}) do |pod, hash|
 
@@ -50,6 +52,18 @@ end
 
 File.open('inventory.yml', 'w') do |f|
 	f.write inventory_hash.to_yaml
+end
+
+if kube.ingress_ip
+	File.open('config.sh', 'a') do |f|
+		puts "export APP_CLUSTER_IP='%s'" % kube.ingress_ip[0][:ip]
+	end
+end
+
+if kube.database_loadbalancer_ip
+	File.open('config.sh', 'a') do |f|
+		puts "export DB_CLUSTER_IP='%s'" % kube.database_loadbalancer_ip[0][:ip]
+	end
 end
 
 exit 0
