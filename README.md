@@ -9,7 +9,12 @@ ansible-galaxy collection install community.general
 
 #### generate inventory
 ```
-./inventory.rb --namespace $NAMESPACE --account $ACCOUNT --user $ANSIBLE_USER --port $ANSIBLE_PORT
+./inventory.rb --namespace $NAMESPACE	\
+							 --account $ACCOUNT	\
+							 --user $ANSIBLE_USER	\
+							 --port $ANSIBLE_PORT	\
+							 --ingress_name $INGRESS_NAME	\
+							 --database_loadbalancer $DATABASE_LOADBALANCER
 ```
 
 #### ping inventory
