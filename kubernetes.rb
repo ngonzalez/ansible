@@ -1,10 +1,10 @@
 class Kubernetes
 	attr_accessor :namespace, :ingress_name, :database_loadbalancer_name
-	def initialize(namespace, ingress_name=nil, database_loadbalancer_name=nil)
+	def initialize(namespace, ingress_name, database_loadbalancer_name)
+		raise "Invalid namespace" unless namespaces.map { |ns| ns[:name] }.include? namespace
 		@namespace = namespace
-		raise "Invalid namespace" unless namespaces.include? namespace
-		@ingress_name = ingress_name unless ingress_name.nil?
-		@database_loadbalancer_name = database_loadbalancer_name unless database_loadbalancer_name.nil?
+		@ingress_name = ingress_name
+		@database_loadbalancer_name = database_loadbalancer_name
 	end
 
 	attr_accessor :namespaces, :nodes, :pods, :ingress_ip
@@ -17,23 +17,23 @@ class Kubernetes
 		private
 
 	def set_namespaces
-		JSON.parse `kubectl get ns -o json | jq -r '[.items[] |
-			.metadata.name
-		]'`, symbolize_names: true
+		JSON.parse `kubectl get ns -o json | jq -r '[.items[] | {
+			name: .metadata.name
+		}]'`, symbolize_names: true
 	end
 
 	def set_nodes
 		JSON.parse `kubectl -n #{namespace} get no -o json | jq -r '[.items[] | {
-			name:.metadata.name,
-			internal_ip:.status.addresses[] | select(.type=="InternalIP")
+			name: .metadata.name,
+			internal_ip: .status.addresses[] | select(.type=="InternalIP")
 		}]'`, symbolize_names: true
 	end
 
 	def set_pods
 		JSON.parse `kubectl -n #{namespace} get po -o json | jq -r '[.items[] | {
-			name:.metadata.name,
-			host_ip:.status.hostIP,
-			pod_ip:.status.podIP
+			name: .metadata.name,
+			host_ip: .status.hostIP,
+			pod_ip: .status.podIP
 		}]'`, symbolize_names: true
 	end
 
