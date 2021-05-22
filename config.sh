@@ -9,4 +9,4 @@ export GCP_ENABLED='true'
 export PROJECT_NAME='app-56468'
 export BUCKET_NAME="$PROJECT_NAME-storage"
 export INGRESS_NAME='app-ingress'
-export DATABASE_LOADBALANCER='app-loadbalancer'
+export DATABASE_LOADBALANCER='database-loadbalancer'
