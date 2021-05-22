@@ -11,8 +11,8 @@ class Kubernetes
 	def namespaces ; @namespaces ||= set_namespaces ; end
 	def nodes ; @nodes ||= set_nodes ; end
 	def pods ; @pods ||= set_pods ; end
-	def ingress_ip ; @ingress_ip ||= set_ingress_ip ; end
-	def database_loadbalancer_ip ; @database_loadbalancer_ip ||= set_database_loadbalancer_ip ; end
+	def ingress ; @ingress ||= set_ingress ; end
+	def database_loadbalancer ; @database_loadbalancer ||= set_database_loadbalancer ; end
 
 		private
 
@@ -37,13 +37,13 @@ class Kubernetes
 		}]'`, symbolize_names: true
 	end
 
-	def set_ingress_ip
+	def set_ingress
 		JSON.parse `kubectl -n #{namespace} get ing #{ingress_name} -o json | jq -r '[.status[] | {
 			ip: .ingress[].ip,
 		}]'`, symbolize_names: true
 	end
 
-	def set_database_loadbalancer_ip
+	def set_database_loadbalancer
 		JSON.parse `kubectl -n #{namespace} get svc #{database_loadbalancer_name} -o json | jq -r '[.status[] | {
 			ip: .ingress[].ip,
 		}]'`, symbolize_names: true

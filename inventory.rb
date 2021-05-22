@@ -54,16 +54,12 @@ File.open('inventory.yml', 'w') do |f|
 	f.write inventory_hash.to_yaml
 end
 
-if kube.ingress_ip
-	File.open('config.sh', 'a') do |f|
-		puts "export APP_CLUSTER_IP='%s'" % kube.ingress_ip[0][:ip]
-	end
+if kube.ingress
+	puts "export APP_CLUSTER_IP='%s'" % kube.ingress[0][:ip]
 end
 
-if kube.database_loadbalancer_ip
-	File.open('config.sh', 'a') do |f|
-		puts "export DB_CLUSTER_IP='%s'" % kube.database_loadbalancer_ip[0][:ip]
-	end
+if kube.database_loadbalancer
+	puts "export DB_CLUSTER_IP='%s'" % kube.database_loadbalancer[0][:ip]
 end
 
 exit 0
