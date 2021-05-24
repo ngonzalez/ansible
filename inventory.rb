@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'digest'
+require 'fileutils'
 require 'json'
 require 'optparse'
 require 'securerandom'
@@ -54,12 +55,10 @@ File.open('inventory.yml', 'w') do |f|
 	f.write inventory_hash.to_yaml
 end
 
-if kube.ingress
-	puts "export APP_CLUSTER_IP='%s'" % kube.ingress[0][:ip]
-end
-
-if kube.database_loadbalancer
-	puts "export DB_CLUSTER_IP='%s'" % kube.database_loadbalancer[0][:ip]
-end
+hsh = {}
+hsh.merge! 'app_cluster_ip' => kube.ingress[0][:ip] if kube.ingress
+hsh.merge! 'db_cluster_ip' => kube.database_loadbalancer[0][:ip] if kube.database_loadbalancer
+FileUtils.rm_f('roles/app/vars/inventory.yml')
+File.open('roles/app/vars/inventory.yml', 'w') { |f| f.write hsh.to_yaml }
 
 exit 0
