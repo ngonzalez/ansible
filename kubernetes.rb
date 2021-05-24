@@ -7,7 +7,7 @@ class Kubernetes
 		@database_loadbalancer_name = database_loadbalancer_name
 	end
 
-	attr_accessor :namespaces, :nodes, :pods, :ingress_ip
+	attr_accessor :namespaces, :nodes, :pods, :ingress, :database_loadbalancer
 	def namespaces ; @namespaces ||= set_namespaces ; end
 	def nodes ; @nodes ||= set_nodes ; end
 	def pods ; @pods ||= set_pods ; end
