@@ -1,10 +1,6 @@
 ---
 ansible_python_interpreter: /usr/bin/python3
 
-# env
-app_cluster_ip: "{{ lookup('env', 'APP_CLUSTER_IP') }}"
-db_cluster_ip: "{{ lookup('env', 'DB_CLUSTER_IP') }}"
-
 # gcp
 gcp_enabled: "{{ lookup('env', 'GCP_ENABLED') }}"
 gcp_project_id: "{{ lookup('env', 'PROJECT_NAME') }}"

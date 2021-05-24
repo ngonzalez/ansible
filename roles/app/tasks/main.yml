@@ -9,6 +9,12 @@
       - libpq-dev
       - ruby-dev
   no_log: True
+  
+# inventory
+- name: Include inventory
+  include_vars:
+    file: inventory.yml
+  no_log: True
 
 # ssh
 - name: Include ssh vault vars
