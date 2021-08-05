@@ -175,17 +175,25 @@
 - name: Extract dragonfly archive
   unarchive:
     src: "{{ app_dragonfly_local_file_path }}"
-    dest: "{{ app_dragonfly_tmp_path }}"
+    dest: "/tmp"
     remote_src: yes
   when: not app_dragonfly_tmp_folder.stat.exists
+  no_log: True
+
+- name: Change dragonfly folder ownership
+  file:
+    path: "{{ app_dragonfly_tmp_path }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
   # no_log: True
 
 - name: Link dragonfly temporary folder to application folder
   file:
     src: "{{ app_dragonfly_tmp_path }}"
     dest: "{{ app_dragonfly_path }}"
-    owner: "{{ nginx_user }}"
-    group: "{{ nginx_user }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     state: link
   # no_log: True
 
