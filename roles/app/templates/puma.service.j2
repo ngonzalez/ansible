@@ -6,7 +6,7 @@ Documentation=http://github.com/ngonzalez
 [Service]
 Type=simple
 WorkingDirectory={{ app_path }}
-ExecStart=/usr/bin/bundle2.7 exec puma -C config/puma.rb -e production -b unix:///{{ puma_sock }}
+ExecStart=/usr/bin/bundle2.7 exec puma -C config/puma.rb -e production -b unix:///{{ app_puma_sock }}
 EnvironmentFile={{ app_path }}/.env
 PIDFile={{ app_path }}{{ app_puma_pid_path }}
 Restart=always
