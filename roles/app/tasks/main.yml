@@ -116,6 +116,79 @@
     mode: 0644
   no_log: True
 
+# google cloud storage
+- name: Install google cloud storage
+  become_user: "{{ ansible_user }}"
+  gem:
+    name: google-cloud-storage
+    state: latest
+
+# dragonfly
+- name: Remove dragonfly folder
+  file:
+    path: "{{ app_dragonfly_path }}"
+    state: absent
+  no_log: True
+
+- name: Generate dragonfly helpers
+  become_user: "{{ ansible_user }}"
+  template:
+    src: assets_dl.rb.j2
+    dest: "{{ app_path }}/bin/download_assets"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  no_log: True
+
+- name: Check if dragonfly archive exists
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: "{{ app_dragonfly_local_file_path }}"
+  register: app_dragonfly_local_file
+  # no_log: True
+
+- name: Download dragonfly archive
+  become_user: "{{ ansible_user }}"
+  command: bin/download_assets
+  args:
+    chdir: "{{ app_path }}"
+  when: not app_dragonfly_local_file.stat.exists and app_gcp_enabled
+  # no_log: True
+
+- name: Check if dragonfly temporary folder exists
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: "{{ app_dragonfly_tmp_path }}"
+  register: app_dragonfly_tmp_folder
+  # no_log: True
+
+- name: Create dragonfly temporary folder
+  file:
+    path: "{{ app_dragonfly_tmp_path }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  when: not app_dragonfly_tmp_folder.stat.exists
+  # no_log: True
+
+- name: Extract dragonfly archive
+  unarchive:
+    src: "{{ app_dragonfly_local_file_path }}"
+    dest: "{{ app_dragonfly_tmp_path }}"
+    remote_src: yes
+  when: not app_dragonfly_tmp_folder.stat.exists
+  # no_log: True
+
+- name: Link dragonfly temporary folder to application folder
+  file:
+    src: "{{ app_dragonfly_tmp_path }}"
+    dest: "{{ app_dragonfly_path }}"
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    state: link
+  # no_log: True
+
 # bundle
 - name: Install application bundle dependencies
   apt:
@@ -132,12 +205,6 @@
   gem:
     name: bundler
     version: "{{ app_bundle_version }}"
-
-- name: Install google cloud storage
-  become_user: "{{ ansible_user }}"
-  gem:
-    name: google-cloud-storage
-    state: latest
 
 - name: Get stats from Gemfile.lock
   stat:
@@ -283,30 +350,6 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0755
-  no_log: True
-
-# dragonfly
-- name: Remove dragonfly application folder
-  file:
-    path: "{{ app_path }}/dragonfly"
-    state: absent
-  no_log: True
-
-- name: Check if dragonfly import folder exists
-  become_user: "{{ ansible_user }}"
-  stat:
-    path: /tmp/dragonfly
-  register: dragonfly_folder
-  no_log: True
-
-- name: Link dragonfly to application folder
-  file:
-    src: /tmp/dragonfly
-    dest: "{{ app_path }}/dragonfly"
-    owner: "{{ nginx_user }}"
-    group: "{{ nginx_user }}"
-    state: link
-  when: dragonfly_folder.stat.exists
   no_log: True
 
 # puma
