@@ -94,10 +94,15 @@
     mode: 0644
   no_log: True
 
-# vault db
+# vault
 - name: Include vault db vars
   include_vars:
     file: vault_db.yml
+  no_log: True
+
+- name: Include vault app vars
+  include_vars:
+    file: vault_app.yml
   no_log: True
 
 # environment

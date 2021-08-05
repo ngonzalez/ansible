@@ -20,7 +20,7 @@
 #
 
 upstream puma_server {
-	server unix:{{ puma_sock }};
+	server unix:{{ app_puma_sock }};
 }
 
 server {
