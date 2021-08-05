@@ -145,7 +145,7 @@
   stat:
     path: "{{ app_dragonfly_local_file_path }}"
   register: app_dragonfly_local_file
-  # no_log: True
+  no_log: True
 
 - name: Download dragonfly archive
   become_user: "{{ ansible_user }}"
@@ -153,14 +153,14 @@
   args:
     chdir: "{{ app_path }}"
   when: not app_dragonfly_local_file.stat.exists and app_gcp_enabled
-  # no_log: True
+  no_log: True
 
 - name: Check if dragonfly temporary folder exists
   become_user: "{{ ansible_user }}"
   stat:
     path: "{{ app_dragonfly_tmp_path }}"
   register: app_dragonfly_tmp_folder
-  # no_log: True
+  no_log: True
 
 - name: Create dragonfly temporary folder
   file:
@@ -170,7 +170,7 @@
     group: "{{ ansible_user }}"
     mode: 0755
   when: not app_dragonfly_tmp_folder.stat.exists
-  # no_log: True
+  no_log: True
 
 - name: Extract dragonfly archive
   unarchive:
@@ -186,7 +186,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     recurse: yes
-  # no_log: True
+  no_log: True
 
 - name: Link dragonfly temporary folder to application folder
   file:
@@ -195,7 +195,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     state: link
-  # no_log: True
+  no_log: True
 
 # bundle
 - name: Install application bundle dependencies
@@ -331,7 +331,6 @@
   shell:
     chdir: "{{ app_path }}"
     cmd:  /usr/bin/bundle2.7 exec rails db:migrate
-  # no_log: True
 
 # assets
 - name: Precompile assets
