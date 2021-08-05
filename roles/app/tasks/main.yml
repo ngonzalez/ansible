@@ -285,6 +285,30 @@
     mode: 0755
   no_log: True
 
+# dragonfly
+- name: Remove dragonfly application folder
+  file:
+    path: "{{ app_path }}/dragonfly"
+    state: absent
+  no_log: True
+
+- name: Check if dragonfly import folder exists
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: /tmp/dragonfly
+  register: dragonfly_folder
+  no_log: True
+
+- name: Link dragonfly to application folder
+  file:
+    src: /tmp/dragonfly
+    dest: "{{ app_path }}/dragonfly"
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_user }}"
+    state: link
+  when: dragonfly_folder.stat.exists
+  no_log: True
+
 # puma
 - name: Copy puma service file
   template:
