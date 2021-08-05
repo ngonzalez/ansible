@@ -10,7 +10,7 @@ app_gcp_config_path: "{{ app_path }}/gcp.json"
 
 # bundle
 app_bundle_version: 2.2.16
-app_bundle_src_path: /home/{{ ansible_user }}/bundle
+app_bundle_src_path: /tmp/bundle
 app_bundle_src_remote_path: cache/bundle
 
 # dragonfly
