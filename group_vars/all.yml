@@ -1,17 +1,2 @@
 ---
 ansible_python_interpreter: /usr/bin/python3
-
-# gcp
-gcp_enabled: "{{ lookup('env', 'GCP_ENABLED') }}"
-gcp_project_id: "{{ lookup('env', 'PROJECT_NAME') }}"
-gcp_storage_bucket: "{{ lookup('env', 'BUCKET_NAME') }}"
-
-# nginx
-nginx_port: 8000
-nginx_user: www-data
-
-# puma
-puma_sock: /tmp/puma.sock
-
-# app
-app_path: /var/www/app

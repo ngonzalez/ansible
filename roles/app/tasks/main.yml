@@ -94,6 +94,23 @@
     mode: 0644
   no_log: True
 
+# vault db
+- name: Include vault db vars
+  include_vars:
+    file: vault_db.yml
+  no_log: True
+
+# environment
+- name: Generate application environment file
+  become_user: "{{ ansible_user }}"
+  template:
+    src: app.env.j2
+    dest: "{{ app_path }}/.env"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0644
+  no_log: True
+
 # bundle
 - name: Install application bundle dependencies
   apt:
@@ -201,22 +218,6 @@
   args:
     chdir: "{{ app_path }}"
 
-# environment
-- name: Include pg vault vars
-  include_vars:
-    file: vault_pg.yml
-  no_log: True
-
-- name: Generate application environment file
-  become_user: "{{ ansible_user }}"
-  template:
-    src: app.env.j2
-    dest: "{{ app_path }}/.env"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0644
-  no_log: True
-
 # yarn
 - name: Add yarnpkg apt key
   apt_key:
@@ -250,7 +251,7 @@
   shell:
     chdir: "{{ app_path }}"
     cmd:  /usr/bin/bundle2.7 exec rails db:migrate
-  no_log: True
+  # no_log: True
 
 # assets
 - name: Precompile assets

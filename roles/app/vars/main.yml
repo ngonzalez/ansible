@@ -30,8 +30,10 @@ app_sidekiq_pid_path: /tmp/pids/sidekiq.pid
 yarn_apt_key_url: https://dl.yarnpkg.com/debian/pubkey.gpg
 yarn_repository_url: https://dl.yarnpkg.com/debian/
 
+# gcp
+gcp_enabled: "{{ lookup('env', 'GCP_ENABLED') }}"
+
 # app server
-app_server_host: "{{ lookup('env', 'APP_SERVER_HOST') }}"
 app_server_port: "{{ lookup('env', 'APP_SERVER_PORT') }}"
 app_server_path: "{{ lookup('env', 'APP_SERVER_PATH') }}"
 
@@ -40,11 +42,12 @@ backup_server_host: "{{ lookup('env', 'BACKUP_SERVER_HOST') }}"
 backup_server_path: "{{ lookup('env', 'BACKUP_SERVER_PATH') }}"
 backup_server_port: "{{ lookup('env', 'BACKUP_SERVER_PORT') }}"
 
-# postgresql
-postgresql_host: 0.0.0.0
-postgresql_port: 5432
+# nginx
+nginx_port: 8000
+nginx_user: www-data
 
-# redis
-redis_host: 0.0.0.0
-redis_port: 6379
-redis_db: 0
+# puma
+puma_sock: /tmp/puma.sock
+
+# app
+app_path: /var/www/app
