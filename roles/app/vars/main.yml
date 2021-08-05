@@ -31,9 +31,9 @@ yarn_apt_key_url: https://dl.yarnpkg.com/debian/pubkey.gpg
 yarn_repository_url: https://dl.yarnpkg.com/debian/
 
 # app server
-app_server_host: 0.0.0.0
-app_server_port: 80
-app_server_path: /hls
+app_server_host: "{{ lookup('env', 'APP_SERVER_HOST') }}"
+app_server_port: "{{ lookup('env', 'APP_SERVER_PORT') }}"
+app_server_path: "{{ lookup('env', 'APP_SERVER_PATH') }}"
 
 # backup server
 backup_server_host: "{{ lookup('env', 'BACKUP_SERVER_HOST') }}"
