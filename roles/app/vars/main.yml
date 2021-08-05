@@ -13,6 +13,12 @@ app_bundle_version: 2.2.16
 app_bundle_src_path: /home/{{ ansible_user }}/bundle
 app_bundle_src_remote_path: cache/bundle
 
+# dragonfly
+app_dragonfly_path: "{{ app_path }}/dragonfly"
+app_dragonfly_tmp_path: /tmp/dragonfly
+app_dragonfly_remote_file_path: dragonfly.zip
+app_dragonfly_local_file_path: /tmp/dragonfly.zip
+
 # puma
 app_puma_service_name: puma
 app_puma_service_description: Puma is a simple, fast, threaded, and highly concurrent HTTP 1.1 server for Ruby/Rack applications.
