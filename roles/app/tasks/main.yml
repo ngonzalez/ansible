@@ -9,12 +9,6 @@
       - libpq-dev
       - ruby-dev
   no_log: True
-  
-# inventory
-- name: Include inventory
-  include_vars:
-    file: inventory.yml
-  no_log: True
 
 # ssh
 - name: Include ssh vault vars
@@ -106,6 +100,11 @@
   no_log: True
 
 # environment
+- name: Include inventory
+  include_vars:
+    file: inventory.yml
+  no_log: True
+
 - name: Generate application environment file
   become_user: "{{ ansible_user }}"
   template:
@@ -130,6 +129,13 @@
     state: absent
   no_log: True
 
+- name: Check if dragonfly archive exists
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: "{{ app_dragonfly_local_file_path }}"
+  register: app_dragonfly_local_file
+  no_log: True
+
 - name: Generate dragonfly helpers
   become_user: "{{ ansible_user }}"
   template:
@@ -138,13 +144,6 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0755
-  no_log: True
-
-- name: Check if dragonfly archive exists
-  become_user: "{{ ansible_user }}"
-  stat:
-    path: "{{ app_dragonfly_local_file_path }}"
-  register: app_dragonfly_local_file
   no_log: True
 
 - name: Download dragonfly archive
@@ -160,16 +159,6 @@
   stat:
     path: "{{ app_dragonfly_tmp_path }}"
   register: app_dragonfly_tmp_folder
-  no_log: True
-
-- name: Create dragonfly temporary folder
-  file:
-    path: "{{ app_dragonfly_tmp_path }}"
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0755
-  when: not app_dragonfly_tmp_folder.stat.exists
   no_log: True
 
 - name: Extract dragonfly archive
@@ -213,17 +202,16 @@
   gem:
     name: bundler
     version: "{{ app_bundle_version }}"
+  no_log: True
 
 - name: Get stats from Gemfile.lock
   stat:
     path: "{{ app_path }}/Gemfile.lock"
   register: app_gemfile
-  no_log: True
 
 - set_fact:
-    app_bundle_archive_path: "{{ app_bundle_src_path }}-{{ app_gemfile.stat.checksum [:10] }}"
-    app_bundle_archive_remote_path: "{{ app_bundle_src_remote_path }}-{{ app_gemfile.stat.checksum [:10] }}"
-  no_log: True
+    app_bundle_archive_path: "{{ app_bundle_src_path }}-{{ app_gemfile.stat.checksum [:10] }}.xz"
+    app_bundle_archive_remote_path: "{{ app_bundle_src_remote_path }}-{{ app_gemfile.stat.checksum [:10] }}.xz"
 
 - name: Generate application bundle helpers
   become_user: "{{ ansible_user }}"
@@ -238,12 +226,6 @@
     - { src: bundle_ul.rb.j2, dest: "{{ app_path }}/bin/upload_bundle" }
   no_log: True
 
-- name: Download bundle archive
-  become_user: "{{ ansible_user }}"
-  command: bin/download_bundle
-  args:
-    chdir: "{{ app_path }}"
-
 - name: Check if bundle archive exists
   become_user: "{{ ansible_user }}"
   stat:
@@ -251,32 +233,74 @@
   register: archive_bundle
   no_log: True
 
-- name: Remove bundle directory
+- name: Download bundle archive
   become_user: "{{ ansible_user }}"
-  file:
-    path: "{{ app_path }}/vendor/cache"
-    state: absent
+  command: bin/download_bundle
+  args:
+    chdir: "{{ app_path }}"
+  when: not archive_bundle.stat.exists
   no_log: True
 
-- name: Create bundle directory
+- name: Check if bundle archive exists
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: "{{ app_bundle_archive_path }}"
+  register: app_bundle_archive_folder
+  no_log: True
+
+- name: Check if bundle tmp folder exists
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: "{{ app_bundle_archive_path }}-temp"
+  register: app_bundle_tmp_archive_folder
+  no_log: True
+
+- name: Create bundle tmp folder
   file:
-    path: "{{ app_path }}/vendor/cache"
+    path: "{{ app_bundle_archive_path }}-temp"
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0755
+  when: not app_bundle_tmp_archive_folder.stat.exists
+        and app_bundle_archive_folder.stat.exists
   no_log: True
 
 - name: Unarchive bundle
   become_user: "{{ ansible_user }}"
   unarchive:
     src: "{{ app_bundle_archive_path }}"
-    dest: "{{ app_path }}/vendor"
-    remote_src: yes
-  when: archive_bundle.stat.exists
+    dest: "{{ app_bundle_archive_path }}-temp"
+  when: not app_bundle_tmp_archive_folder.stat.exists
+        and app_bundle_archive_folder.stat.exists
   no_log: True
 
-- name: Install bundle
+- name: Remove application vendor directory
+  file:
+    path: "{{ app_path }}/vendor"
+    state: absent
+  no_log: True
+
+- name: Create application vendor directory
+  file:
+    path: "{{ app_path }}/vendor"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  no_log: True
+
+- name: Link bundle to application folder
+  file:
+    src: "{{ app_bundle_archive_path }}-temp"
+    dest: "{{ app_path }}/vendor/cache"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    state: link
+  when: app_bundle_tmp_archive_folder.stat.exists
+  no_log: True
+
+- name: bundle install
   become_user: "{{ ansible_user }}"
   command: /usr/bin/bundle2.7 install --path=vendor/cache
   args:
@@ -286,10 +310,10 @@
 - name: Archive bundle
   become_user: "{{ ansible_user }}"
   archive:
-    path: "{{ app_path }}/vendor/cache"
+    path: "{{ app_bundle_archive_path }}-temp"
     dest: "{{ app_bundle_archive_path }}"
     format: xz
-  when: not archive_bundle.stat.exists
+  when: not app_bundle_archive_folder.stat.exists
   no_log: True
 
 - name: Upload bundle
@@ -297,6 +321,7 @@
   command: bin/upload_bundle
   args:
     chdir: "{{ app_path }}"
+  no_log: True
 
 # yarn
 - name: Add yarnpkg apt key

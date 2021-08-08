@@ -25,7 +25,9 @@ else
 
   bucket = storage.bucket '{{ gcp_storage_bucket }}'
 
-  if File.exists? '{{ app_bundle_archive_path }}'
+  remote_file = bucket.file '{{ app_bundle_archive_remote_path }}'
+
+  if File.exists?('{{ app_bundle_archive_path }}') && remote_file.nil?
 
     # upload file to gcp bucket
   	bucket.create_file '{{ app_bundle_archive_path }}', '{{ app_bundle_archive_remote_path }}'
