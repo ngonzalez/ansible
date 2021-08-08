@@ -210,8 +210,8 @@
   register: app_gemfile
 
 - set_fact:
-    app_bundle_archive_path: "{{ app_bundle_src_path }}-{{ app_gemfile.stat.checksum [:10] }}.xz"
-    app_bundle_archive_remote_path: "{{ app_bundle_src_remote_path }}-{{ app_gemfile.stat.checksum [:10] }}.xz"
+    app_bundle_archive_path: "{{ app_bundle_src_path }}-{{ app_gemfile.stat.checksum [:10] }}"
+    app_bundle_archive_remote_path: "{{ app_bundle_src_remote_path }}-{{ app_gemfile.stat.checksum [:10] }}"
 
 - name: Generate application bundle helpers
   become_user: "{{ ansible_user }}"
