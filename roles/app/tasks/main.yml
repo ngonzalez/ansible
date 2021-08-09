@@ -52,13 +52,13 @@
 # app folder
 - name: Remove application directory
   file:
-    path: "{{ app_path }}"
+    path: "{{ app_tmp_path }}"
     state: absent
   no_log: True
 
 - name: Create application directory
   file:
-    path: "{{ app_path }}"
+    path: "{{ app_tmp_path }}"
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
@@ -70,7 +70,7 @@
   become_user: "{{ ansible_user }}"
   git:
     repo: "{{ app_repository }}"
-    dest: "{{ app_path }}"
+    dest: "{{ app_tmp_path }}"
 
 # gcp
 - name: Include gcp vault vars
@@ -82,7 +82,7 @@
   become_user: "{{ ansible_user }}"
   template:
     src: gcp.conf.j2
-    dest: "{{ app_gcp_config_path }}"
+    dest: "{{ app_tmp_path }}/gcp.json"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
@@ -109,7 +109,7 @@
   become_user: "{{ ansible_user }}"
   template:
     src: app.env.j2
-    dest: "{{ app_path }}/.env"
+    dest: "{{ app_tmp_path }}/.env"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
@@ -125,7 +125,7 @@
 # dragonfly
 - name: Remove dragonfly folder
   file:
-    path: "{{ app_path }}/dragonfly"
+    path: "{{ app_tmp_path }}/dragonfly"
     state: absent
   no_log: True
 
@@ -140,7 +140,7 @@
   become_user: "{{ ansible_user }}"
   template:
     src: assets_dl.rb.j2
-    dest: "{{ app_path }}/bin/download_assets"
+    dest: "{{ app_tmp_path }}/bin/download_assets"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0755
@@ -150,7 +150,7 @@
   become_user: "{{ ansible_user }}"
   command: bin/download_assets
   args:
-    chdir: "{{ app_path }}"
+    chdir: "{{ app_tmp_path }}"
   when: not app_dragonfly_local_file.stat.exists and app_gcp_enabled
   no_log: True
 
@@ -176,13 +176,6 @@
   when: not app_dragonfly_tmp_folder.stat.exists
   no_log: True
 
-- name: Check if dragonfly temporary folder exists
-  become_user: "{{ ansible_user }}"
-  stat:
-    path: "{{ app_dragonfly_tmp_path }}"
-  register: app_dragonfly_tmp_folder
-  no_log: True
-
 - name: Change dragonfly folder ownership
   file:
     path: "{{ app_dragonfly_tmp_path }}"
@@ -194,7 +187,7 @@
 - name: Link dragonfly temporary folder to application folder
   file:
     src: "{{ app_dragonfly_tmp_path }}"
-    dest: "{{ app_path }}/dragonfly"
+    dest: "{{ app_tmp_path }}/dragonfly"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     state: link
@@ -220,7 +213,7 @@
 
 - name: Get stats from Gemfile.lock
   stat:
-    path: "{{ app_path }}/Gemfile.lock"
+    path: "{{ app_tmp_path }}/Gemfile.lock"
   register: app_gemfile
 
 - set_fact:
@@ -236,8 +229,8 @@
     group: "{{ ansible_user }}"
     mode: 0755
   with_items:
-    - { src: bundle_dl.rb.j2, dest: "{{ app_path }}/bin/download_bundle" }
-    - { src: bundle_ul.rb.j2, dest: "{{ app_path }}/bin/upload_bundle" }
+    - { src: bundle_dl.rb.j2, dest: "{{ app_tmp_path }}/bin/download_bundle" }
+    - { src: bundle_ul.rb.j2, dest: "{{ app_tmp_path }}/bin/upload_bundle" }
   no_log: True
 
 - name: Check if bundle archive exists
@@ -251,7 +244,7 @@
   become_user: "{{ ansible_user }}"
   command: bin/download_bundle
   args:
-    chdir: "{{ app_path }}"
+    chdir: "{{ app_tmp_path }}"
   when: not archive_bundle.stat.exists
   no_log: True
 
@@ -297,19 +290,19 @@
     src: "{{ app_bundle_archive_path }}"
     dest: "{{ app_bundle_archive_path }}-temp"
     remote_src: yes
-  when: filesFound.matched == 0
+  when: archive_bundle.stat.exists and filesFound.matched == 0
   no_log: True
 
 - name: Remove application vendor cache
   file:
-    path: "{{ app_path }}/vendor/cache"
+    path: "{{ app_tmp_path }}/vendor/cache"
     state: absent
   no_log: True
 
 - name: Link bundle to application folder
   file:
     src: "{{ app_bundle_archive_path }}-temp"
-    dest: "{{ app_path }}/vendor/cache"
+    dest: "{{ app_tmp_path }}/vendor/cache"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     state: link
@@ -319,7 +312,7 @@
   become_user: "{{ ansible_user }}"
   command: /usr/bin/bundle2.7 install --path=vendor/cache
   args:
-    chdir: "{{ app_path }}"
+    chdir: "{{ app_tmp_path }}"
   no_log: True
 
 - name: Archive bundle
@@ -335,7 +328,7 @@
   become_user: "{{ ansible_user }}"
   command: bin/upload_bundle
   args:
-    chdir: "{{ app_path }}"
+    chdir: "{{ app_tmp_path }}"
   no_log: True
 
 # yarn
@@ -363,27 +356,27 @@
   become_user: "{{ ansible_user }}"
   command: /usr/bin/bundle2.7 exec bin/spring stop
   args:
-    chdir: "{{ app_path }}"
+    chdir: "{{ app_tmp_path }}"
 
 # database migrations
 - name: Run database migrations
   become_user: "{{ ansible_user }}"
   shell:
-    chdir: "{{ app_path }}"
+    chdir: "{{ app_tmp_path }}"
     cmd:  /usr/bin/bundle2.7 exec rails db:migrate
 
 # assets
 - name: Precompile assets
   become_user: "{{ ansible_user }}"
   shell:
-    chdir: "{{ app_path }}"
+    chdir: "{{ app_tmp_path }}"
     cmd:  /usr/bin/bundle2.7 exec rake assets:precompile RAILS_ENV=production
   no_log: True
 
 # public folder
 - name: Change public folder ownership and permissions
   file:
-    path: "{{ app_path }}/public"
+    path: "{{ app_tmp_path }}/public"
     owner: "{{ nginx_user }}"
     group: "{{ nginx_user }}"
     recurse: yes
@@ -398,6 +391,11 @@
     group: "{{ ansible_user }}"
     mode: 0755
   no_log: True
+
+# link to application
+- name: Move to application folder
+  become_user: root
+  command: mv "{{ app_tmp_path }}" "{{ app_path }}"
 
 # puma
 - name: Copy puma service file

@@ -1,12 +1,12 @@
 ---
 # app
 app_path: /var/www/app
+app_tmp_path: /tmp/app-deploy
 app_repository: https://github.com/ngonzalez/music-rails.git
 app_environment_path: "{{ app_path }}/.env"
 
 # gcp
 app_gcp_enabled: "{{ lookup('env', 'GCP_ENABLED') }}"
-app_gcp_config_path: "{{ app_path }}/gcp.json"
 
 # bundle
 app_bundle_version: 2.2.16
