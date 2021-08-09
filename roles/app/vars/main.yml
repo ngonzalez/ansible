@@ -11,10 +11,9 @@ app_gcp_config_path: "{{ app_path }}/gcp.json"
 # bundle
 app_bundle_version: 2.2.16
 app_bundle_src_path: /tmp/bundle
-app_bundle_src_remote_path: cache/bundle
+app_bundle_src_remote_path: bundle
 
 # dragonfly
-app_dragonfly_path: "{{ app_path }}/dragonfly"
 app_dragonfly_tmp_path: /tmp/dragonfly
 app_dragonfly_remote_file_path: dragonfly.zip
 app_dragonfly_local_file_path: /tmp/dragonfly.zip

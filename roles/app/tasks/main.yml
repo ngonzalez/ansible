@@ -125,7 +125,7 @@
 # dragonfly
 - name: Remove dragonfly folder
   file:
-    path: "{{ app_dragonfly_path }}"
+    path: "{{ app_path }}/dragonfly"
     state: absent
   no_log: True
 
@@ -154,6 +154,13 @@
   when: not app_dragonfly_local_file.stat.exists and app_gcp_enabled
   no_log: True
 
+- name: Check if dragonfly archive exists
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: "{{ app_dragonfly_local_file_path }}"
+  register: app_dragonfly_local_file
+  no_log: True
+
 - name: Check if dragonfly temporary folder exists
   become_user: "{{ ansible_user }}"
   stat:
@@ -169,6 +176,13 @@
   when: not app_dragonfly_tmp_folder.stat.exists
   no_log: True
 
+- name: Check if dragonfly temporary folder exists
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: "{{ app_dragonfly_tmp_path }}"
+  register: app_dragonfly_tmp_folder
+  no_log: True
+
 - name: Change dragonfly folder ownership
   file:
     path: "{{ app_dragonfly_tmp_path }}"
@@ -180,7 +194,7 @@
 - name: Link dragonfly temporary folder to application folder
   file:
     src: "{{ app_dragonfly_tmp_path }}"
-    dest: "{{ app_dragonfly_path }}"
+    dest: "{{ app_path }}/dragonfly"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     state: link
@@ -241,6 +255,13 @@
   when: not archive_bundle.stat.exists
   no_log: True
 
+- name: Check if bundle archive exists
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: "{{ app_bundle_archive_path }}"
+  register: archive_bundle
+  no_log: True
+
 - name: Check if bundle temporary folder exists
   become_user: "{{ ansible_user }}"
   stat:
@@ -256,6 +277,13 @@
     group: "{{ ansible_user }}"
     mode: 0755
   when: not app_bundle_tmp_folder.stat.exists
+  no_log: True
+
+- name: Check if bundle temporary folder exists
+  become_user: "{{ ansible_user }}"
+  stat:
+    path: "{{ app_bundle_archive_path }}-temp"
+  register: app_bundle_tmp_folder
   no_log: True
 
 - name: Check if bundle temporary folder is empty
