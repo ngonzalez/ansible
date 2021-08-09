@@ -231,7 +231,7 @@
   stat:
     path: "{{ app_bundle_archive_path }}"
   register: archive_bundle
-  # no_log: True
+  no_log: True
 
 - name: Download bundle archive
   become_user: "{{ ansible_user }}"
@@ -239,14 +239,14 @@
   args:
     chdir: "{{ app_path }}"
   when: not archive_bundle.stat.exists
-  # no_log: True
+  no_log: True
 
 - name: Check if bundle temporary folder exists
   become_user: "{{ ansible_user }}"
   stat:
     path: "{{ app_bundle_archive_path }}-temp"
   register: app_bundle_tmp_folder
-  # no_log: True
+  no_log: True
 
 - name: Create bundle temporary folder
   file:
@@ -256,7 +256,7 @@
     group: "{{ ansible_user }}"
     mode: 0755
   when: not app_bundle_tmp_folder.stat.exists
-  # no_log: True
+  no_log: True
 
 - name: Check if bundle temporary folder is empty
   find:
@@ -270,22 +270,13 @@
     dest: "{{ app_bundle_archive_path }}-temp"
     remote_src: yes
   when: filesFound.matched == 0
-  # no_log: True
+  no_log: True
 
-- name: Remove vendor cache directory
+- name: Remove application vendor cache
   file:
     path: "{{ app_path }}/vendor/cache"
     state: absent
-  # no_log: True
-
-- name: Create vendor cache directory
-  file:
-    path: "{{ app_path }}/vendor/cache"
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0755
-  # no_log: True
+  no_log: True
 
 - name: Link bundle to application folder
   file:
@@ -294,7 +285,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     state: link
-  # no_log: True
+  no_log: True
 
 - name: bundle install
   become_user: "{{ ansible_user }}"
@@ -310,14 +301,14 @@
     dest: "{{ app_bundle_archive_path }}"
     format: xz
   when: not archive_bundle.stat.exists
-  # no_log: True
+  no_log: True
 
 - name: Upload bundle
   become_user: "{{ ansible_user }}"
   command: bin/upload_bundle
   args:
     chdir: "{{ app_path }}"
-  # no_log: True
+  no_log: True
 
 # yarn
 - name: Add yarnpkg apt key
