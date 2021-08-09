@@ -248,14 +248,14 @@
   register: app_bundle_archive_folder
   no_log: True
 
-- name: Check if bundle tmp folder exists
+- name: Check if bundle temporary folder exists
   become_user: "{{ ansible_user }}"
   stat:
     path: "{{ app_bundle_archive_path }}-temp"
   register: app_bundle_tmp_archive_folder
   no_log: True
 
-- name: Create bundle tmp folder
+- name: Create bundle temporary folder
   file:
     path: "{{ app_bundle_archive_path }}-temp"
     state: directory
@@ -273,21 +273,6 @@
     dest: "{{ app_bundle_archive_path }}-temp"
   when: not app_bundle_tmp_archive_folder.stat.exists
         and app_bundle_archive_folder.stat.exists
-  no_log: True
-
-- name: Remove application vendor directory
-  file:
-    path: "{{ app_path }}/vendor"
-    state: absent
-  no_log: True
-
-- name: Create application vendor directory
-  file:
-    path: "{{ app_path }}/vendor"
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0755
   no_log: True
 
 - name: Link bundle to application folder
