@@ -3,6 +3,7 @@
 require 'digest'
 require 'fileutils'
 require 'json'
+require 'logger'
 require 'optparse'
 require 'securerandom'
 require 'yaml'
@@ -19,6 +20,8 @@ end
 options = {}
 option_parser.parse!(into: options)
 options.each_with_index { |(k,v),i| options[k] = ARGV[i] }
+
+@logger = Logger.new $stdout
 
 require_relative 'kubernetes'
 
@@ -55,10 +58,16 @@ File.open('inventory.yml', 'w') do |f|
 	f.write inventory_hash.to_yaml
 end
 
-hsh = {}
-hsh.merge! 'app_cluster_ip' => kube.ingress[0][:ip] if kube.ingress
-hsh.merge! 'db_cluster_ip' => kube.database_loadbalancer[0][:ip] if kube.database_loadbalancer
-FileUtils.rm_f('roles/app/vars/inventory.yml')
-File.open('roles/app/vars/inventory.yml', 'w') { |f| f.write hsh.to_yaml }
+begin
+	hsh = {}
+	hsh.merge! 'app_cluster_ip' => kube.ingress[0][:ip] if kube.ingress
+	hsh.merge! 'db_cluster_ip' => kube.database_loadbalancer[0][:ip] if kube.database_loadbalancer
+	FileUtils.rm_f('roles/app/vars/inventory.yml')
+	File.open('roles/app/vars/inventory.yml', 'w') { |f| f.write hsh.to_yaml }
+rescue => exception
+	@logger.error exception
+	@logger.info "Try the following if the load balancer external IP is pending: minikube tunnel" if kube.database_loadbalancer
+	@logger.info "If the ingress is not being assigned an IP: minikube addons enable ingress" if kube.ingress
+end
 
 exit 0
