@@ -393,6 +393,11 @@
   no_log: True
 
 # link to application
+- name: Remove application directory
+  file:
+    path: "{{ app_path }}"
+    state: absent
+
 - name: Move to application folder
   become_user: root
   command: mv "{{ app_tmp_path }}" "{{ app_path }}"
