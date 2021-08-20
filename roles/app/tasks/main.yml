@@ -357,6 +357,7 @@
   command: /usr/bin/bundle2.7 exec bin/spring stop
   args:
     chdir: "{{ app_tmp_path }}"
+  no_log: True
 
 # database migrations
 - name: Run database migrations
@@ -397,10 +398,12 @@
   file:
     path: "{{ app_path }}"
     state: absent
+  no_log: True
 
 - name: Move to application folder
   become_user: root
   command: mv "{{ app_tmp_path }}" "{{ app_path }}"
+  no_log: True
 
 # puma
 - name: Copy puma service file
@@ -420,6 +423,7 @@
     daemon_reload: True
     state: restarted
     name: puma
+  no_log: True
 
 # sidekiq
 - name: Copy sidekiq service file
@@ -439,3 +443,4 @@
     daemon_reload: True
     state: restarted
     name: sidekiq
+  no_log: True
