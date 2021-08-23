@@ -19,3 +19,4 @@
     daemon_reload: True
     state: started
     name: nginx
+  no_log: True

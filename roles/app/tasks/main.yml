@@ -275,6 +275,7 @@
   find:
     paths: "{{ app_bundle_archive_path }}-temp"
   register: filesFound
+  no_log: True
 
 - name: Unarchive bundle
   become_user: "{{ ansible_user }}"
