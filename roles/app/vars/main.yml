@@ -8,6 +8,10 @@ app_environment_path: "{{ app_path }}/.env"
 # gcp
 app_gcp_enabled: "{{ lookup('env', 'GCP_ENABLED') }}"
 
+# google cloud sdk
+google_cloud_sdk_keyring: "/usr/share/keyrings/cloud.google.gpg"
+google_cloud_sdk_packages: "https://packages.cloud.google.com/apt"
+
 # bundle
 app_bundle_version: 2.2.16
 app_bundle_src_path: /tmp/bundle
