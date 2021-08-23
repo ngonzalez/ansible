@@ -1,4 +1,49 @@
 ---
+# gcp
+- name: Include google cloud vault vars
+  include_vars:
+    file: vault_gcp.yml
+  no_log: True
+
+- name: Create google cloud key file
+  become_user: "{{ ansible_user }}"
+  template:
+    src: gcp.conf.j2
+    dest: "/home/{{ ansible_user }}/gcp.json"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0644
+  no_log: True
+
+# install google cloud
+- name: Add google cloud apt key
+  apt_key:
+    url: "{{ google_cloud_sdk_packages }}/doc/apt-key.gpg"
+    keyring: "{{ google_cloud_sdk_keyring }}"
+    state: present
+
+- name: Add google cloud apt repository
+  apt_repository:
+    repo: deb [signed-by={{ google_cloud_sdk_keyring }}] {{ google_cloud_sdk_packages }} cloud-sdk main
+    state: present
+
+- name: Install google cloud sdk
+  apt:
+    name:
+      - google-cloud-sdk
+    update_cache: true
+
+# google cloud authenticate
+- name: gcloud set project
+  command: gcloud config set project {{ gcp_project_id }}
+
+- name: gcloud set account
+  command: gcloud config set account {{ gcp_client_email }}
+
+- name: gcloud activate account
+  command: "gcloud auth activate-service-account {{ gcp_client_email }} \
+              --key-file /home/{{ ansible_user }}/gcp.json"
+
 # application dependencies
 - name: Install application dependencies
   apt:
@@ -72,50 +117,6 @@
     repo: "{{ app_repository }}"
     dest: "{{ app_tmp_path }}"
 
-# gcp
-- name: Include gcp vault vars
-  include_vars:
-    file: vault_gcp.yml
-  no_log: True
-
-- name: Create gcp identify file
-  become_user: "{{ ansible_user }}"
-  template:
-    src: gcp.conf.j2
-    dest: "{{ app_tmp_path }}/gcp.json"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0644
-  no_log: True
-
-# install google cloud
-- name: Add google cloud apt key
-  apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    keyring: /usr/share/keyrings/cloud.google.gpg
-    state: present
-
-- name: Add google cloud apt repository
-  apt_repository:
-    repo: deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main
-    state: present
-
-- name: Install google cloud sdk
-  apt:
-    name:
-      - google-cloud-sdk
-    update_cache: true
-
-# google cloud authenticate
-- name: gcloud set project
-  command: gcloud config set project {{ gcp_project_id }}
-
-- name: gcloud set account
-  command: gcloud config set account {{ gcp_client_email }}
-
-- name: gcloud activate account
-  command: gcloud auth activate-service-account {{ gcp_client_email }} --key-file "{{ app_tmp_path }}/gcp.json"
-
 # vault
 - name: Include vault db vars
   include_vars:
@@ -159,14 +160,9 @@
 
 - name: Download dragonfly archive
   become_user: "{{ ansible_user }}"
-  command: "gsutil cp gs://{{ gcp_storage_bucket }}/{{ app_dragonfly_remote_file_path }} {{ app_dragonfly_local_file_path }}"
+  command: "gsutil cp gs://{{ gcp_storage_bucket }}/{{ app_dragonfly_remote_file_path }} \
+              {{ app_dragonfly_local_file_path }}"
   when: not app_dragonfly_local_file.stat.exists and app_gcp_enabled
-
-- name: Check if dragonfly archive exists
-  become_user: "{{ ansible_user }}"
-  stat:
-    path: "{{ app_dragonfly_local_file_path }}"
-  register: app_dragonfly_local_file
   no_log: True
 
 - name: Check if dragonfly temporary folder exists
@@ -223,10 +219,12 @@
   stat:
     path: "{{ app_tmp_path }}/Gemfile.lock"
   register: app_gemfile
+  no_log: True
 
 - set_fact:
     app_bundle_archive_path: "{{ app_bundle_src_path }}-{{ app_gemfile.stat.checksum [:10] }}"
     app_bundle_archive_remote_path: "{{ app_bundle_src_remote_path }}-{{ app_gemfile.stat.checksum [:10] }}"
+  no_log: True
 
 - name: Check if bundle archive exists
   become_user: "{{ ansible_user }}"
@@ -237,8 +235,10 @@
 
 - name: Download bundle archive
   become_user: "{{ ansible_user }}"
-  command: "gsutil cp gs://{{ gcp_storage_bucket }}/{{ app_bundle_archive_remote_path }} {{ app_bundle_archive_path }}"
+  command: "gsutil cp gs://{{ gcp_storage_bucket }}/{{ app_bundle_archive_remote_path }} \
+              {{ app_bundle_archive_path }}"
   when: not archive_bundle.stat.exists
+  no_log: True
 
 - name: Check if bundle archive exists
   become_user: "{{ ansible_user }}"
@@ -318,7 +318,9 @@
 
 - name: Upload bundle
   become_user: "{{ ansible_user }}"
-  command: "gsutil cp {{ app_bundle_archive_path }} gs://{{ gcp_storage_bucket }}/{{ app_bundle_archive_remote_path }}"
+  command: "gsutil cp {{ app_bundle_archive_path }} \
+              gs://{{ gcp_storage_bucket }}/{{ app_bundle_archive_remote_path }}"
+  no_log: True
 
 # yarn
 - name: Add yarnpkg apt key
