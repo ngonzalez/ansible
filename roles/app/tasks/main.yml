@@ -44,6 +44,13 @@
   command: "gcloud auth activate-service-account {{ gcp_client_email }} \
               --key-file /home/{{ ansible_user }}/gcp.json"
 
+# google cloud storage
+- name: Install google cloud storage
+  become_user: "{{ ansible_user }}"
+  gem:
+    name: google-cloud-storage
+    state: latest
+
 # application dependencies
 - name: Install application dependencies
   apt:
@@ -158,12 +165,22 @@
   register: app_dragonfly_local_file
   no_log: True
 
+- name: Generate dragonfly helpers
+  become_user: "{{ ansible_user }}"
+  template:
+    src: assets_dl.rb.j2
+    dest: "{{ app_tmp_path }}/bin/download_assets"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  no_log: True
+
 - name: Download dragonfly archive
   become_user: "{{ ansible_user }}"
-  command: "gsutil cp gs://{{ gcp_storage_bucket }}/{{ app_dragonfly_remote_file_path }} \
-              {{ app_dragonfly_local_file_path }}"
+  command: bin/download_assets
+  args:
+    chdir: "{{ app_tmp_path }}"
   when: not app_dragonfly_local_file.stat.exists and app_gcp_enabled
-  no_log: True
 
 - name: Check if dragonfly temporary folder exists
   become_user: "{{ ansible_user }}"
@@ -226,6 +243,19 @@
     app_bundle_archive_remote_path: "{{ app_bundle_src_remote_path }}-{{ app_gemfile.stat.checksum [:10] }}"
   no_log: True
 
+- name: Generate application bundle helpers
+  become_user: "{{ ansible_user }}"
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  with_items:
+    - { src: bundle_dl.rb.j2, dest: "{{ app_tmp_path }}/bin/download_bundle" }
+    - { src: bundle_ul.rb.j2, dest: "{{ app_tmp_path }}/bin/upload_bundle" }
+  no_log: True
+
 - name: Check if bundle archive exists
   become_user: "{{ ansible_user }}"
   stat:
@@ -235,10 +265,10 @@
 
 - name: Download bundle archive
   become_user: "{{ ansible_user }}"
-  command: "gsutil cp gs://{{ gcp_storage_bucket }}/{{ app_bundle_archive_remote_path }} \
-              {{ app_bundle_archive_path }}"
+  command: bin/download_bundle
+  args:
+    chdir: "{{ app_tmp_path }}"
   when: not archive_bundle.stat.exists
-  no_log: True
 
 - name: Check if bundle archive exists
   become_user: "{{ ansible_user }}"
@@ -319,9 +349,9 @@
 
 - name: Upload bundle
   become_user: "{{ ansible_user }}"
-  command: "gsutil cp {{ app_bundle_archive_path }} \
-              gs://{{ gcp_storage_bucket }}/{{ app_bundle_archive_remote_path }}"
-  no_log: True
+  command: bin/upload_bundle
+  args:
+    chdir: "{{ app_tmp_path }}"
 
 # yarn
 - name: Add yarnpkg apt key

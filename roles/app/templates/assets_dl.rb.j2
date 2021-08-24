@@ -1,0 +1,41 @@
+#!/usr/bin/env ruby
+
+require "fileutils"
+require "google/cloud/storage"
+
+GCP_ENABLED="{{ app_gcp_enabled }}"
+
+if GCP_ENABLED == "false"
+
+  # normalize path
+  path = "{{ app_dragonfly_remote_file_path }}".gsub("/", "-")
+
+  if File.exists? "/tmp/#{path}"
+
+    # copy file from /tmp folder
+    FileUtils.cp "/tmp/#{path}", "{{ app_dragonfly_local_file_path }}"
+
+  end
+else
+
+  storage = Google::Cloud::Storage.new(
+       project_id: "{{ gcp_project_id }}",
+       credentials: "/home/{{ ansible_user }}/gcp.json"
+  )
+
+  bucket = storage.bucket "{{ gcp_storage_bucket }}"
+
+  file = bucket.file "{{ app_dragonfly_remote_file_path }}"
+
+  if !file.nil?
+
+    # download file from gcp bucket
+    # file.download "{{ app_dragonfly_local_file_path }}"
+
+    `gsutil cp gs://{{ gcp_storage_bucket }}/{{ app_dragonfly_remote_file_path }} \
+        {{ app_dragonfly_local_file_path }}`
+
+  end
+end
+
+exit 0
