@@ -1,4 +1,16 @@
 ---
+# application dependencies
+- name: Install application dependencies
+  apt:
+    name:
+      - ffmpeg
+      - gpg
+      - imagemagick
+      - lame
+      - libpq-dev
+      - ruby-dev
+  no_log: True
+
 # gcp
 - name: Include google cloud vault vars
   include_vars:
@@ -50,17 +62,6 @@
   gem:
     name: google-cloud-storage
     state: latest
-
-# application dependencies
-- name: Install application dependencies
-  apt:
-    name:
-      - ffmpeg
-      - imagemagick
-      - lame
-      - libpq-dev
-      - ruby-dev
-  no_log: True
 
 # ssh
 - name: Include ssh vault vars
