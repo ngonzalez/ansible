@@ -47,17 +47,19 @@
 
 # google cloud authenticate
 - name: gcloud set project
+  become_user: "{{ ansible_user }}"
   command: gcloud config set project {{ gcp_project_id }}
 
 - name: gcloud set account
+  become_user: "{{ ansible_user }}"
   command: gcloud config set account {{ gcp_client_email }}
 
 - name: gcloud activate account
-  command: "gcloud auth activate-service-account {{ gcp_client_email }} \
-              --key-file /home/{{ ansible_user }}/gcp.json"
+  become_user: "{{ ansible_user }}"
+  command: "gcloud auth activate-service-account {{ gcp_client_email }} --key-file /home/{{ ansible_user }}/gcp.json"
 
 # google cloud storage
-- name: Install google cloud storage
+- name: Install google cloud storage gem
   become_user: "{{ ansible_user }}"
   gem:
     name: google-cloud-storage
@@ -182,6 +184,7 @@
   args:
     chdir: "{{ app_tmp_path }}"
   when: not app_dragonfly_local_file.stat.exists and app_gcp_enabled
+  no_log: True
 
 - name: Check if dragonfly temporary folder exists
   become_user: "{{ ansible_user }}"
@@ -270,6 +273,7 @@
   args:
     chdir: "{{ app_tmp_path }}"
   when: not archive_bundle.stat.exists
+  no_log: True
 
 - name: Check if bundle archive exists
   become_user: "{{ ansible_user }}"
@@ -353,6 +357,7 @@
   command: bin/upload_bundle
   args:
     chdir: "{{ app_tmp_path }}"
+  no_log: True
 
 # yarn
 - name: Add yarnpkg apt key
