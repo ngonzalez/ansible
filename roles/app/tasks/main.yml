@@ -11,22 +11,6 @@
       - ruby-dev
   no_log: True
 
-# app folder
-- name: Remove application directory
-  file:
-    path: "{{ app_tmp_path }}"
-    state: absent
-  no_log: True
-
-- name: Create application directory
-  file:
-    path: "{{ app_tmp_path }}"
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0755
-  no_log: True
-
 # gcp
 - name: Include google cloud vault vars
   include_vars:
@@ -65,23 +49,17 @@
 - name: gcloud set project
   become_user: "{{ ansible_user }}"
   command: gcloud config set project {{ gcp_project_id }}
-  args:
-    chdir: "{{ app_tmp_path }}"
 
 - name: gcloud set account
   become_user: "{{ ansible_user }}"
   command: gcloud config set account {{ gcp_client_email }}
-  args:
-    chdir: "{{ app_tmp_path }}"
 
 - name: gcloud activate account
   become_user: "{{ ansible_user }}"
   command: "gcloud auth activate-service-account {{ gcp_client_email }} --key-file /home/{{ ansible_user }}/gcp.json"
-  args:
-    chdir: "{{ app_tmp_path }}"
 
 # google cloud storage
-- name: Install google cloud storage
+- name: Install google cloud storage gem
   become_user: "{{ ansible_user }}"
   gem:
     name: google-cloud-storage
@@ -124,6 +102,22 @@
     mode: 0644
     owner: "{{ ansible_user }}"
     create: True
+  no_log: True
+
+# app folder
+- name: Remove application directory
+  file:
+    path: "{{ app_tmp_path }}"
+    state: absent
+  no_log: True
+
+- name: Create application directory
+  file:
+    path: "{{ app_tmp_path }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
   no_log: True
 
 # git
@@ -190,6 +184,7 @@
   args:
     chdir: "{{ app_tmp_path }}"
   when: not app_dragonfly_local_file.stat.exists and app_gcp_enabled
+  no_log: True
 
 - name: Check if dragonfly temporary folder exists
   become_user: "{{ ansible_user }}"
@@ -278,6 +273,7 @@
   args:
     chdir: "{{ app_tmp_path }}"
   when: not archive_bundle.stat.exists
+  no_log: True
 
 - name: Check if bundle archive exists
   become_user: "{{ ansible_user }}"
@@ -361,6 +357,7 @@
   command: bin/upload_bundle
   args:
     chdir: "{{ app_tmp_path }}"
+  no_log: True
 
 # yarn
 - name: Add yarnpkg apt key
