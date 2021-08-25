@@ -11,6 +11,22 @@
       - ruby-dev
   no_log: True
 
+# app folder
+- name: Remove application directory
+  file:
+    path: "{{ app_tmp_path }}"
+    state: absent
+  no_log: True
+
+- name: Create application directory
+  file:
+    path: "{{ app_tmp_path }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  no_log: True
+
 # gcp
 - name: Include google cloud vault vars
   include_vars:
@@ -47,14 +63,22 @@
 
 # google cloud authenticate
 - name: gcloud set project
+  become_user: "{{ ansible_user }}"
   command: gcloud config set project {{ gcp_project_id }}
+  args:
+    chdir: "{{ app_tmp_path }}"
 
 - name: gcloud set account
+  become_user: "{{ ansible_user }}"
   command: gcloud config set account {{ gcp_client_email }}
+  args:
+    chdir: "{{ app_tmp_path }}"
 
 - name: gcloud activate account
-  command: "gcloud auth activate-service-account {{ gcp_client_email }} \
-              --key-file /home/{{ ansible_user }}/gcp.json"
+  become_user: "{{ ansible_user }}"
+  command: "gcloud auth activate-service-account {{ gcp_client_email }} --key-file /home/{{ ansible_user }}/gcp.json"
+  args:
+    chdir: "{{ app_tmp_path }}"
 
 # google cloud storage
 - name: Install google cloud storage
@@ -100,22 +124,6 @@
     mode: 0644
     owner: "{{ ansible_user }}"
     create: True
-  no_log: True
-
-# app folder
-- name: Remove application directory
-  file:
-    path: "{{ app_tmp_path }}"
-    state: absent
-  no_log: True
-
-- name: Create application directory
-  file:
-    path: "{{ app_tmp_path }}"
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0755
   no_log: True
 
 # git
