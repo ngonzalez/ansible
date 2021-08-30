@@ -64,8 +64,7 @@ begin
 	hsh.merge! 'db_cluster_ip' => kube.database_loadbalancer[0][:ip] if kube.database_loadbalancer
 	FileUtils.rm_f('roles/app/vars/inventory.yml')
 	File.open('roles/app/vars/inventory.yml', 'w') { |f| f.write hsh.to_yaml }
-rescue => exception
-	@logger.error exception
+rescue => _exception
 	@logger.info "Try the following if the load balancer external IP is pending: minikube tunnel" if kube.database_loadbalancer
 	@logger.info "If the ingress is not being assigned an IP: minikube addons enable ingress" if kube.ingress
 end
