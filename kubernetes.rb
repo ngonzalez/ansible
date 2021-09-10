@@ -1,51 +1,67 @@
+require "pry"
+
+class Error < StandardError ; end
+
 class Kubernetes
-	attr_accessor :namespace, :ingress_name, :database_loadbalancer_name
-	def initialize(namespace, ingress_name, database_loadbalancer_name)
-		raise "Invalid namespace" unless namespaces.map { |ns| ns[:name] }.include? namespace
-		@namespace = namespace
-		@ingress_name = ingress_name
-		@database_loadbalancer_name = database_loadbalancer_name
-	end
+  attr_accessor :namespaces, :nodes, :pods, :ingress, :database_loadbalancer
+  attr_accessor :namespace, :ingress_name, :database_loadbalancer_name
 
-	attr_accessor :namespaces, :nodes, :pods, :ingress, :database_loadbalancer
-	def namespaces ; @namespaces ||= set_namespaces ; end
-	def nodes ; @nodes ||= set_nodes ; end
-	def pods ; @pods ||= set_pods ; end
-	def ingress ; @ingress ||= set_ingress ; end
-	def database_loadbalancer ; @database_loadbalancer ||= set_database_loadbalancer ; end
+  def initialize(namespace: nil, ingress_name: nil, database_loadbalancer: nil)
+    # logger
+    @logger = Logger.new $stdout
 
-		private
+    # init
+    @namespace = namespace
+    @ingress_name = ingress_name
+    @database_loadbalancer = database_loadbalancer
+    @namespaces = []
+    @nodes = []
+    @pods = []
 
-	def set_namespaces
-		JSON.parse `kubectl get ns -o json | jq -r '[.items[] | {
-			name: .metadata.name
-		}]'`, symbolize_names: true
-	end
+    set_namespaces
+    set_nodes
+    set_pods
+    set_ingress
+    set_database_loadbalancer
+  rescue => _exception
+    @logger.error Error.new(_exception.message)
+  end
 
-	def set_nodes
-		JSON.parse `kubectl -n #{namespace} get no -o json | jq -r '[.items[] | {
-			name: .metadata.name,
-			internal_ip: .status.addresses[] | select(.type=="InternalIP")
-		}]'`, symbolize_names: true
-	end
+    private
 
-	def set_pods
-		JSON.parse `kubectl -n #{namespace} get po -o json | jq -r '[.items[] | {
-			name: .metadata.name,
-			host_ip: .status.hostIP,
-			pod_ip: .status.podIP
-		}]'`, symbolize_names: true
-	end
+  def set_namespaces
+    res = `kubectl get ns -o json | jq -r '[.items[] | { name: .metadata.name }]'`
+    @namespaces = JSON.parse res, symbolize_names: true
+    raise Error.new("Invalid namespace") unless namespaces.map { |ns| ns[:name] }.include?(namespace)
+  rescue => _exception
+    raise Error.new("Failed to detect namespace")
+  end
 
-	def set_ingress
-		JSON.parse `kubectl -n #{namespace} get ing #{ingress_name} -o json | jq -r '[.status[] | {
-			ip: .ingress[].ip,
-		}]'`, symbolize_names: true
-	end
+  def set_nodes
+    res = `kubectl -n #{namespace} get no -o json | jq -r '[.items[] | { name: .metadata.name, internal_ip: .status.addresses[] | select(.type=="InternalIP") }]'`
+    @nodes = JSON.parse res, symbolize_names: true
+  rescue => _exception
+    raise Error.new("Failed to detect node")
+  end
 
-	def set_database_loadbalancer
-		JSON.parse `kubectl -n #{namespace} get svc #{database_loadbalancer_name} -o json | jq -r '[.status[] | {
-			ip: .ingress[].ip,
-		}]'`, symbolize_names: true
-	end
+  def set_pods
+    res = `kubectl -n #{namespace} get po -o json | jq -r '[.items[] | { name: .metadata.name, host_ip: .status.hostIP, pod_ip: .status.podIP }]'`
+    @pods = JSON.parse res, symbolize_names: true
+  rescue => _exception
+    raise Error.new "Failed to find pods"
+  end
+
+  def set_ingress
+    res = `kubectl -n #{namespace} get ing #{ingress_name} -o json | jq -r '[.status[] | { ip: .ingress[].ip }]'`
+    @ingress_name = JSON.parse res, symbolize_names: true
+  rescue => _exception
+    raise Error.new "Failed to set ingress"
+  end
+
+  def set_database_loadbalancer
+    res = `kubectl -n #{namespace} get svc #{database_loadbalancer} -o json | jq -r '[.status[] | { ip: .ingress[].ip }]'`
+    @database_loadbalancer = JSON.parse res, symbolize_names: true
+  rescue => _exception
+    raise Error.new "Failed to set database loadbalancer"
+  end
 end
