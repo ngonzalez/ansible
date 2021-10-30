@@ -3,17 +3,16 @@ require "pry"
 class Error < StandardError ; end
 
 class Kubernetes
-  attr_accessor :namespaces, :nodes, :pods, :ingress, :database_loadbalancer
-  attr_accessor :namespace, :ingress_name, :database_loadbalancer_name
+  attr_accessor :namespaces, :nodes, :pods, :ingress
+  attr_accessor :namespace, :ingress_name
 
-  def initialize(namespace: nil, ingress_name: nil, database_loadbalancer: nil)
+  def initialize(namespace: nil, ingress_name: nil)
     # logger
     @logger = Logger.new $stdout
 
     # init
     @namespace = namespace
     @ingress_name = ingress_name
-    @database_loadbalancer = database_loadbalancer
     @namespaces = []
     @nodes = []
     @pods = []
@@ -22,7 +21,6 @@ class Kubernetes
     set_nodes
     set_pods
     set_ingress
-    set_database_loadbalancer
   rescue => _exception
     @logger.error Error.new(_exception.message)
   end
@@ -56,12 +54,5 @@ class Kubernetes
     @ingress_name = JSON.parse res, symbolize_names: true
   rescue => _exception
     raise Error.new "Failed to set ingress"
-  end
-
-  def set_database_loadbalancer
-    res = `kubectl -n #{namespace} get svc #{database_loadbalancer} -o json | jq -r '[.status[] | { ip: .ingress[].ip }]'`
-    @database_loadbalancer = JSON.parse res, symbolize_names: true
-  rescue => _exception
-    raise Error.new "Failed to set database loadbalancer"
   end
 end
