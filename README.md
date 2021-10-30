@@ -13,7 +13,8 @@
                --account $ACCOUNT	\
                --user $ANSIBLE_USER	\
                --port $ANSIBLE_PORT	\
-               --ingress_name $INGRESS_NAME
+               --ingress_name $INGRESS_NAME \
+               --database_loadbalancer $DATABASE_LOADBALANCER
 ```
 
 #### ping inventory
