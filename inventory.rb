@@ -15,7 +15,6 @@ option_parser = OptionParser.new do |opts|
   opts.on '-u', '--user', 'Ansible user'
   opts.on '-p', '--port', 'Ansible port'
   opts.on '-i', '--ingress_name', 'Ingress Name'
-  opts.on '-d', '--database_loadbalancer', 'Database Loadbalancer'
 end
 
 options = {}
@@ -26,7 +25,7 @@ options.each_with_index { |(k,v),i| options[k] = ARGV[i] }
 
 require_relative 'kubernetes'
 
-kube = Kubernetes.new namespace: options[:namespace], ingress_name: options[:ingress_name], database_loadbalancer: options[:database_loadbalancer]
+kube = Kubernetes.new namespace: options[:namespace], ingress_name: options[:ingress_name]
 
 inventory_hash = kube.pods.each_with_object({}) do |pod, hash|
 
@@ -62,12 +61,10 @@ end
 begin
   hsh = {}
   hsh.merge! 'app_cluster_ip' => kube.ingress[0][:ip] if kube.ingress
-  hsh.merge! 'db_cluster_ip' => kube.database_loadbalancer[0][:ip] if kube.database_loadbalancer
   FileUtils.rm_f('roles/app/vars/inventory.yml')
   File.open('roles/app/vars/inventory.yml', 'w') { |f| f.write hsh.to_yaml }
 rescue => _exception
   @logger.info "If the ingress is not being assigned an IP: minikube addons enable ingress" if kube.ingress
-  @logger.info "Try the following if the load balancer external IP is pending: sudo minikube tunnel" if kube.database_loadbalancer
 end
 
 exit 0
