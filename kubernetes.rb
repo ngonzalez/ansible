@@ -5,16 +5,16 @@ class Error < StandardError ; end
 class Kubernetes
   attr_accessor :namespace, :namespaces
   attr_accessor :nodes, :pods
-  attr_accessor :app_loadbalancer, :app_loadbalancer_name
+  attr_accessor :ingress, :ingress_name
   attr_accessor :database_loadbalancer, :database_loadbalancer_name
 
-  def initialize(namespace: nil, app_loadbalancer_name: nil, database_loadbalancer_name: nil)
+  def initialize(namespace: nil, ingress_name: nil, database_loadbalancer_name: nil)
     # logger
     @logger = Logger.new $stdout
 
     # init
     @namespace = namespace
-    @app_loadbalancer_name = app_loadbalancer_name
+    @ingress_name = ingress_name
     @database_loadbalancer_name = database_loadbalancer_name
     @namespaces = []
     @nodes = []
@@ -23,7 +23,7 @@ class Kubernetes
     set_namespaces
     set_nodes
     set_pods
-    set_app_loadbalancer
+    set_ingress
     set_database_loadbalancer
   rescue => _exception
     @logger.error Error.new(_exception.message)
@@ -56,12 +56,12 @@ class Kubernetes
     raise Error.new "Failed to find pods"
   end
 
-  def set_app_loadbalancer
-    res = `kubectl -n #{namespace} get svc #{app_loadbalancer_name} -o json | jq -r '[.status[] | { ip: .ingress[].ip }]'`
-    @app_loadbalancer = JSON.parse res, symbolize_names: true
-    @logger.info "App Loadbalancer: %s" % @app_loadbalancer.map { |lb| [lb[:ip]] }
+  def set_ingress
+    res = `kubectl -n #{namespace} get ing #{ingress_name} -o json | jq -r '[.status[] | { ip: .ingress[].ip }]'`
+    @ingress = JSON.parse res, symbolize_names: true
+    @logger.info "Ingress: %s" % @ingress.map { |ing| [ing[:ip]] }
   rescue => _exception
-    raise Error.new "Failed to set app loadbalancer"
+    raise Error.new "Failed to set ingress"
   end
 
   def set_database_loadbalancer

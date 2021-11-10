@@ -5,7 +5,7 @@ export ANSIBLE_PORT='22'
 
 # kubernetes
 export NAMESPACE='k8s'
-export APP_LOADBALANCER='app-loadbalancer'
+export INGRESS_NAME='app-ingress'
 export DATABASE_LOADBALANCER='database-loadbalancer'
 
 # gcp

@@ -13,7 +13,7 @@
                --account $ACCOUNT	\
                --user $ANSIBLE_USER	\
                --port $ANSIBLE_PORT	\
-               --app_loadbalancer $APP_LOADBALANCER \
+               --ingress_name $INGRESS_NAME \
                --database_loadbalancer $DATABASE_LOADBALANCER
 ```
 
