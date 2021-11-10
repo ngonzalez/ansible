@@ -7,15 +7,13 @@ require 'logger'
 require 'optparse'
 require 'securerandom'
 require 'yaml'
-# require 'pry'
 
 option_parser = OptionParser.new do |opts|
   opts.on '-n', '--namespace', 'Kubernetes namespace'
   opts.on '-a', '--account', 'Kubernetes account'
   opts.on '-u', '--user', 'Ansible user'
   opts.on '-p', '--port', 'Ansible port'
-  opts.on '-l', '--app_loadbalancer', 'App Loadbalancer'
-  opts.on '-d', '--database_loadbalancer', 'Database Loadbalancer'
+  opts.on '-l', '--loadbalancers', 'Loadbalancers list'
 end
 
 options = {}
@@ -28,8 +26,7 @@ require_relative 'kubernetes'
 
 kube = Kubernetes.new(
   namespace: options[:namespace],
-  app_loadbalancer_name: options[:app_loadbalancer],
-  database_loadbalancer_name: options[:database_loadbalancer],
+  loadbalancers_names: options[:loadbalancers],
 )
 
 inventory_hash = kube.pods.each_with_object({}) do |pod, hash|
@@ -63,15 +60,23 @@ File.open('inventory.yml', 'w') do |f|
   f.write inventory_hash.to_yaml
 end
 
-begin
+class String
+  def underscore
+    self.gsub('-', '_')
+  end
+end
+
+if !kube.loadbalancers.empty?
   hsh = {}
-  hsh.merge! 'app_cluster_ip' => kube.app_loadbalancer[0][:ip] if kube.app_loadbalancer
-  hsh.merge! 'db_cluster_ip' => kube.database_loadbalancer[0][:ip] if kube.database_loadbalancer
-  FileUtils.rm_f('roles/app/vars/inventory.yml')
-  File.open('roles/app/vars/inventory.yml', 'w') { |f| f.write hsh.to_yaml }
-rescue => _exception
-  @logger.info "If the ingress is not being assigned an IP: minikube addons enable ingress" if kube.ingress
-  @logger.info "Try the following if the load balancer external IP is pending: sudo minikube tunnel" if kube.database_loadbalancer
+  kube.loadbalancers.each do |name, ip|
+    hsh.merge! name.underscore => ip
+  end
+  begin
+    FileUtils.rm_f('roles/app/vars/inventory.yml')
+    File.open('roles/app/vars/inventory.yml', 'w') { |f| f.write hsh.to_yaml }
+  rescue => _exception
+    @logger.error "Failed to write loadbalancers inventory details"
+  end
 end
 
 exit 0

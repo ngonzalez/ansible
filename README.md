@@ -13,8 +13,7 @@
                --account $ACCOUNT	\
                --user $ANSIBLE_USER	\
                --port $ANSIBLE_PORT	\
-               --app_loadbalancer $APP_LOADBALANCER \
-               --database_loadbalancer $DATABASE_LOADBALANCER
+               --loadbalancers "$APP_LOADBALANCER $DB_LOADBALANCER"
 ```
 
 #### ping inventory
