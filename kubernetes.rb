@@ -5,17 +5,15 @@ class Error < StandardError ; end
 class Kubernetes
   attr_accessor :namespace, :namespaces
   attr_accessor :nodes, :pods
-  attr_accessor :app_loadbalancer, :app_loadbalancer_name
-  attr_accessor :database_loadbalancer, :database_loadbalancer_name
+  attr_accessor :loadbalancers, :loadbalancers_names
 
-  def initialize(namespace: nil, app_loadbalancer_name: nil, database_loadbalancer_name: nil)
+  def initialize(namespace: nil, loadbalancers_names: nil)
     # logger
     @logger = Logger.new $stdout
 
     # init
     @namespace = namespace
-    @app_loadbalancer_name = app_loadbalancer_name
-    @database_loadbalancer_name = database_loadbalancer_name
+    @loadbalancers_names = loadbalancers_names.split
     @namespaces = []
     @nodes = []
     @pods = []
@@ -23,8 +21,7 @@ class Kubernetes
     set_namespaces
     set_nodes
     set_pods
-    set_app_loadbalancer
-    set_database_loadbalancer
+    set_loadbalancers
   rescue => _exception
     @logger.error Error.new(_exception.message)
   end
@@ -56,19 +53,14 @@ class Kubernetes
     raise Error.new "Failed to find pods"
   end
 
-  def set_app_loadbalancer
-    res = `kubectl -n #{namespace} get svc #{app_loadbalancer_name} -o json | jq -r '[.status[] | { ip: .ingress[].ip }]'`
-    @app_loadbalancer = JSON.parse res, symbolize_names: true
-    @logger.info "App Loadbalancer: %s" % @app_loadbalancer.map { |lb| [lb[:ip]] }
+  def set_loadbalancers
+    @loadbalancers = {}
+    loadbalancers_names.each do |loadbalancer_name|
+      res = `kubectl -n #{namespace} get svc #{loadbalancer_name} -o json | jq -r '[.status[] | { ip: .ingress[].ip }]'`
+      @loadbalancers[loadbalancer_name] = JSON.parse(res, symbolize_names: true)[0][:ip]
+    end
+    @logger.info "Loadbalancers: %s" % @loadbalancers.map { |name, ip| [name, ip] }.inspect
   rescue => _exception
-    raise Error.new "Failed to set app loadbalancer"
-  end
-
-  def set_database_loadbalancer
-    res = `kubectl -n #{namespace} get svc #{database_loadbalancer_name} -o json | jq -r '[.status[] | { ip: .ingress[].ip }]'`
-    @database_loadbalancer = JSON.parse res, symbolize_names: true
-    @logger.info "DB Loadbalancer: %s" % @database_loadbalancer.map { |lb| [lb[:ip]] }
-  rescue => _exception
-    raise Error.new "Failed to set database loadbalancer"
+    raise Error.new "Failed to set loadbalancers"
   end
 end
