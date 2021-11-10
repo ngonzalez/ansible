@@ -1,5 +1,3 @@
-require "pry"
-
 class Error < StandardError ; end
 
 class Kubernetes
