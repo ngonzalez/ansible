@@ -20,8 +20,8 @@ class Kubernetes
     set_nodes
     set_pods
     set_loadbalancers
-  rescue => _exception
-    @logger.error Error.new(_exception.message)
+  rescue Error => error
+    @logger.error error.message
   end
 
     private
