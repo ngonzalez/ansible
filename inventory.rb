@@ -50,15 +50,16 @@ inventory_hash = kube.pods.each_with_object({}) do |pod, hash|
 
 end
 
+# Add node IP to SSH known_hosts
 kube.nodes.map { |item| item[:internal_ip][:address] }.each do |node_ip|
   if `ssh-keygen -F #{node_ip}`.empty?
     `ssh-keyscan -H #{node_ip} >> ~/.ssh/known_hosts`
   end
 end
 
-File.open('inventory.yml', 'w') do |f|
-  f.write inventory_hash.to_yaml
-end
+# Write inventory YAML file
+File.open('inventory.yml', 'w') { |f| f.write inventory_hash.to_yaml }
+@logger.info "Inventory updated: inventory.yml"
 
 class String
   def underscore
@@ -66,14 +67,16 @@ class String
   end
 end
 
-if !kube.loadbalancers.empty?
-  hsh = {}
-  kube.loadbalancers.each do |name, ip|
-    hsh.merge! name.underscore => ip
-  end
+# Update Loadbalancers variables
+if kube.loadbalancers
   begin
+    kube_loadbalancers_hash = kube.loadbalancers.each_with_object({}) do |(name, ip), hsh|
+      hsh.merge! name.underscore => ip
+    end
     FileUtils.rm_f('roles/app/vars/inventory.yml')
-    File.open('roles/app/vars/inventory.yml', 'w') { |f| f.write hsh.to_yaml }
+    File.open('roles/app/vars/inventory.yml', 'w') { |f| f.write kube_loadbalancers_hash.to_yaml }
+    @logger.info "Loadbalancers variables updated: roles/app/vars/inventory.yml"
+    @logger.info kube_loadbalancers_hash.to_yaml.inspect
   rescue => _exception
     @logger.error "Failed to write loadbalancers inventory details"
   end
