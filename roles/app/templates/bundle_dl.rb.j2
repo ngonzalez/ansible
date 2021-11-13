@@ -30,8 +30,6 @@ else
   if !file.nil?
 
     # download file from gcp bucket
-    # file.download "{{ app_bundle_archive_path }}"
-
     `gsutil cp gs://{{ gcp_storage_bucket }}/{{ app_bundle_archive_remote_path }} \
         {{ app_bundle_archive_path }}`
 

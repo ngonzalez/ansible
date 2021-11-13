@@ -30,8 +30,6 @@ else
   if File.exists?("{{ app_bundle_archive_path }}") && remote_file.nil?
 
     # upload file to gcp bucket
-    # bucket.create_file "{{ app_bundle_archive_path }}", "{{ app_bundle_archive_remote_path }}"
-
     `gsutil cp {{ app_bundle_archive_path }} \
         gs://{{ gcp_storage_bucket }}/{{ app_bundle_archive_remote_path }}`
 
