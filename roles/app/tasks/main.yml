@@ -329,6 +329,7 @@
   shell:
     chdir: "{{ app_tmp_path }}"
     cmd:  /usr/bin/bundle2.7 exec rails db:migrate
+  ignore_errors: yes
 
 # assets
 - name: Precompile assets
