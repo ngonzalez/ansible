@@ -76,7 +76,7 @@ if kube.loadbalancers
     FileUtils.rm_f('roles/app/vars/inventory.yml')
     File.open('roles/app/vars/inventory.yml', 'w') { |f| f.write kube_loadbalancers_hash.to_yaml }
     @logger.info "Loadbalancers variables updated: roles/app/vars/inventory.yml"
-    @logger.info kube_loadbalancers_hash.to_yaml.inspect
+    @logger.debug kube_loadbalancers_hash.to_yaml.inspect
   rescue => _exception
     @logger.error "Failed to write loadbalancers inventory details"
   end
