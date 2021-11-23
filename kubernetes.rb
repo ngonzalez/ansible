@@ -54,8 +54,8 @@ class Kubernetes
   def set_loadbalancers
     @loadbalancers = {}
     loadbalancers_names.each do |loadbalancer_name|
-      res = `kubectl -n #{namespace} get svc #{loadbalancer_name} -o json | jq -r '[.status[] | { ip: .ingress[].ip }]'`
-      @loadbalancers[loadbalancer_name] = JSON.parse(res, symbolize_names: true)[0][:ip]
+      res = `kubectl -n #{namespace} get svc #{loadbalancer_name} -o json | jq -r '.spec | { ip: .clusterIP }'`
+      @loadbalancers[loadbalancer_name] = JSON.parse(res, symbolize_names: true)[:ip]
     end
     @logger.info "Loadbalancers: %s" % @loadbalancers.map { |name, ip| [name, ip] }.inspect
   rescue => _exception
