@@ -13,7 +13,9 @@ option_parser = OptionParser.new do |opts|
   opts.on '-a', '--account', 'Kubernetes account'
   opts.on '-u', '--user', 'Ansible user'
   opts.on '-p', '--port', 'Ansible port'
+  opts.on '-i', '--inventory_file', 'Inventory file'
   opts.on '-l', '--loadbalancers', 'Loadbalancers list'
+  opts.on '-p', '--loadbalancers_inventory_file', 'Loadbalancers inventory file'
 end
 
 options = {}
@@ -57,28 +59,31 @@ kube.nodes.map { |item| item[:internal_ip][:address] }.each do |node_ip|
   end
 end
 
-# Write inventory YAML file
-File.open('inventory.yml', 'w') { |f| f.write inventory_hash.to_yaml }
-@logger.info "Inventory updated: inventory.yml"
-
-class String
-  def underscore
-    self.gsub('-', '_')
-  end
+# Update inventory file
+begin
+  inventory_file = options[:inventory_file]
+  FileUtils.rm_f("#{inventory_file}")
+  FileUtils.touch("#{inventory_file}")
+  File.open("#{inventory_file}", 'w') { |f| f.write inventory_hash.to_yaml }
+  @logger.info "Inventory updated: #{inventory_file}"
+rescue => _exception
+  @logger.error "Failed to write inventory file"
 end
 
-# Update Loadbalancers variables
+# Update Loadbalancers inventory file
 if kube.loadbalancers
   begin
     kube_loadbalancers_hash = kube.loadbalancers.each_with_object({}) do |(name, ip), hsh|
-      hsh.merge! name.underscore => ip
+      hsh.merge! name.gsub('-', '_') => ip
     end
-    FileUtils.rm_f('roles/app/vars/inventory.yml')
-    File.open('roles/app/vars/inventory.yml', 'w') { |f| f.write kube_loadbalancers_hash.to_yaml }
-    @logger.info "Loadbalancers variables updated: roles/app/vars/inventory.yml"
+    loadbalancers_inventory_file = options[:loadbalancers_inventory_file]
+    FileUtils.rm_f("#{loadbalancers_inventory_file}")
+    FileUtils.touch("#{loadbalancers_inventory_file}")
+    File.open(loadbalancers_inventory_file, 'w') { |f| f.write kube_loadbalancers_hash.to_yaml }
+    @logger.info "Loadbalancers variables updated: #{loadbalancers_inventory_file}"
     @logger.debug kube_loadbalancers_hash.to_yaml.inspect
   rescue => _exception
-    @logger.error "Failed to write loadbalancers inventory details"
+    @logger.error "Failed to write loadbalancers inventory file"
   end
 end
 

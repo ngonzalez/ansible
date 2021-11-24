@@ -8,7 +8,9 @@
                --account $ACCOUNT	\
                --user $ANSIBLE_USER	\
                --port $ANSIBLE_PORT	\
-               --loadbalancers "$APP_LOADBALANCER $DB_LOADBALANCER"
+               --inventory_file $INVENTORY_FILE \
+               --loadbalancers "$APP_LOADBALANCER $DB_LOADBALANCER" \
+               --loadbalancers_inventory_file $LOADBALANCERS_INVENTORY_FILE
 ```
 
 #### ping inventory
@@ -23,5 +25,5 @@ ansible -i inventory.yml all -m ansible.builtin.setup
 
 #### run playbook
 ```
-ansible-playbook -i inventory.yml app.yml --flush-cache --diff --ask-vault-pass -vv
+ansible-playbook -i inventory.yml app.yml --flush-cache --diff --ask-vault-pass -vv --limt "app-*"
 ```
