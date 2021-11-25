@@ -7,16 +7,6 @@
 
 ![formation-ansible](https://user-images.githubusercontent.com/26479/113611957-81d90b80-964f-11eb-95c9-2fb0dfa3cb0b.png)
 
-#### generate inventory
-```
-./inventory.rb --namespace $NAMESPACE	\
-               --account $ACCOUNT	\
-               --user $ANSIBLE_USER	\
-               --port $ANSIBLE_PORT	\
-               --ingress_name $INGRESS_NAME	\
-               --database_loadbalancer $DATABASE_LOADBALANCER
-```
-
 #### ping inventory
 ```
 ansible -i inventory.yml all -m ping
