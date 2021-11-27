@@ -16,6 +16,7 @@ option_parser = OptionParser.new do |opts|
   opts.on '-i', '--inventory_file', 'Inventory file'
   opts.on '-l', '--loadbalancers', 'Loadbalancers list'
   opts.on '-p', '--loadbalancers_inventory_file', 'Loadbalancers inventory file'
+  opts.on '-v', '--vagrant_ip', 'Vagrant IP'
 end
 
 options = {}
@@ -27,6 +28,8 @@ options.each_with_index { |(k,v),i| options[k] = ARGV[i] }
 require_relative 'kubernetes'
 
 kube = Kubernetes.new(
+  account: options[:account],
+  vagrant_ip: options[:vagrant_ip],
   namespace: options[:namespace],
   loadbalancers_names: options[:loadbalancers],
 )
