@@ -6,6 +6,7 @@
 ```
 ./inventory.rb --namespace $NAMESPACE	\
                --account $ACCOUNT	\
+               --vagrant_ip $VAGRANT_IP	\
                --user $ANSIBLE_USER	\
                --port $ANSIBLE_PORT	\
                --inventory_file $INVENTORY_FILE \
