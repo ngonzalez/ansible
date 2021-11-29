@@ -4,9 +4,8 @@ class Kubernetes
   attr_accessor :account, :vagrant_ip
   attr_accessor :namespace, :namespaces
   attr_accessor :nodes, :pods
-  attr_accessor :loadbalancers, :loadbalancers_names
 
-  def initialize(account: nil, vagrant_ip: nil, namespace: nil, loadbalancers_names: nil)
+  def initialize(account: nil, vagrant_ip: nil, namespace: nil)
     # logger
     @logger = Logger.new $stdout
 
@@ -14,7 +13,6 @@ class Kubernetes
     @account = account
     @vagrant_ip = vagrant_ip
     @namespace = namespace
-    @loadbalancers_names = loadbalancers_names.split
     @namespaces = []
     @nodes = []
     @pods = []
@@ -22,7 +20,6 @@ class Kubernetes
     set_namespaces
     set_nodes
     set_pods
-    set_loadbalancers
   rescue Error => error
     @logger.error error.message
   end
@@ -54,17 +51,5 @@ class Kubernetes
     @logger.info "Pods: %s" % @pods.map { |pod| [pod[:name], pod[:pod_ip]] }.inspect
   rescue => _exception
     raise Error.new "Failed to find pods"
-  end
-
-  def set_loadbalancers
-    @loadbalancers = {}
-    loadbalancers_names.each do |loadbalancer_name|
-      loadbalancers_json = `ssh #{account}@#{vagrant_ip} "kubectl -n #{namespace} get svc #{loadbalancer_name} -o json | jq -r '.spec | { ip: .clusterIP }'"`
-      @loadbalancers[loadbalancer_name] = JSON.parse(loadbalancers_json, symbolize_names: true)[:ip]
-    end
-    raise Error.new("Can't find any loadbalancers") if @loadbalancers.empty?
-    @logger.info "Loadbalancers: %s" % @loadbalancers.map { |name, ip| [name, ip] }.inspect
-  rescue => _exception
-    raise Error.new "Failed to set loadbalancers"
   end
 end
