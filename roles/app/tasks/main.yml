@@ -366,7 +366,6 @@
   no_log: True
 
 - name: Move to application folder
-  become_user: root
   command: mv -f "{{ app_tmp_path }}" "{{ app_path }}"
   no_log: True
 
