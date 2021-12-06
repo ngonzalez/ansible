@@ -367,7 +367,7 @@
 
 - name: Move to application folder
   become_user: root
-  command: mv "{{ app_tmp_path }}" "{{ app_path }}"
+  command: mv -f "{{ app_tmp_path }}" "{{ app_path }}"
   no_log: True
 
 # puma
