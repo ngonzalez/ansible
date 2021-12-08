@@ -21,7 +21,7 @@
 
 #### ping inventory
 ```
-ansible -i inventory.yml all -m ping
+ansible -i $INVENTORY_FILE all -m ping
 ```
 
 #### gather facts
@@ -31,5 +31,5 @@ ansible -i inventory.yml all -m ansible.builtin.setup
 
 #### run playbook
 ```
-ansible-playbook -i inventory.yml app.yml --flush-cache --diff -vv --limit "app-*"
+ansible-playbook -i $INVENTORY_FILE app.yml --flush-cache --diff -vv --limit "app-*"
 ```

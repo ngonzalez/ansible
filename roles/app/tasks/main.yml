@@ -1,4 +1,7 @@
 ---
+- name: Include inventory
+  include_vars: inventory/vars.yaml
+
 # application dependencies
 - name: Install application dependencies
   apt:
