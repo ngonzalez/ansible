@@ -142,11 +142,6 @@
   no_log: True
 
 # environment
-- name: Include inventory
-  include_vars:
-    file: inventory.yml
-  no_log: True
-
 - name: Generate application environment file
   become_user: "{{ ansible_user }}"
   template:
