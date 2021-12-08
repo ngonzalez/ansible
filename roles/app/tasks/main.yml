@@ -349,6 +349,15 @@
   no_log: True
 
 # link to application
+- name: Create application directory
+  file:
+    path: /var/www
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+  no_log: True
+
 - name: Remove application directory
   file:
     path: "{{ app_path }}"
