@@ -326,14 +326,6 @@
     chdir: "{{ app_tmp_path }}"
   no_log: True
 
-# database migrations
-- name: Run database migrations
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ app_tmp_path }}"
-    cmd:  /usr/bin/bundle2.7 exec rails db:migrate
-  ignore_errors: yes
-
 # assets
 - name: Precompile assets
   become_user: "{{ ansible_user }}"
@@ -371,6 +363,14 @@
 - name: Move to application folder
   command: mv -f "{{ app_tmp_path }}" "{{ app_path }}"
   no_log: True
+
+# database migrations
+- name: Run database migrations
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ app_path }}"
+    cmd:  /usr/bin/bundle2.7 exec rails db:migrate
+  ignore_errors: yes
 
 # puma
 - name: Copy puma service file
