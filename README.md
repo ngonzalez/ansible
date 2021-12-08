@@ -14,7 +14,9 @@
                --vagrant_ip $VAGRANT_IP	\
                --user $ANSIBLE_USER	\
                --port $ANSIBLE_PORT	\
-               --inventory_file $INVENTORY_FILE
+               --inventory_file $INVENTORY_FILE \
+               --loadbalancers "$APP_LOADBALANCER $DB_LOADBALANCER" \
+               --loadbalancers_inventory_file $LOADBALANCERS_INVENTORY_FILE
 ```
 
 #### ping inventory
@@ -29,5 +31,5 @@ ansible -i inventory.yml all -m ansible.builtin.setup
 
 #### run playbook
 ```
-ansible-playbook -i inventory.yml app.yml --flush-cache --diff --ask-vault-pass -vv --limt "app-*"
+ansible-playbook -i inventory.yml app.yml --flush-cache --diff -vv --limit "app-*"
 ```
