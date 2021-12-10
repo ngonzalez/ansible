@@ -62,7 +62,7 @@ kube.nodes.map { |item| item[:internal_ip][:address] }.each do |node_ip|
   end
 end
 
-# Update inventory file
+# Update inventory
 begin
   inventory_file = options[:inventory_file]
   FileUtils.rm_f("#{inventory_file}")
@@ -70,23 +70,20 @@ begin
   File.open("#{inventory_file}", 'w') { |f| f.write inventory_hash.to_yaml }
   @logger.info "Inventory updated: #{inventory_file}"
 rescue => _exception
-  @logger.error "Failed to write inventory file"
+  @logger.error "Failed to write inventory"
 end
 
-# Update Loadbalancers inventory file
-if kube.loadbalancers
+# Update inventory vars
+if kube.loadbalancers.any?
   begin
-    kube_loadbalancers_hash = kube.loadbalancers.each_with_object({}) do |(name, ip), hsh|
-      hsh.merge! name.gsub('-', '_') => ip
-    end
+    inventory_vars_hash = kube.loadbalancers.each_with_object({}) { |(name, ip), hsh| hsh.merge! name.gsub('-', '_') => ip }
     loadbalancers_inventory_file = options[:loadbalancers_inventory_file]
     FileUtils.rm_f("#{loadbalancers_inventory_file}")
     FileUtils.touch("#{loadbalancers_inventory_file}")
-    File.open(loadbalancers_inventory_file, 'w') { |f| f.write kube_loadbalancers_hash.to_yaml }
-    @logger.info "Loadbalancers variables updated: #{loadbalancers_inventory_file}"
-    @logger.debug kube_loadbalancers_hash.to_yaml.inspect
+    File.open(loadbalancers_inventory_file, 'w') { |f| f.write inventory_vars_hash.to_yaml }
+    @logger.info "Inventory vars updated: #{loadbalancers_inventory_file}"
   rescue => _exception
-    @logger.error "Failed to write loadbalancers inventory file"
+    @logger.error "Failed to write inventory vars"
   end
 end
 
