@@ -2,3 +2,7 @@
 nginx_config_path: /etc/nginx/sites-available/default
 nginx_access_log: /var/log/nginx/access.log
 nginx_error_log: /var/log/nginx/error.log
+nginx_puma_sock: /tmp/puma.sock
+nginx_port: 8000
+nginx_user: www-data
+nginx_app_path: /var/www/app

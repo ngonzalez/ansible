@@ -36,7 +36,3 @@ app_sidekiq_pid_path: /tmp/pids/sidekiq.pid
 # yarn
 yarn_apt_key_url: https://dl.yarnpkg.com/debian/pubkey.gpg
 yarn_repository_url: https://dl.yarnpkg.com/debian/
-
-# nginx
-nginx_port: 8000
-nginx_user: www-data

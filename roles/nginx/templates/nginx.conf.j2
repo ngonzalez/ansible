@@ -20,7 +20,7 @@
 #
 
 upstream puma_server {
-	server unix:{{ app_puma_sock }};
+	server unix:{{ nginx_puma_sock }};
 }
 
 server {
@@ -77,7 +77,7 @@ server {
   }
 
 	location ^~ /assets/ {
-		root {{ app_path }}/public;
+		root {{ nginx_app_path }}/public;
 		gzip_static on;
 		expires max;
 		add_header Cache-Control public;
