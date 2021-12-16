@@ -341,7 +341,7 @@
 # hls
 - name: Create hls directory
   file:
-    path: "/tmp{{ app_server_path }}"
+    path: "/data{{ app_server_path }}"
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
