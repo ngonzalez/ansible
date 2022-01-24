@@ -348,6 +348,15 @@
     mode: 0755
   no_log: True
 
+- name: Link data volume to tmp folder
+  file:
+    src: "/data{{ app_server_path }}"
+    dest: "/tmp{{ app_server_path }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    state: link
+  no_log: True
+
 # link to application
 - name: Create application directory
   file:
