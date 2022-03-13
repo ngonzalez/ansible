@@ -26,7 +26,7 @@ ansible -i $INVENTORY_FILE all -m ping
 
 #### gather facts
 ```
-ansible -i inventory.yml all -m ansible.builtin.setup
+ansible -i $INVENTORY_FILE all -m ansible.builtin.setup
 ```
 
 #### run playbook
