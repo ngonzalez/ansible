@@ -5,10 +5,10 @@ Documentation=http://github.com/ngonzalez
 
 [Service]
 Type=simple
-WorkingDirectory={{ app_path }}
-ExecStart=/usr/bin/bundle2.7 exec sidekiq -e production
-EnvironmentFile={{ app_path }}/.env
-PIDFile={{ app_path }}{{ app_sidekiq_pid_path }}
+WorkingDirectory={{ app_path_backend }}
+ExecStart=/usr/bin/bundle3.0 exec sidekiq -e production
+EnvironmentFile={{ app_path_backend }}/.env
+PIDFile={{ app_path_backend }}{{ app_sidekiq_pid_path }}
 Restart=always
 User={{ ansible_user }}
 Group={{ ansible_user }}
