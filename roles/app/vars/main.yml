@@ -2,7 +2,7 @@
 # app
 app_path: /var/www/app
 app_tmp_path: /tmp/app-deploy
-app_repository: https://github.com/ngonzalez/music-rails.git
+app_repository: https://github.com/ngonzalez/search-app.git
 app_environment_path: "{{ app_path }}/.env"
 
 # gcp
@@ -13,7 +13,7 @@ google_cloud_sdk_keyring: "/usr/share/keyrings/cloud.google.gpg"
 google_cloud_sdk_packages: "https://packages.cloud.google.com/apt"
 
 # bundle
-app_bundle_version: 2.2.29
+app_bundle_version: 2.3.8
 app_bundle_src_path: /tmp/bundle
 app_bundle_src_remote_path: bundle
 
@@ -26,13 +26,13 @@ app_puma_pid_path: /tmp/pids/server.pid
 app_puma_service_file_sysv: /etc/init.d/puma
 app_puma_sock: /tmp/puma.sock
 
-# sidekiq
-app_sidekiq_service_name: sidekiq
-app_sidekiq_service_description: Simple, efficient background processing for Ruby.
-app_sidekiq_service_file: /etc/systemd/system/sidekiq.service
-app_sidekiq_target_file: /etc/systemd/system/sidekiq.target
-app_sidekiq_pid_path: /tmp/pids/sidekiq.pid
-
+# # sidekiq
+# app_sidekiq_service_name: sidekiq
+# app_sidekiq_service_description: Simple, efficient background processing for Ruby.
+# app_sidekiq_service_file: /etc/systemd/system/sidekiq.service
+# app_sidekiq_target_file: /etc/systemd/system/sidekiq.target
+# app_sidekiq_pid_path: /tmp/pids/sidekiq.pid
+#
 # yarn
 yarn_apt_key_url: https://dl.yarnpkg.com/debian/pubkey.gpg
 yarn_repository_url: https://dl.yarnpkg.com/debian/
