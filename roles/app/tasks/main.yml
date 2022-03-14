@@ -7,6 +7,7 @@
   apt:
     name:
       - gpg
+      - gpg-agent
       - imagemagick
       - libpq-dev
       - ruby-dev
@@ -289,12 +290,6 @@
   apt:
     name:
       - yarn
-
-# assets
-- name: Precompile assets
-  shell:
-    chdir: "{{ app_tmp_path }}"
-    cmd:  /usr/bin/bundle3.0 exec rails assets:precompile
 
 # public folder
 - name: Change public folder ownership and permissions
