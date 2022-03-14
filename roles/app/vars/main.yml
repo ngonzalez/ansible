@@ -2,8 +2,9 @@
 # app
 app_path: /var/www/app
 app_tmp_path: /tmp/app-deploy
-app_repository: https://github.com/ngonzalez/search-app.git
-app_environment_path: "{{ app_path }}/.env"
+app_path_backend: "{{ app_path }}"
+app_tmp_path_backend: "{{ app_tmp_path }}"
+app_repository: https://github.com/ngonzalez/music-rails.git
 
 # gcp
 app_gcp_enabled: "{{ lookup('env', 'GCP_ENABLED') }}"
