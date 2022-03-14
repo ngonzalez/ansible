@@ -6,4 +6,4 @@ nginx_puma_sock: /tmp/puma.sock
 nginx_port: 8000
 nginx_user: www-data
 nginx_app_path: /var/www/app
-nginx_app_path_backend: "{{ nginx_app_path }}"
+nginx_app_path_backend: "{{ nginx_app_path }}/backend"
