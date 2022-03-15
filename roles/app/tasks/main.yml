@@ -128,11 +128,6 @@
     file: vault_db.yml
   no_log: true
 
-- name: Include vault app vars
-  include_vars:
-    file: vault_app.yml
-  no_log: true
-
 # environment
 - name: Generate application environment file
   become_user: "{{ ansible_user }}"
