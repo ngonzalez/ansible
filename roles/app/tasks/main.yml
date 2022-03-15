@@ -274,22 +274,6 @@
   args:
     chdir: "{{ app_tmp_path_backend }}"
 
-# yarn
-- name: Add yarnpkg apt key
-  apt_key:
-    url: "{{ yarn_apt_key_url }}"
-    state: present
-
-- name: Add yarnpkg apt repository
-  apt_repository:
-    repo: "deb {{ yarn_repository_url }} stable main"
-    state: present
-    update_cache: true
-
-- name: Install yarn
-  apt:
-    name:
-      - yarn
 
 # public folder
 - name: Change public folder ownership and permissions
@@ -298,23 +282,6 @@
     owner: "{{ nginx_user }}"
     group: "{{ nginx_user }}"
     recurse: yes
-
-# hls
-- name: Create hls directory
-  file:
-    path: "/data{{ app_server_path }}"
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0755
-
-- name: Link data volume to tmp folder
-  file:
-    src: "/data{{ app_server_path }}"
-    dest: "/tmp{{ app_server_path }}"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    state: link
 
 # link to application
 - name: Create application directory
@@ -358,20 +325,3 @@
     daemon_reload: True
     state: restarted
     name: puma
-
-# # sidekiq
-# - name: Copy sidekiq service file
-#   template:
-#     src: sidekiq.service.j2
-#     dest: "{{ app_sidekiq_service_file }}"
-#
-# - name: Copy sidekiq target file
-#   template:
-#     src: sidekiq.target.j2
-#     dest: "{{ app_sidekiq_target_file }}"
-#
-# - name: Start sidekiq
-#   systemd:
-#     daemon_reload: True
-#     state: restarted
-#     name: sidekiq
