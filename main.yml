@@ -5,6 +5,7 @@
   roles:
     - python
     - localtime
+    - net-tools
     - motd
     - locales
     - vim
