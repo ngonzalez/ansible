@@ -57,7 +57,7 @@ server {
   # Add index.php to the list if you are using PHP
   # index index.html index.htm index.nginx-debian.html;
 
-  server_name _;
+  server_name kubernetes.docker.internal;
 
   location /media {
     proxy_pass http://puma_server;
