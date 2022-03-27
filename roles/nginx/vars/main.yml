@@ -8,3 +8,12 @@ nginx_https_port: 9000
 nginx_user: www-data
 nginx_app_path: /var/www/app
 nginx_app_path_backend: "{{ nginx_app_path }}/backend"
+nginx_self_signed_conf: self-signed.conf
+nginx_ssl_params_conf: ssl-params.conf
+nginx_self_signed_path: "snippets/{{ nginx_self_signed_conf }}"
+nginx_ssl_params_path: "snippets/{{ nginx_ssl_params_conf }}"
+nginx_self_signed_etc_path: "/etc/nginx/snippets/{{ nginx_self_signed_conf }}"
+nginx_ssl_params_etc_path: "/etc/nginx/snippets/{{ nginx_ssl_params_conf }}"
+nginx_cert_path: /etc/ssl/certs/nginx-selfsigned.crt
+nginx_key_path: /etc/ssl/private/nginx-selfsigned.key
+nginx_dhparam_pem_path: /etc/nginx/dhparam.pem
