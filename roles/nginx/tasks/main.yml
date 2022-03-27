@@ -9,6 +9,30 @@
     file: vault_nginx.yml
   no_log: True
 
+- name: Copy nginx self-signed cert
+  copy:
+    content: "{{ nginx_self_signed_crt }}"
+    dest: "{{ nginx_cert_path }}"
+    mode: 0644
+    owner: "{{ ansible_user }}"
+  no_log: True
+
+- name: Copy nginx self-signed key
+  copy:
+    content: "{{ nginx_self_signed_key }}"
+    dest: "{{ nginx_key_path }}"
+    mode: 0644
+    owner: "{{ ansible_user }}"
+  no_log: True
+
+- name: Copy nginx dhparam pem
+  copy:
+    content: "{{ dhparam_pem }}"
+    dest: "{{ nginx_dhparam_pem_path }}"
+    mode: 0644
+    owner: "{{ ansible_user }}"
+  no_log: True
+
 - name: Create nginx self-signed config file
   template:
     src: self-signed.conf.j2
