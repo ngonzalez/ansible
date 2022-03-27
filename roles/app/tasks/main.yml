@@ -11,6 +11,7 @@
       - imagemagick
       - libpq-dev
       - ruby-dev
+  no_log: true
 
 # gcp
 - name: Include google cloud vault vars
@@ -26,6 +27,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
+  no_log: true
 
 # install google cloud
 - name: Add google cloud apt key
