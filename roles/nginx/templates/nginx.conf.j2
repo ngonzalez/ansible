@@ -24,15 +24,20 @@ upstream puma_server {
 }
 
 server {
+  # SSL configuration
+  #
+  include {{ nginx_self_signed_path }};
+  include {{ nginx_ssl_params_path }};
+
+  listen {{ nginx_https_port }} ssl default_server;
+  listen [::]:{{ nginx_https_port }} ssl default_server;
+
   listen {{ nginx_http_port }} default_server;
   listen [::]:{{ nginx_http_port }} default_server;
+
   access_log {{ nginx_access_log }};
   error_log {{ nginx_error_log }};
 
-  # SSL configuration
-  #
-  listen {{ nginx_https_port }} ssl default_server;
-  listen [::]:{{ nginx_https_port }} ssl default_server;
   #
   # Note: You should disable gzip for SSL traffic.
   # See: https://bugs.debian.org/773332

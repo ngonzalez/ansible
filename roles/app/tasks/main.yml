@@ -77,6 +77,7 @@
     dest: /home/{{ ansible_user}}/.ssh/id_host
     mode: 0600
     owner: "{{ ansible_user }}"
+  no_log: True
 
 - name: Copy ssh key id_host.pub
   copy:
@@ -84,6 +85,7 @@
     dest: /home/{{ ansible_user}}/.ssh/id_host.pub
     mode: 0644
     owner: "{{ ansible_user }}"
+  no_log: True
 
 - name: Add id_host to ssh config
   lineinfile:
@@ -91,6 +93,7 @@
     dest: /home/{{ ansible_user }}/.ssh/config
     mode: 0644
     owner: "{{ ansible_user }}"
+  no_log: True
 
 - name: Add github to known_hosts
   lineinfile:
@@ -99,6 +102,7 @@
     mode: 0644
     owner: "{{ ansible_user }}"
     create: True
+  no_log: True
 
 # app folder
 - name: Remove application directory
@@ -107,13 +111,14 @@
     state: absent
   no_log: True
 
-- name: Create application directory
+- name: Create application tempoary directory
   file:
     path: "{{ app_tmp_path }}"
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0755
+  no_log: True
 
 # git
 - name: Clone application repository
@@ -148,21 +153,25 @@
       - zlib1g-dev
       - liblzma-dev
       - libtag1-dev
+  no_log: True
 
 - name: Install bundler
   become_user: "{{ ansible_user }}"
   gem:
     name: bundler
     version: "{{ app_bundle_version }}"
+  no_log: True
 
 - name: Get stats from Gemfile.lock
   stat:
     path: "{{ app_tmp_path_backend }}/Gemfile.lock"
   register: app_gemfile
+  no_log: True
 
 - set_fact:
     app_bundle_archive_path: "{{ app_bundle_src_path }}-{{ app_gemfile.stat.checksum [:10] }}"
     app_bundle_archive_remote_path: "{{ app_bundle_src_remote_path }}-{{ app_gemfile.stat.checksum [:10] }}"
+  no_log: True
 
 - name: Generate application bundle helpers
   become_user: "{{ ansible_user }}"
@@ -213,6 +222,7 @@
     group: "{{ ansible_user }}"
     mode: 0755
   when: not app_bundle_tmp_folder.stat.exists
+  no_log: True
 
 - name: Check if bundle temporary folder exists
   become_user: "{{ ansible_user }}"
@@ -234,6 +244,7 @@
     dest: "{{ app_bundle_archive_path }}-temp"
     remote_src: yes
   when: archive_bundle.stat.exists and filesFound.matched == 0
+  no_log: True
 
 - name: Remove application vendor cache
   file:
@@ -248,12 +259,14 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     state: link
+  no_log: True
 
 - name: bundle install
   become_user: "{{ ansible_user }}"
   command: /usr/bin/bundle3.0 install --path=vendor/cache
   args:
     chdir: "{{ app_tmp_path_backend }}"
+  no_log: True
 
 - name: Archive bundle
   become_user: "{{ ansible_user }}"
@@ -262,21 +275,13 @@
     dest: "{{ app_bundle_archive_path }}"
     format: xz
   when: not archive_bundle.stat.exists
+  no_log: True
 
 - name: Upload bundle
   become_user: "{{ ansible_user }}"
   command: bin/upload_bundle
   args:
     chdir: "{{ app_tmp_path_backend }}"
-
-
-# public folder
-- name: Change public folder ownership and permissions
-  file:
-    path: "{{ app_tmp_path_backend }}/public"
-    owner: "{{ nginx_user }}"
-    group: "{{ nginx_user }}"
-    recurse: yes
 
 # link to application
 - name: Create application directory
@@ -286,6 +291,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0755
+  no_log: True
 
 - name: Remove application directory
   file:
