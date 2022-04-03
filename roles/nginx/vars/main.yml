@@ -16,6 +16,6 @@ nginx_self_signed_path: "snippets/{{ nginx_self_signed_conf }}"
 nginx_ssl_params_path: "snippets/{{ nginx_ssl_params_conf }}"
 nginx_self_signed_etc_path: "/etc/nginx/snippets/{{ nginx_self_signed_conf }}"
 nginx_ssl_params_etc_path: "/etc/nginx/snippets/{{ nginx_ssl_params_conf }}"
-nginx_cert_path: /etc/ssl/certs/nginx-selfsigned.crt
-nginx_key_path: /etc/ssl/private/nginx-selfsigned.key
+nginx_cert_path: /etc/ssl/certs/server.crt
+nginx_key_path: /etc/ssl/private/server-key.pem
 nginx_dhparam_pem_path: /etc/nginx/dhparam.pem
