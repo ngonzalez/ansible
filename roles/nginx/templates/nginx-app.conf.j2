@@ -26,7 +26,7 @@ upstream puma_server {
 server {
   # SSL configuration
   #
-  include {{ nginx_self_signed_path }};
+  include {{ nginx_ssl_path }};
   include {{ nginx_ssl_params_path }};
 
   listen {{ nginx_https_port }} ssl default_server;
