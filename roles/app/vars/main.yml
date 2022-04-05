@@ -14,7 +14,7 @@ google_cloud_sdk_keyring: "/usr/share/keyrings/cloud.google.gpg"
 google_cloud_sdk_packages: "https://packages.cloud.google.com/apt"
 
 # bundle
-app_bundle_version: 2.3.8
+app_bundle_version: 2.3.10
 app_bundle_src_path: /tmp/bundle
 app_bundle_src_remote_path: bundle
 
