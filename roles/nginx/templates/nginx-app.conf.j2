@@ -1,14 +1,14 @@
-server {
-  listen {{ nginx_http_port }} default_server;
-  listen [::]:{{ nginx_http_port }} default_server;
-
-  access_log {{ nginx_access_log }} compression;
-  error_log {{ nginx_error_log }} warn;
-
-  server_name _;
-
-  return 301 https://$host$request_uri;
-}
+# server {
+#   listen {{ nginx_http_port }} default_server;
+#   listen [::]:{{ nginx_http_port }} default_server;
+#
+#   access_log {{ nginx_access_log }} compression;
+#   error_log {{ nginx_error_log }} warn;
+#
+#   server_name _;
+#
+#   return 301 https://$host$request_uri;
+# }
 
 upstream puma_server {
   server unix:{{ nginx_puma_sock }};

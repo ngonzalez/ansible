@@ -67,55 +67,16 @@
     name: google-cloud-storage
     state: latest
 
-# ssh
-- name: Include ssh vault vars
-  include_vars:
-    file: vault_ssh.yml
-  no_log: true
-
-- name: Copy ssh key id_host
-  copy:
-    content: "{{ debian_sid_id_rsa }}"
-    dest: /home/{{ ansible_user}}/.ssh/id_host
-    mode: 0600
-    owner: "{{ ansible_user }}"
-  no_log: True
-
-- name: Copy ssh key id_host.pub
-  copy:
-    content: "{{ debian_sid_id_rsa_pub }}"
-    dest: /home/{{ ansible_user}}/.ssh/id_host.pub
-    mode: 0644
-    owner: "{{ ansible_user }}"
-  no_log: True
-
-- name: Add id_host to ssh config
-  lineinfile:
-    line: " IdentityFile /home/{{ ansible_user }}/.ssh/id_host"
-    dest: /home/{{ ansible_user }}/.ssh/config
-    mode: 0644
-    owner: "{{ ansible_user }}"
-  no_log: True
-
-- name: Add github to known_hosts
-  lineinfile:
-    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
-    dest: /home/{{ ansible_user }}/.ssh/known_hosts
-    mode: 0644
-    owner: "{{ ansible_user }}"
-    create: True
-  no_log: True
-
 # app folder
 - name: Remove application directory
   file:
-    path: "{{ app_tmp_path }}"
+    path: "{{ backend_app_tmp_path }}"
     state: absent
   no_log: True
 
 - name: Create application tempoary directory
   file:
-    path: "{{ app_tmp_path }}"
+    path: "{{ backend_app_tmp_path }}"
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
@@ -126,8 +87,8 @@
 - name: Clone application repository
   become_user: "{{ ansible_user }}"
   git:
-    repo: "{{ app_repository }}"
-    dest: "{{ app_tmp_path }}"
+    repo: "{{ backend_app_repository }}"
+    dest: "{{ backend_app_tmp_path }}"
 
 # vault
 - name: Include vault db vars
@@ -140,7 +101,7 @@
   become_user: "{{ ansible_user }}"
   template:
     src: app.env.j2
-    dest: "{{ app_tmp_path_backend }}/.env"
+    dest: "{{ backend_app_tmp_path_backend }}/.env"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
@@ -161,18 +122,18 @@
   become_user: "{{ ansible_user }}"
   gem:
     name: bundler
-    version: "{{ app_bundle_version }}"
+    version: "{{ backend_app_bundle_version }}"
   no_log: True
 
 - name: Get stats from Gemfile.lock
   stat:
-    path: "{{ app_tmp_path_backend }}/Gemfile.lock"
-  register: app_gemfile
+    path: "{{ backend_app_tmp_path_backend }}/Gemfile.lock"
+  register: backend_app_gemfile
   no_log: True
 
 - set_fact:
-    app_bundle_archive_path: "{{ app_bundle_src_path }}-{{ app_gemfile.stat.checksum [:10] }}"
-    app_bundle_archive_remote_path: "{{ app_bundle_src_remote_path }}-{{ app_gemfile.stat.checksum [:10] }}"
+    backend_app_bundle_archive_path: "{{ backend_app_bundle_src_path }}-{{ backend_app_gemfile.stat.checksum [:10] }}"
+    backend_app_bundle_archive_remote_path: "{{ backend_app_bundle_src_remote_path }}-{{ backend_app_gemfile.stat.checksum [:10] }}"
   no_log: True
 
 - name: Generate application bundle helpers
@@ -184,14 +145,14 @@
     group: "{{ ansible_user }}"
     mode: 0755
   with_items:
-    - { src: bundle_dl.rb.j2, dest: "{{ app_tmp_path_backend }}/bin/download_bundle" }
-    - { src: bundle_ul.rb.j2, dest: "{{ app_tmp_path_backend }}/bin/upload_bundle" }
+    - { src: bundle_dl.rb.j2, dest: "{{ backend_app_tmp_path_backend }}/bin/download_bundle" }
+    - { src: bundle_ul.rb.j2, dest: "{{ backend_app_tmp_path_backend }}/bin/upload_bundle" }
   no_log: True
 
 - name: Check if bundle archive exists
   become_user: "{{ ansible_user }}"
   stat:
-    path: "{{ app_bundle_archive_path }}"
+    path: "{{ backend_app_bundle_archive_path }}"
   register: archive_bundle
   no_log: True
 
@@ -199,65 +160,65 @@
   become_user: "{{ ansible_user }}"
   command: bin/download_bundle
   args:
-    chdir: "{{ app_tmp_path_backend }}"
+    chdir: "{{ backend_app_tmp_path_backend }}"
   when: not archive_bundle.stat.exists
 
 - name: Check if bundle archive exists
   become_user: "{{ ansible_user }}"
   stat:
-    path: "{{ app_bundle_archive_path }}"
+    path: "{{ backend_app_bundle_archive_path }}"
   register: archive_bundle
   no_log: True
 
 - name: Check if bundle temporary folder exists
   become_user: "{{ ansible_user }}"
   stat:
-    path: "{{ app_bundle_archive_path }}-temp"
-  register: app_bundle_tmp_folder
+    path: "{{ backend_app_bundle_archive_path }}-temp"
+  register: backend_app_bundle_tmp_folder
   no_log: True
 
 - name: Create bundle temporary folder
   file:
-    path: "{{ app_bundle_archive_path }}-temp"
+    path: "{{ backend_app_bundle_archive_path }}-temp"
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0755
-  when: not app_bundle_tmp_folder.stat.exists
+  when: not backend_app_bundle_tmp_folder.stat.exists
   no_log: True
 
 - name: Check if bundle temporary folder exists
   become_user: "{{ ansible_user }}"
   stat:
-    path: "{{ app_bundle_archive_path }}-temp"
-  register: app_bundle_tmp_folder
+    path: "{{ backend_app_bundle_archive_path }}-temp"
+  register: backend_app_bundle_tmp_folder
   no_log: True
 
 - name: Check if bundle temporary folder is empty
   find:
-    paths: "{{ app_bundle_archive_path }}-temp"
+    paths: "{{ backend_app_bundle_archive_path }}-temp"
   register: filesFound
   no_log: True
 
 - name: Unarchive bundle
   become_user: "{{ ansible_user }}"
   unarchive:
-    src: "{{ app_bundle_archive_path }}"
-    dest: "{{ app_bundle_archive_path }}-temp"
+    src: "{{ backend_app_bundle_archive_path }}"
+    dest: "{{ backend_app_bundle_archive_path }}-temp"
     remote_src: yes
   when: archive_bundle.stat.exists and filesFound.matched == 0
   no_log: True
 
 - name: Remove application vendor cache
   file:
-    path: "{{ app_tmp_path_backend }}/vendor/cache"
+    path: "{{ backend_app_tmp_path_backend }}/vendor/cache"
     state: absent
   no_log: True
 
 - name: Link bundle to application folder
   file:
-    src: "{{ app_bundle_archive_path }}-temp"
-    dest: "{{ app_tmp_path_backend }}/vendor/cache"
+    src: "{{ backend_app_bundle_archive_path }}-temp"
+    dest: "{{ backend_app_tmp_path_backend }}/vendor/cache"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     state: link
@@ -267,14 +228,14 @@
   become_user: "{{ ansible_user }}"
   command: /usr/bin/bundle3.0 install --path=vendor/cache
   args:
-    chdir: "{{ app_tmp_path_backend }}"
+    chdir: "{{ backend_app_tmp_path_backend }}"
   no_log: True
 
 - name: Archive bundle
   become_user: "{{ ansible_user }}"
   archive:
-    path: "{{ app_bundle_archive_path }}-temp"
-    dest: "{{ app_bundle_archive_path }}"
+    path: "{{ backend_app_bundle_archive_path }}-temp"
+    dest: "{{ backend_app_bundle_archive_path }}"
     format: xz
   when: not archive_bundle.stat.exists
   no_log: True
@@ -283,7 +244,7 @@
   become_user: "{{ ansible_user }}"
   command: bin/upload_bundle
   args:
-    chdir: "{{ app_tmp_path_backend }}"
+    chdir: "{{ backend_app_tmp_path_backend }}"
 
 # link to application
 - name: Create application directory
@@ -297,18 +258,18 @@
 
 - name: Remove application directory
   file:
-    path: "{{ app_path }}"
+    path: "{{ backend_app_path }}"
     state: absent
   no_log: True
 
 - name: Move to application folder
-  command: mv -f "{{ app_tmp_path }}" "{{ app_path }}"
+  command: mv -f "{{ backend_app_tmp_path }}" "{{ backend_app_path }}"
 
 # database migrations
 - name: Run database migrations
   become_user: "{{ ansible_user }}"
   shell:
-    chdir: "{{ app_path_backend }}"
+    chdir: "{{ backend_app_path_backend }}"
     cmd:  /usr/bin/bundle3.0 exec rails db:migrate
   ignore_errors: yes
 
@@ -316,12 +277,12 @@
 - name: Copy puma service file
   template:
     src: puma.service.j2
-    dest: "{{ app_puma_service_file }}"
+    dest: "{{ backend_app_puma_service_file }}"
 
 - name: Copy puma target file
   template:
     src: puma.target.j2
-    dest: "{{ app_puma_target_file }}"
+    dest: "{{ backend_app_puma_target_file }}"
 
 - name: Start puma
   systemd:
