@@ -1,4 +1,4 @@
 ---
-frontend_app_path: /var/www/app-frontend
-frontend_app_tmp_path: /tmp/frontend-deploy
-frontend_app_repository: https://github.com/ngonzalez/search-app-frontend.git
+app_path: /var/www/app-frontend
+app_tmp_path: /tmp/frontend-deploy
+app_repository: https://github.com/ngonzalez/search-app-frontend.git
