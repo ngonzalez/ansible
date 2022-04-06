@@ -11,7 +11,7 @@
     path: "{{ app_tmp_path }}"
     state: absent
 
-- name: Create application tempoary directory
+- name: Create application temporary directory
   file:
     path: "{{ app_tmp_path }}"
     state: directory
