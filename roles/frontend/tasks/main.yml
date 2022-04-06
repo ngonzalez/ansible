@@ -1,9 +1,33 @@
 ---
 # application dependencies
+- name: Remove old yarn packages
+  apt:
+    name:
+      - cmdtest
+      - yarn
+    state: absent
+
 - name: Install application dependencies
   apt:
     name:
-      - yarn
+      - gpg
+      - gpg-agent
+
+- name: Add yarn apt key
+  apt_key:
+    url: https://dl.yarnpkg.com/debian/pubkey.gpg
+    state: present
+
+- name: Add yarn apt repository
+  apt_repository:
+    repo: "deb https://dl.yarnpkg.com/debian/ stable main"
+    state: present
+    update_cache: yes
+
+- name: Install yarn
+  apt:
+    pkg: yarn
+    state: latest
 
 # app folder
 - name: Remove application directory
@@ -26,10 +50,17 @@
     repo: "{{ app_repository }}"
     dest: "{{ app_tmp_path }}"
 
-# dependencies
+# yarn install
 - name: yarn install
   become_user: "{{ ansible_user }}"
   command: yarn install
+  args:
+    chdir: "{{ app_tmp_path }}"
+
+# yarn run build
+- name: yarn run build
+  become_user: "{{ ansible_user }}"
+  command: yarn run build
   args:
     chdir: "{{ app_tmp_path }}"
 

@@ -30,7 +30,7 @@ server {
   server_name _;
 
   location / {
-    root /app;
+    root {{ nginx_app_path }};
     index index.html;
     try_files $uri $uri/ /index.html;
   }
