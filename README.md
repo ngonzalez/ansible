@@ -1,7 +1,8 @@
 
-⚠️ Please follow these links for the changes related to ___app___ and ___db___ clusters:
- * https://github.com/ngonzalez/ansible/tree/app
- * https://github.com/ngonzalez/ansible/tree/db
+⚠️ Please follow these links for the changes related to ___backend___ ___frontend___ and ___database___
+ * https://github.com/ngonzalez/ansible/tree/backend
+ * https://github.com/ngonzalez/ansible/tree/frontend
+ * https://github.com/ngonzalez/ansible/tree/database
 
 # ansible
 
@@ -31,5 +32,5 @@ ansible -i $INVENTORY_FILE all -m ansible.builtin.setup
 
 #### run playbook
 ```
-ansible-playbook -i $INVENTORY_FILE app.yml --flush-cache --diff -vv --limit "app-*"
+ansible-playbook -i $INVENTORY_FILE frontend.yml --flush-cache --diff -vv --limit "frontend-*"
 ```
