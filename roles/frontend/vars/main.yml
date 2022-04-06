@@ -1,0 +1,7 @@
+---
+# app
+frontend_app_path: /var/www/frontend
+frontend_app_tmp_path: /tmp/frontend-deploy
+frontend_app_path_frontend: "{{ app_path }}/frontend"
+frontend_app_tmp_path_frontend: "{{ app_tmp_path }}/frontend"
+frontend_app_repository: https://github.com/ngonzalez/search-app.git
