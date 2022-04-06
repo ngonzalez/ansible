@@ -16,7 +16,7 @@
                --user $ANSIBLE_USER	\
                --port $ANSIBLE_PORT	\
                --inventory_file $INVENTORY_FILE \
-               --loadbalancers "$APP_LOADBALANCER $DB_LOADBALANCER" \
+               --loadbalancers "$BACKEND_LOADBALANCER $FRONTEND_LOADBALANCER $DB_LOADBALANCER" \
                --loadbalancers_inventory_file $LOADBALANCERS_INVENTORY_FILE
 ```
 
