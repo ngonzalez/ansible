@@ -56,10 +56,10 @@
     dest: "{{ nginx_config_path }}"
     mode: 0644
 
-- name: Add nginx config for backend application
+- name: Add nginx config for frontend application
   tags: nginx
   template:
-    src: "nginx-app.conf.j2"
+    src: "nginx-frontend.conf.j2"
     dest: "{{ nginx_app_config_path }}"
     mode: 0644
 
