@@ -1,0 +1,52 @@
+---
+# application dependencies
+- name: Install application dependencies
+  apt:
+    name:
+      - yarn
+
+# app folder
+- name: Remove application directory
+  file:
+    path: "{{ frontend_app_tmp_path }}"
+    state: absent
+
+- name: Create application tempoary directory
+  file:
+    path: "{{ frontend_app_tmp_path }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+
+# git
+- name: Clone application repository
+  become_user: "{{ ansible_user }}"
+  git:
+    repo: "{{ frontend_app_repository }}"
+    dest: "{{ frontend_app_tmp_path }}"
+
+# dependencies
+- name: yarn install
+  become_user: "{{ ansible_user }}"
+  command: yarn install
+  args:
+    chdir: "{{ frontend_app_tmp_path_backend }}"
+
+# link to application
+- name: Create application directory
+  file:
+    path: /var/www
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0755
+
+- name: Remove application directory
+  file:
+    path: "{{ frontend_app_path }}"
+    state: absent
+
+- name: Move to application folder
+  command: mv -f "{{ frontend_app_tmp_path }}" "{{ frontend_app_path }}"
+
