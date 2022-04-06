@@ -31,7 +31,7 @@
   become_user: "{{ ansible_user }}"
   command: yarn install
   args:
-    chdir: "{{ frontend_app_tmp_path_backend }}"
+    chdir: "{{ frontend_app_tmp_path }}"
 
 # link to application
 - name: Create application directory
@@ -49,4 +49,3 @@
 
 - name: Move to application folder
   command: mv -f "{{ frontend_app_tmp_path }}" "{{ frontend_app_path }}"
-
