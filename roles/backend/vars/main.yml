@@ -1,0 +1,28 @@
+---
+# app
+backend_app_path: /var/www/app
+backend_app_tmp_path: /tmp/app-deploy
+backend_app_path_backend: "{{ app_path }}/backend"
+backend_app_tmp_path_backend: "{{ app_tmp_path }}/backend"
+backend_app_repository: https://github.com/ngonzalez/search-app.git
+
+# gcp
+backend_app_gcp_enabled: "{{ lookup('env', 'GCP_ENABLED') }}"
+
+# google cloud sdk
+backend_google_cloud_sdk_keyring: "/usr/share/keyrings/cloud.google.gpg"
+backend_google_cloud_sdk_packages: "https://packages.cloud.google.com/apt"
+
+# bundle
+backend_app_bundle_version: 2.3.10
+backend_app_bundle_src_path: /tmp/bundle
+backend_app_bundle_src_remote_path: bundle
+
+# puma
+backend_app_puma_service_name: puma
+backend_app_puma_service_description: Puma is a simple, fast, threaded, and highly concurrent HTTP 1.1 server for Ruby/Rack applications.
+backend_app_puma_service_file: /etc/systemd/system/puma.service
+backend_app_puma_target_file: /etc/systemd/system/puma.target
+backend_app_puma_pid_path: /tmp/pids/server.pid
+backend_app_puma_service_file_sysv: /etc/init.d/puma
+backend_app_puma_sock: /tmp/puma.sock
