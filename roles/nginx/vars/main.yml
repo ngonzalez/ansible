@@ -2,13 +2,12 @@
 nginx_config_path: /etc/nginx/nginx.conf
 nginx_access_log: /var/log/nginx/access.log
 nginx_error_log: /var/log/nginx/error.log
-nginx_puma_sock: /tmp/puma.sock
 nginx_pid_path: /run/nginx.pid
 nginx_http_port: 8000
 nginx_https_port: 9000
 nginx_user: www-data
 nginx_app_path: /var/www/app
-nginx_app_config_path: /etc/nginx/sites-available/default
+nginx_app_config_path: /etc/nginx/sites-available/frontend
 nginx_ssl_conf: ssl.conf
 nginx_ssl_params_conf: ssl-params.conf
 nginx_ssl_path: "snippets/{{ nginx_ssl_conf }}"
