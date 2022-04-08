@@ -10,10 +10,6 @@ server {
   return 301 https://$host$request_uri;
 }
 
-upstream puma_server {
-  server unix:{{ nginx_puma_sock }};
-}
-
 server {
   include {{ nginx_ssl_path }};
   include {{ nginx_ssl_params_path }};
