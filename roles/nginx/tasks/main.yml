@@ -56,12 +56,19 @@
     dest: "{{ nginx_config_path }}"
     mode: 0644
 
-- name: Add nginx config for application
+- name: Add nginx config to sites-available
   tags: nginx
   template:
     src: "nginx-app.conf.j2"
-    dest: "{{ nginx_app_config_path }}"
+    dest: "{{ nginx_sites_available_path }}/backend"
     mode: 0644
+
+- name: Link nginx config to sites-available
+  tags: nginx
+  file:
+    src: "{{ nginx_sites_available_path }}/backend"
+    dest: "{{ nginx_sites_enabled_path }}/backend"
+    state: link
 
 - name: Start nginx
   tags: nginx
