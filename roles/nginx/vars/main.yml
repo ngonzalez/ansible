@@ -6,7 +6,7 @@ nginx_pid_path: /run/nginx.pid
 nginx_http_port: 8000
 nginx_https_port: 9000
 nginx_user: www-data
-nginx_app_path: /var/www/app-frontend
+nginx_app_path: /var/www/app-frontend/dist
 nginx_sites_available_path: /etc/nginx/sites-available
 nginx_sites_enabled_path: /etc/nginx/sites-enabled
 nginx_ssl_conf: ssl.conf
