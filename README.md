@@ -1,7 +1,6 @@
 
-⚠️ Please follow these links for the changes related to ___backend___ ___frontend___ and ___database___
- * https://github.com/ngonzalez/ansible/tree/backend
- * https://github.com/ngonzalez/ansible/tree/frontend
+⚠️ Please follow these links for the changes related to ___app___ and ___database___
+ * https://github.com/ngonzalez/ansible/tree/app
  * https://github.com/ngonzalez/ansible/tree/database
 
 # ansible
@@ -16,7 +15,7 @@
                --user $ANSIBLE_USER	\
                --port $ANSIBLE_PORT	\
                --inventory_file $INVENTORY_FILE \
-               --loadbalancers "$BACKEND_LOADBALANCER $FRONTEND_LOADBALANCER $DB_LOADBALANCER" \
+               --loadbalancers "$APP_LOADBALANCER $DATABASE_LOADBALANCER" \
                --loadbalancers_inventory_file $LOADBALANCERS_INVENTORY_FILE
 ```
 
@@ -32,5 +31,5 @@ ansible -i $INVENTORY_FILE all -m ansible.builtin.setup
 
 #### run playbook
 ```
-ansible-playbook -i $INVENTORY_FILE frontend.yml --flush-cache --diff -vv --limit "frontend-*"
+ansible-playbook -i $INVENTORY_FILE frontend.yml --flush-cache --diff -vv --limit "app-*"
 ```
