@@ -56,19 +56,17 @@
     dest: "{{ nginx_config_path }}"
     mode: 0644
 
-- name: Add nginx config to sites-available
+- name: Add nginx config to sites-enabled
   tags: nginx
   template:
     src: "nginx-app.conf.j2"
-    dest: "{{ nginx_sites_available_path }}/frontend"
+    dest: "{{ nginx_sites_enabled_path }}/frontend"
     mode: 0644
 
-- name: Link nginx config to sites-available
-  tags: nginx
+- name: Remove default site from sites-enabled
   file:
-    src: "{{ nginx_sites_available_path }}/frontend"
-    dest: "{{ nginx_sites_enabled_path }}/frontend"
-    state: link
+    path: "{{ nginx_sites_enabled_path }}/default"
+    state: absent
 
 - name: Start nginx
   tags: nginx
