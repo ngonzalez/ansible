@@ -60,14 +60,14 @@
   tags: nginx
   template:
     src: "nginx-app.conf.j2"
-    dest: "{{ nginx_sites_available_path }}/backend"
+    dest: "{{ nginx_sites_available_path }}/frontend"
     mode: 0644
 
 - name: Link nginx config to sites-available
   tags: nginx
   file:
-    src: "{{ nginx_sites_available_path }}/backend"
-    dest: "{{ nginx_sites_enabled_path }}/backend"
+    src: "{{ nginx_sites_available_path }}/frontend"
+    dest: "{{ nginx_sites_enabled_path }}/frontend"
     state: link
 
 - name: Start nginx
