@@ -50,6 +50,13 @@
     repo: "{{ app_repository }}"
     dest: "{{ app_tmp_path }}"
 
+# yarn cache clean
+- name: yarn cache clean
+  become_user: "{{ ansible_user }}"
+  command: yarn cache clean
+  args:
+    chdir: "{{ app_tmp_path }}"
+
 # yarn install
 - name: yarn install
   become_user: "{{ ansible_user }}"
