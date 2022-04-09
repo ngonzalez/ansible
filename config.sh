@@ -7,8 +7,7 @@ export INVENTORY_FILE='inventory.yaml'
 
 # loadbalancers
 export NAMESPACE='k8s'
-export BACKEND_LOADBALANCER='backend-loadbalancer'
-export FRONTEND_LOADBALANCER='frontend-loadbalancer'
+export APP_LOADBALANCER='app-loadbalancer'
 export DATABASE_LOADBALANCER='database-loadbalancer'
 export LOADBALANCERS_INVENTORY_FILE='inventory/vars.yaml'
 
