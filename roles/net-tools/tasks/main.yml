@@ -1,9 +1,0 @@
----
-- name: Install net-tools
-  apt:
-    name:
-      - net-tools
-      - iputils-ping
-      - dnsutils
-      - curl
-      - jq
