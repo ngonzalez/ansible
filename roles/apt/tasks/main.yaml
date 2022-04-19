@@ -1,0 +1,24 @@
+---
+- name: Update apt sources.list
+  tags: apt
+  apt_repository:
+   repo: deb http://ubuntu.mirrors.ovh.net/ubuntu/ bionic main 
+   state: present
+   update_cache: True
+
+- name: Update apt sources.list
+  tags: apt
+  apt_repository:
+   repo: deb-src http://ubuntu.mirrors.ovh.net/ubuntu/ bionic main 
+   state: present
+   update_cache: True
+
+- name: Install packages that allow apt to be used over https
+  tags: apt
+  apt:
+    name:
+    - apt-transport-https
+    - ca-certificates
+    - gnupg
+    - software-properties-common
+    - lsb-release

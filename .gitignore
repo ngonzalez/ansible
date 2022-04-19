@@ -1,3 +1,2 @@
 .DS_Store
-inventory.yaml
 inventory/vars.yaml
