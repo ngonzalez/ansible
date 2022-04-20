@@ -1,6 +1,7 @@
 # docker
 ---
 - name: Install apt dependencies
+  tags: docker
   apt:
     name:
       - gpg
