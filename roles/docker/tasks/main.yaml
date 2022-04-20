@@ -12,7 +12,7 @@
 
 - name: Add docker apt repository
   tags: docker
-  shell: echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu bionic stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  shell: echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu jammy stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 - name: Install docker
   tags: docker
@@ -46,10 +46,10 @@
 
 - name: Configure docker daemon
   tags: docker
-  lineinfile:
-    path: /etc/docker/daemon.json
-    line: "{ \"exec-opts\": [\"native.cgroupdriver=systemd\"] }"
-    create: yes
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: 0644
 
 - name: Start docker
   tags: docker

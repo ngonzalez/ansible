@@ -1,10 +1,59 @@
 # kubernetes
 ---
 - name: Install apt dependencies
+  tags: kubernetes
   apt:
     name:
       - gpg
       - gpg-agent
+
+# Container Runtime Interface
+- name: Download CRIO-O gpg key
+  tags: kubernetes
+  shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
+  environment:
+    OS: xUbuntu_20.04
+
+- name: Add CRIO-O apt repository
+  tags: kubernetes
+  shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+  environment:
+    OS: xUbuntu_20.04
+
+- name: Download CRIO-O gpg key
+  tags: kubernetes
+  shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
+  environment:
+    OS: xUbuntu_20.04
+    VERSION: 1.23
+
+- name: Add CRIO-O apt repository
+  tags: kubernetes
+  shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$VERSION.list
+  environment:
+    OS: xUbuntu_20.04
+    VERSION: 1.23
+
+- name: Install CRI-O
+  tags: kubernetes
+  apt:
+    name:
+    - cri-o
+    - cri-o-runc
+    update_cache: yes
+
+- name: Add bridge config
+  tags: kubernetes
+  template:
+    src: crio-bridge.conf.j2
+    dest: /etc/cni/net.d/100-crio-bridge.conf
+
+- name: Start CRI-O
+  tags: kubernetes
+  service:
+    name: crio
+    state: restarted
+    daemon_reload: yes
 
 # Kubernetes
 - name: Download kubernetes gpg key
@@ -31,9 +80,9 @@
 
 - name: Initialize the Kubernetes cluster
   tags: kubernetes
-  command: kubeadm init --apiserver-advertise-address 192.168.56.10 \
-                        --apiserver-cert-extra-sans 192.168.56.10 \
+  command: kubeadm init --cri-socket /var/run/crio/crio.sock \
                         --pod-network-cidr 10.244.0.0/16 \
+                        --upload-certs \
                         --node-name node-1
 
 - name: Create .kube folder
