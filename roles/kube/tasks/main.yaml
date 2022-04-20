@@ -6,6 +6,7 @@
       - gpg
       - gpg-agent
 
+# Kubernetes
 - name: Download kubernetes gpg key
   tags: kubernetes
   shell: curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor --yes -o /usr/share/keyrings/kubernetes-archive-keyring.gpg

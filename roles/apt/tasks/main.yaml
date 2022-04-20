@@ -2,7 +2,7 @@
 - name: Update apt sources.list
   tags: apt
   apt_repository:
-   repo: deb http://ubuntu.mirrors.ovh.net/ubuntu/ jammy main
+   repo: deb http://ubuntu.mirrors.ovh.net/ubuntu/ bionic main
    state: present
 
 - name: Install packages that allow apt to be used over https
