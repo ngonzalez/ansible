@@ -1,5 +1,6 @@
 # admin
 ---
+# apt dependencies
 - name: Install system packages
   tags: admin
   apt:
@@ -10,6 +11,17 @@
     - iputils-ping
     - jq
     - net-tools
+
+# github
+- name: Add github to known_hosts
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  lineinfile:
+    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
+    dest: "/home/{{ ansible_user }}/.ssh/known_hosts"
+    mode: 0644
+    owner: "{{ ansible_user }}"
+    create: True
 
 # git checkout
 - name: Checkout admin repository
@@ -30,14 +42,14 @@
 
 # persistent volumes
 - name: Create data folder
-  tags: app
+  tags: admin
   ansible.builtin.file:
     path: /data
     state: directory
     mode: 0755
 
 - name: Change data folder ownership and permissions
-  tags: app
+  tags: admin
   file:
     path: /data
     owner: "{{ ansible_user }}"
@@ -46,21 +58,21 @@
   no_log: True
 
 - name: Create storage class
-  tags: app
+  tags: admin
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f storage/storage-class.yaml
 
 - name: Create persistent volume
-  tags: app
+  tags: admin
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f storage/persistent-volume.yaml
 
 - name: Create persistent volume claim
-  tags: app
+  tags: admin
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
@@ -68,21 +80,21 @@
 
 # database
 - name: Create database Deployment
-  tags: database
+  tags: admin
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f deploy/database.yaml
 
 - name: Create database loadbalancer
-  tags: database
+  tags: admin
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f service/database.yaml
 
 - name: Set database loadbalancer external IP
-  tags: database
+  tags: admin
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
@@ -90,21 +102,21 @@
 
 # app
 - name: Create app Deployment
-  tags: app
+  tags: admin
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f deploy/app.yaml
 
 - name: Create app loadbalancer
-  tags: app
+  tags: admin
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f service/app.yaml
 
 - name: Set app loadbalancer external IP
-  tags: app
+  tags: admin
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
