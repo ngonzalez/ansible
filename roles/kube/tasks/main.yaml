@@ -12,27 +12,34 @@
   tags: kubernetes
   shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
   environment:
-    OS: xUbuntu_20.04
+    OS: xUbuntu_18.04
 
 - name: Add CRIO-O apt repository
   tags: kubernetes
   shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
   environment:
-    OS: xUbuntu_20.04
+    OS: xUbuntu_18.04
 
 - name: Download CRIO-O gpg key
   tags: kubernetes
   shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
   environment:
-    OS: xUbuntu_20.04
+    OS: xUbuntu_18.04
     VERSION: 1.23
 
 - name: Add CRIO-O apt repository
   tags: kubernetes
   shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$VERSION.list
   environment:
-    OS: xUbuntu_20.04
+    OS: xUbuntu_18.04
     VERSION: 1.23
+
+- name: Install ca-certificates
+  tags: kubernetes
+  apt:
+    name:
+    - ca-certificates
+    update_cache: yes
 
 - name: Install CRI-O
   tags: kubernetes
@@ -40,7 +47,6 @@
     name:
     - cri-o
     - cri-o-runc
-    update_cache: yes
 
 - name: Add bridge config
   tags: kubernetes
@@ -56,22 +62,30 @@
     daemon_reload: yes
 
 # Kubernetes
-- name: Download kubernetes gpg key
+- name: Add an apt signing key for Kubernetes
   tags: kubernetes
-  shell: curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor --yes -o /usr/share/keyrings/kubernetes-archive-keyring.gpg
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
 
-- name: Add kubernetes apt repository
+- name: Adding apt repository for Kubernetes
   tags: kubernetes
-  shell: echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list > /dev/null
+  apt_repository:
+    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    state: present
+    filename: kubernetes.list
 
 - name: Install Kubernetes binaries
   tags: kubernetes
   apt:
-    name:
-    - kubelet
-    - kubeadm
-    - kubectl
+    name: "{{ packages }}"
+    state: present
     update_cache: yes
+  vars:
+    packages:
+      - kubelet
+      - kubeadm
+      - kubectl
 
 - name: Reset Kubernetes cluster
   tags: kubernetes
