@@ -1,33 +1,25 @@
-# kube
+# kubernetes
 ---
-- name: Add an apt signing key for Kubernetes
+- name: Download kubernetes gpg key
   tags: kubernetes
-  apt_key:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    state: present
+  shell: curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor --yes -o /usr/share/keyrings/kubernetes-archive-keyring.gpg
 
-- name: Adding apt repository for Kubernetes
+- name: Add kubernetes apt repository
   tags: kubernetes
-  apt_repository:
-    repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
-    state: present
-    filename: kubernetes.list
+  shell: echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list > /dev/null
 
 - name: Install Kubernetes binaries
   tags: kubernetes
   apt:
-    name: "{{ packages }}"
-    state: present
-    update_cache: yes
-  vars:
-    packages:
-      - kubelet
-      - kubeadm
-      - kubectl
+    name:
+    - kubelet
+    - kubeadm
+    - kubectl
 
 - name: Reset Kubernetes cluster
   tags: kubernetes
   command: kubeadm reset -f
+  no_log: True
 
 - name: Initialize the Kubernetes cluster
   tags: kubernetes
