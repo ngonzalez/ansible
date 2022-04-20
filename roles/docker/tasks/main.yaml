@@ -1,5 +1,11 @@
 # docker
 ---
+- name: Install apt dependencies
+  apt:
+    name:
+      - gpg
+      - gpg-agent
+
 - name: Download docker gpg key
   tags: docker
   shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor --yes -o /usr/share/keyrings/docker-archive-keyring.gpg
@@ -15,6 +21,7 @@
     - docker-ce
     - docker-ce-cli
     - containerd.io
+    update_cache: yes
 
 - name: Add vagrant user to docker group
   tags: docker

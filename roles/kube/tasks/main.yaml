@@ -1,5 +1,11 @@
 # kubernetes
 ---
+- name: Install apt dependencies
+  apt:
+    name:
+      - gpg
+      - gpg-agent
+
 - name: Download kubernetes gpg key
   tags: kubernetes
   shell: curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor --yes -o /usr/share/keyrings/kubernetes-archive-keyring.gpg
@@ -15,6 +21,7 @@
     - kubelet
     - kubeadm
     - kubectl
+    update_cache: yes
 
 - name: Reset Kubernetes cluster
   tags: kubernetes
