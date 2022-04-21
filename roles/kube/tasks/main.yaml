@@ -1,5 +1,40 @@
 # kubernetes
 ---
+- name: Upgrade the OS (apt-get dist-upgrade)
+  tags: kubernetes
+  apt:
+    upgrade: dist
+
+# Containerd
+- name: Add the overlay module
+  tags: kubernetes
+  modprobe:
+    name: overlay
+    state: present
+
+- name: Add the br_netfilter module
+  tags: kubernetes
+  modprobe:
+    name: br_netfilter
+    state: present
+
+- name: Add containerd modules config
+  tags: kubernetes
+  shell: |
+    tee /etc/modules-load.d/containerd.conf <<EOF
+    overlay
+    br_netfilter
+    EOF
+
+- name: Reload sysctl
+  tags: kubernetes
+  shell: sysctl --system
+
+- name: Add containerd config
+  tags: kubernetes
+  shell: containerd config default>/etc/containerd/config.toml
+
+# Container Runtime Interface
 - name: Install apt dependencies
   tags: kubernetes
   apt:
@@ -7,7 +42,6 @@
       - gpg
       - gpg-agent
 
-# Container Runtime Interface
 - name: Download CRIO-O gpg key
   tags: kubernetes
   shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
@@ -34,11 +68,9 @@
     - OS: xUbuntu_18.04
     - VERSION: 1.23
 
-- name: Install ca-certificates
+- name: Run the equivalent of "apt-get update" as a separate step
   tags: kubernetes
   apt:
-    name:
-    - ca-certificates
     update_cache: yes
 
 - name: Install CRI-O
@@ -78,77 +110,78 @@
 - name: Install Kubernetes binaries
   tags: kubernetes
   apt:
-    name: "{{ packages }}"
-    state: present
-    update_cache: yes
-  vars:
-    packages:
-      - kubelet
-      - kubeadm
-      - kubectl
+    name:
+    - kubelet
+    - kubeadm
+    - kubectl
 
 - name: Reset Kubernetes cluster
   tags: kubernetes
-  command: kubeadm reset -f
-  no_log: True
+  command: kubeadm reset -f --cri-socket /var/run/crio/crio.sock
 
-- name: Initialize the Kubernetes cluster
+- name: Pull images
   tags: kubernetes
-  command: kubeadm init --cri-socket /var/run/crio/crio.sock \
-                        --pod-network-cidr 10.244.0.0/16 \
-                        --upload-certs \
-                        --node-name node-1
+  command: kubeadm config images pull --cri-socket /var/run/crio/crio.sock
 
-- name: Create .kube folder
-  tags: kubernetes
-  file:
-    path: "/home/{{ ansible_user }}/.kube"
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0755
-
-- name: Copy file with owner and permissions
-  tags: kubernetes
-  copy:
-    src: /etc/kubernetes/admin.conf
-    dest: "/home/{{ ansible_user }}/.kube/config"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: 0644
-    remote_src: yes
-
-# By default, your cluster will not schedule Pods on the control-plane node for security reasons
-# https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
-- name: Taint node
-  tags: kubernetes
-  command: kubectl taint nodes --all node-role.kubernetes.io/master-
-  become: false
-
-- name: Install the Tigera Calico operator and custom resource definitions
-  tags: kubernetes
-  command: kubectl create -f https://docs.projectcalico.org/master/manifests/tigera-operator.yaml
-  become: false
-
-- name: Install Calico by creating the necessary custom resource
-  tags: kubernetes
-  command: kubectl create -f https://gist.githubusercontent.com/ngonzalez/2982b3115ed14982318088cf4cc8a415/raw/02f882a2a5570af59dcc36ebc512f2727537b1a3/custom-resources.yaml
-  become: false
-
-- name: Create kube flannel run directory
-  tags: kubernetes
-  file:
-    path: /run/flannel
-    state: directory
-    mode: 0755
-
-- name: Add subnet.env
-  tags: kubernetes
-  template:
-    src: subnet.env.j2
-    dest: /run/flannel/subnet.env
-
-- name: Apply kube flannel
-  tags: kubernetes
-  command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
-  become: false
+# - name: Initialize the Kubernetes cluster
+#   tags: kubernetes
+#   command: kubeadm init --apiserver-advertise-address 192.168.56.10 \
+#                         --apiserver-cert-extra-sans 192.168.56.10 \
+#                         --cri-socket /var/run/crio/crio.sock \
+#                         --pod-network-cidr 10.244.0.0/16 \
+#                         --upload-certs \
+#                         --node-name node-1
+#
+# - name: Create .kube folder
+#   tags: kubernetes
+#   file:
+#     path: "/home/{{ ansible_user }}/.kube"
+#     state: directory
+#     owner: "{{ ansible_user }}"
+#     group: "{{ ansible_user }}"
+#     mode: 0755
+#
+# - name: Copy file with owner and permissions
+#   tags: kubernetes
+#   copy:
+#     src: /etc/kubernetes/admin.conf
+#     dest: "/home/{{ ansible_user }}/.kube/config"
+#     owner: "{{ ansible_user }}"
+#     group: "{{ ansible_user }}"
+#     mode: 0644
+#     remote_src: yes
+#
+# # By default, your cluster will not schedule Pods on the control-plane node for security reasons
+# # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
+# - name: Taint node
+#   tags: kubernetes
+#   command: kubectl taint nodes --all node-role.kubernetes.io/master-
+#   become: false
+#
+# - name: Install the Tigera Calico operator and custom resource definitions
+#   tags: kubernetes
+#   command: kubectl create -f https://docs.projectcalico.org/master/manifests/tigera-operator.yaml
+#   become: false
+#
+# - name: Install Calico by creating the necessary custom resource
+#   tags: kubernetes
+#   command: kubectl create -f https://gist.githubusercontent.com/ngonzalez/2982b3115ed14982318088cf4cc8a415/raw/02f882a2a5570af59dcc36ebc512f2727537b1a3/custom-resources.yaml
+#   become: false
+#
+# - name: Create kube flannel run directory
+#   tags: kubernetes
+#   file:
+#     path: /run/flannel
+#     state: directory
+#     mode: 0755
+#
+# - name: Add subnet.env
+#   tags: kubernetes
+#   template:
+#     src: subnet.env.j2
+#     dest: /run/flannel/subnet.env
+#
+# - name: Apply kube flannel
+#   tags: kubernetes
+#   command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+#   become: false
