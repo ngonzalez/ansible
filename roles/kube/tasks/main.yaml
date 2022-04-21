@@ -46,26 +46,26 @@
   tags: kubernetes
   shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
   environment:
-    - OS: xUbuntu_18.04
+    - OS: xUbuntu_20.04
 
 - name: Add CRIO-O apt repository
   tags: kubernetes
   shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
   environment:
-    - OS: xUbuntu_18.04
+    - OS: xUbuntu_20.04
 
 - name: Download CRIO-O gpg key
   tags: kubernetes
   shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
   environment:
-    - OS: xUbuntu_18.04
+    - OS: xUbuntu_20.04
     - VERSION: 1.23
 
 - name: Add CRIO-O apt repository
   tags: kubernetes
   shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$VERSION.list
   environment:
-    - OS: xUbuntu_18.04
+    - OS: xUbuntu_20.04
     - VERSION: 1.23
 
 - name: Run the equivalent of "apt-get update" as a separate step
@@ -131,8 +131,8 @@
 
 - name: Initialize the Kubernetes cluster
   tags: kubernetes
-  command: kubeadm init --apiserver-advertise-address 192.168.56.10 \
-                        --apiserver-cert-extra-sans 192.168.56.10 \
+  command: kubeadm init --apiserver-advertise-address 10.0.2.15 \
+                        --apiserver-cert-extra-sans 10.0.2.15 \
                         --cri-socket /var/run/crio/crio.sock \
                         --pod-network-cidr 10.244.0.0/16 \
                         --node-name node-1
@@ -154,7 +154,6 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
-    remote_src: yes
 
 # By default, your cluster will not schedule Pods on the control-plane node for security reasons
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
