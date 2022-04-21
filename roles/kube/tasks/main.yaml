@@ -80,6 +80,12 @@
     - cri-o
     - cri-o-runc
 
+- name: Add cgroup config
+  tags: kubernetes
+  template:
+    src: cgroup-manager.conf.j2
+    dest: /etc/crio/crio.conf.d/100-cgroup-manager.conf
+
 - name: Add bridge config
   tags: kubernetes
   template:
@@ -129,7 +135,6 @@
                         --apiserver-cert-extra-sans 192.168.56.10 \
                         --cri-socket /var/run/crio/crio.sock \
                         --pod-network-cidr 10.244.0.0/16 \
-                        --upload-certs \
                         --node-name node-1
 
 - name: Create .kube folder
