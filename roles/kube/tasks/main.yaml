@@ -154,6 +154,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
+    remote_src: True
 
 # By default, your cluster will not schedule Pods on the control-plane node for security reasons
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
