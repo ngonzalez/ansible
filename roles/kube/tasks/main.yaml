@@ -156,11 +156,14 @@
     mode: 0644
     remote_src: True
 
-# By default, your cluster will not schedule Pods on the control-plane node for security reasons
-# https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/
-- name: Taint node
+- name: Taint node as master
   tags: kubernetes
   command: kubectl taint nodes --all node-role.kubernetes.io/master-
+  become: false
+
+- name: Taint node as control plane
+  tags: kubernetes
+  command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
   become: false
 
 - name: Install the Tigera Calico operator and custom resource definitions
