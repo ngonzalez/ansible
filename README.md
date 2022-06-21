@@ -1,9 +1,9 @@
 # ansible
 
-⚠️ Please follow the link of the name of the cluster you're deploying to
+⚠️ Please follow the link of the name of the project
 
 #### Vagrant setup
- * https://github.com/ngonzalez/ansible/tree/virtualbox-cri-o
+ * https://github.com/ngonzalez/ansible/tree/virtualbox
 
 #### Debian setup
  * https://github.com/ngonzalez/ansible/tree/debian
