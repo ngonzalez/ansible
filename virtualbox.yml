@@ -6,3 +6,5 @@
     - etchosts
     - docker
     - kube
+    - git
+    - admin
