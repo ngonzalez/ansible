@@ -36,4 +36,3 @@ ansible -i $INVENTORY_FILE all -m ansible.builtin.setup
 ```shell
 ansible-playbook -i $INVENTORY_FILE virtualbox.yml --flush-cache --diff -vv --limit "vagrant-*"
 ```
-=======
