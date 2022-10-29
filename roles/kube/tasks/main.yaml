@@ -156,10 +156,10 @@
     mode: 0644
     remote_src: True
 
-- name: Taint node as master
-  tags: kubernetes
-  command: kubectl taint nodes --all node-role.kubernetes.io/master-
-  become: false
+# - name: Taint node as master
+#   tags: kubernetes
+#   command: kubectl taint nodes --all node-role.kubernetes.io/master-
+#   become: false
 
 - name: Taint node as control plane
   tags: kubernetes
