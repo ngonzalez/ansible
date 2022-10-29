@@ -3,7 +3,7 @@
   tags: etchosts
   lineinfile:
     dest: "/etc/hosts"
-    line: "192.168.56.10 link12.ddns.net node-1"
+    line: "10.0.2.15 link12.ddns.net node-1"
     state: present
     backup: yes
   no_log: True
