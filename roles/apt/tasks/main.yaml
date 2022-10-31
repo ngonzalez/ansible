@@ -1,9 +1,11 @@
 ---
 - name: Update apt sources.list
   tags: apt
-  apt_repository:
-   repo: deb http://ubuntu.mirrors.ovh.net/ubuntu/ jammy main
-   state: present
+  shell: echo "deb http://ubuntu.mirrors.ovh.net/ubuntu/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/apt.list
+
+- name: Run the equivalent of "apt-get update" as a separate step
+  apt:
+    update_cache: yes
 
 - name: Install packages that allow apt to be used over https
   tags: apt
