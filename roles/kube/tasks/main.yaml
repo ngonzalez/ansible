@@ -123,19 +123,19 @@
 
 - name: Reset Kubernetes cluster
   tags: kubernetes
-  command: kubeadm reset -f --cri-socket /var/run/crio/crio.sock
+  command: kubeadm reset -f --cri-socket {{ cri_socket }}
 
 - name: Pull images
   tags: kubernetes
-  command: kubeadm config images pull --cri-socket /var/run/crio/crio.sock
+  command: kubeadm config images pull --cri-socket {{ cri_socket }}
 
 - name: Initialize the Kubernetes cluster
   tags: kubernetes
-  command: kubeadm init --apiserver-advertise-address 10.0.2.15 \
-                        --apiserver-cert-extra-sans 10.0.2.15 \
-                        --cri-socket /var/run/crio/crio.sock \
-                        --pod-network-cidr 10.244.0.0/16 \
-                        --node-name node-1
+  command: kubeadm init --apiserver-advertise-address {{ apiserver_advertise_address }} \
+                        --apiserver-cert-extra-sans {{ apiserver_advertise_address }} \
+                        --cri-socket {{ cri_socket }} \
+                        --pod-network-cidr {{ pod_network_cidr }} \
+                        --node-name {{ node_name }}
 
 - name: Create .kube folder
   tags: kubernetes

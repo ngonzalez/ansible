@@ -1,9 +1,8 @@
 ---
-- name: Add link12.ddns.net to /etc/hosts file
+- name: Add {{ hostname }} to /etc/hosts file
   tags: etchosts
   lineinfile:
     dest: "/etc/hosts"
-    line: "10.0.2.15 link12.ddns.net node-1"
+    line: "{{ apiserver_advertise_address }} {{ hostname }} {{ node_name }}"
     state: present
     backup: yes
-  no_log: True
