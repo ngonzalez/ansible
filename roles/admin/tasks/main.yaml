@@ -40,6 +40,14 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f namespace/k8s.yaml
 
+# kube-dns
+- name: Set kube-dns service external IP
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n kube-system patch svc kube-dns -p '{"spec":{"externalIPs":["10.0.2.15"]}}'
+
 # persistent volumes
 - name: Create data folder
   tags: admin
@@ -98,7 +106,7 @@
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd:  kubectl -n k8s patch svc database-loadbalancer -p '{"spec":{"externalIPs":["10.0.2.15"]}}'
+    cmd: kubectl -n k8s patch svc database-loadbalancer -p '{"spec":{"externalIPs":["10.0.2.15"]}}'
 
 # app
 - name: Create app Deployment
@@ -120,4 +128,4 @@
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd:  kubectl -n k8s patch svc app-loadbalancer -p '{"spec":{"externalIPs":["10.0.2.15"]}}'
+    cmd: kubectl -n k8s patch svc app-loadbalancer -p '{"spec":{"externalIPs":["10.0.2.15"]}}'
