@@ -5,35 +5,6 @@
   apt:
     upgrade: dist
 
-# Containerd
-- name: Add the overlay module
-  tags: kubernetes
-  modprobe:
-    name: overlay
-    state: present
-
-- name: Add the br_netfilter module
-  tags: kubernetes
-  modprobe:
-    name: br_netfilter
-    state: present
-
-- name: Add containerd modules config
-  tags: kubernetes
-  shell: |
-    tee /etc/modules-load.d/containerd.conf <<EOF
-    overlay
-    br_netfilter
-    EOF
-
-- name: Reload sysctl
-  tags: kubernetes
-  shell: sysctl --system
-
-- name: Add containerd config
-  tags: kubernetes
-  shell: containerd config default>/etc/containerd/config.toml
-
 # Container Runtime Interface
 - name: Install apt dependencies
   tags: kubernetes
