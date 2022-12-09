@@ -48,6 +48,14 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n kube-system patch svc kube-dns -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
+# coredns
+- name: Add config for coredns
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f configmap/coredns.yaml
+
 # persistent volumes
 - name: Create data folder
   tags: admin
