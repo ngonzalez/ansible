@@ -137,3 +137,25 @@
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n k8s patch svc app-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
+# database
+- name: Create elastic Deployment
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f deploy/elastic.yaml
+
+- name: Create elastic loadbalancer
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f service/elastic.yaml
+
+- name: Set elastic loadbalancer external IP
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n k8s patch svc elastic-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
