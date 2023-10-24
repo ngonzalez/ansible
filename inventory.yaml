@@ -1,7 +1,7 @@
 ---
 D5BFA3BCA28:
   hosts:
-    vagrant-df6c7d478-d6zz6:
-      ansible_host: 127.0.0.1
-      ansible_port: 2222
-      ansible_user: vagrant
+    ubuntu-rJQ-WGqgILLY8:
+      ansible_host: 192.168.1.14
+      ansible_port: 22
+      ansible_user: nicolas-gonzalez
