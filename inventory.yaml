@@ -1,7 +1,7 @@
 ---
 D5BFA3BCA28:
   hosts:
-    htv-serv--1-rJQ-WGqgILLY8:
+    ubuntu-rJQWGqgILLY8:
       ansible_host: 192.168.1.14
       ansible_port: 22
       ansible_user: ngonzalez
