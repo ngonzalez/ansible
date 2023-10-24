@@ -15,7 +15,6 @@
 # github
 - name: Add github to known_hosts
   tags: admin
-  become_user: "{{ ansible_user }}"
   lineinfile:
     line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
     dest: "/home/{{ ansible_user }}/.ssh/known_hosts"

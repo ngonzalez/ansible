@@ -1,4 +1,4 @@
 ---
-apiserver_advertise_address: 10.0.2.15
+apiserver_advertise_address: 10.85.0.1
 hostname: link12.ddns.net
 node_name: node-1
