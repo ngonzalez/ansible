@@ -1,0 +1,10 @@
+---
+- hosts: '*'
+  become: True
+  roles:
+    - apt
+    - etchosts
+    - docker
+    - kube
+    - git
+    - admin

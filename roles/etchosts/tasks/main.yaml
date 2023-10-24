@@ -1,0 +1,8 @@
+---
+- name: Add {{ hostname }} to /etc/hosts file
+  tags: etchosts
+  lineinfile:
+    dest: "/etc/hosts"
+    line: "{{ apiserver_advertise_address }} {{ hostname }} {{ node_name }}"
+    state: present
+    backup: yes

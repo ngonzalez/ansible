@@ -1,0 +1,30 @@
+---
+- name: Update apt sources.list
+  tags: apt
+  shell: echo "deb http://ubuntu.mirrors.ovh.net/ubuntu/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/apt.list
+
+- name: Run the equivalent of "apt-get update" as a separate step
+  apt:
+    update_cache: yes
+
+- name: Install packages that allow apt to be used over https
+  tags: apt
+  apt:
+    name:
+    - apt-transport-https
+    - ca-certificates
+    - gnupg
+    - software-properties-common
+    - lsb-release
+
+# apt dependencies
+- name: Install system packages
+  tags: admin
+  apt:
+    name:
+    - curl
+    - dnsutils
+    - iputils-ping
+    - net-tools
+    - htop
+    - jq
