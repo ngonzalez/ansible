@@ -16,3 +16,15 @@
     - gnupg
     - software-properties-common
     - lsb-release
+
+# apt dependencies
+- name: Install system packages
+  tags: admin
+  apt:
+    name:
+    - curl
+    - dnsutils
+    - iputils-ping
+    - net-tools
+    - htop
+    - jq
