@@ -29,7 +29,7 @@
   git:
     repo: "{{ admin_repository }}"
     dest: "{{ admin_path }}"
-    version: main
+    version: dev
 
 # kube-dns
 - name: Set kube-dns service external IP
@@ -136,7 +136,7 @@
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl create secret generic demoappbackend-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl apply -f -
+    cmd: kubectl create secret generic demoappbackend-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f - 
 
 - name: Create demoappbackend Deployment
   tags: admin
