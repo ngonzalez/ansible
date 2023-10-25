@@ -122,6 +122,22 @@
     cmd: kubectl -n development patch svc demoredis-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 # development: demoappbackend
+- name: Create environment configuration for development
+  tags: admin
+  template:
+    src: env.dev.j2
+    dest: /tmp/.env.dev
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0644
+
+- name: Create env secret
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl create secret generic demoappbackend-env --namespace=development --from-file=/tmp/.env.dev --dry-run=client -o yaml | kubectl apply -f -
+
 - name: Create demoappbackend Deployment
   tags: admin
   become_user: "{{ ansible_user }}"
