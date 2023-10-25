@@ -83,14 +83,14 @@
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl apply -f deploy/demodb.yaml
+    cmd: kubectl -n development apply -f deploy/demodb.yaml
 
 - name: Create demodb loadbalancer
   tags: admin
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl apply -f service/demodb.yaml
+    cmd: kubectl -n development apply -f service/demodb.yaml
 
 - name: Set demodb loadbalancer external IP
   tags: admin
@@ -105,14 +105,14 @@
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl apply -f deploy/demoredis.yaml
+    cmd: kubectl -n development apply -f deploy/demoredis.yaml
 
 - name: Create demoredis loadbalancer
   tags: admin
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl apply -f service/demoredis.yaml
+    cmd: kubectl -n development apply -f service/demoredis.yaml
 
 - name: Set demoredis loadbalancer external IP
   tags: admin
@@ -126,7 +126,7 @@
   tags: admin
   template:
     src: env.dev.j2
-    dest: /tmp/.env.dev
+    dest: /tmp/.env
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
@@ -136,21 +136,21 @@
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl create secret generic demoappbackend-env --namespace=development --from-file=/tmp/.env.dev --dry-run=client -o yaml | kubectl apply -f -
+    cmd: kubectl create secret generic demoappbackend-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl apply -f -
 
 - name: Create demoappbackend Deployment
   tags: admin
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl apply -f deploy/demoappbackend.yaml
+    cmd: kubectl -n development apply -f deploy/demoappbackend.yaml
 
 - name: Create demoappbackend loadbalancer
   tags: admin
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl apply -f service/demoappbackend.yaml
+    cmd: kubectl -n development apply -f service/demoappbackend.yaml
 
 - name: Set demoappbackend loadbalancer external IP
   tags: admin
