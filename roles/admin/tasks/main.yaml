@@ -68,3 +68,55 @@
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n kubernetes-dashboard create token admin-user
+
+# development: namespace
+- name: Create namespace
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f namespace/development.yaml
+
+# development: demodb
+- name: Create demodb deployment
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f deploy/demodb.yaml
+
+- name: Create demodb loadbalancer
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f service/demodb.yaml
+
+- name: Set demodb loadbalancer external IP
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc demodb-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
+# development: demoredis
+- name: Create demoredis deployment
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f deploy/demoredis.yaml
+
+- name: Create demoredis loadbalancer
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f service/demoredis.yaml
+
+- name: Set demoredis loadbalancer external IP
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc demoredis-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
