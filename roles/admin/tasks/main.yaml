@@ -158,3 +158,25 @@
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc demoappbackend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
+# development: demonginxbackend
+- name: Create demonginxbackend deployment
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development apply -f deploy/demonginxbackend.yaml
+
+- name: Create demonginxbackend loadbalancer
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development apply -f service/demonginxbackend.yaml
+
+- name: Set demonginxbackend loadbalancer external IP
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc demonginxbackend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
