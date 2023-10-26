@@ -1,17 +1,5 @@
 # admin
 ---
-# apt dependencies
-- name: Install system packages
-  tags: admin
-  apt:
-    name:
-    - curl
-    - dnsutils
-    - htop
-    - iputils-ping
-    - jq
-    - net-tools
-
 # github
 - name: Add github to known_hosts
   tags: admin
