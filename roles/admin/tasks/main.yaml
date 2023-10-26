@@ -1,6 +1,5 @@
-# admin
 ---
-# github
+# git
 - name: Add github to known_hosts
   tags: admin
   lineinfile:
@@ -10,7 +9,6 @@
     owner: "{{ ansible_user }}"
     create: True
 
-# git checkout
 - name: Checkout admin repository
   tags: admin
   become_user: "{{ ansible_user }}"
@@ -19,7 +17,7 @@
     dest: "{{ admin_path }}"
     version: dev
 
-# kube-dns
+# dns
 - name: Set kube-dns service external IP
   tags: admin
   become_user: "{{ ansible_user }}"
@@ -27,7 +25,6 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n kube-system patch svc kube-dns -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# coredns
 - name: Add config for coredns
   tags: admin
   become_user: "{{ ansible_user }}"
