@@ -64,21 +64,21 @@
 
 # development: demodb
 - name: Create demodb deployment
-  tags: admin
+  tags: admin db
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/demodb.yaml
 
 - name: Create demodb loadbalancer
-  tags: admin
+  tags: admin db
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/demodb.yaml
 
 - name: Set demodb loadbalancer external IP
-  tags: admin
+  tags: admin db
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
@@ -86,21 +86,21 @@
 
 # development: demoredis
 - name: Create demoredis deployment
-  tags: admin
+  tags: admin redis
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/demoredis.yaml
 
 - name: Create demoredis loadbalancer
-  tags: admin
+  tags: admin redis
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/demoredis.yaml
 
 - name: Set demoredis loadbalancer external IP
-  tags: admin
+  tags: admin redis
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
@@ -108,7 +108,7 @@
 
 # development: demoappbackend
 - name: Create environment configuration for development
-  tags: admin
+  tags: admin app
   template:
     src: env.dev.j2
     dest: /tmp/.env
@@ -117,28 +117,28 @@
     mode: 0644
 
 - name: Create env secret
-  tags: admin
+  tags: admin app
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl create secret generic demoappbackend-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f - 
+    cmd: kubectl create secret generic demoappbackend-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f -
 
 - name: Create demoappbackend Deployment
-  tags: admin
+  tags: admin app
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/demoappbackend.yaml
 
 - name: Create demoappbackend loadbalancer
-  tags: admin
+  tags: admin app
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/demoappbackend.yaml
 
 - name: Set demoappbackend loadbalancer external IP
-  tags: admin
+  tags: admin app
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
@@ -146,22 +146,73 @@
 
 # development: demonginxbackend
 - name: Create demonginxbackend deployment
-  tags: admin
+  tags: admin nginx
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/demonginxbackend.yaml
 
 - name: Create demonginxbackend loadbalancer
-  tags: admin
+  tags: admin nginx
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/demonginxbackend.yaml
 
 - name: Set demonginxbackend loadbalancer external IP
-  tags: admin
+  tags: admin nginx
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc demonginxbackend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
+# development: persistent volume
+- name: Create Storage Class
+  tags: admin stream
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development apply -f storage/storage-class.yaml
+
+- name: Create Persistent Volume
+  tags: admin stream
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development apply -f storage/persistent-volume.yaml
+
+- name: Create Persistent Volume Claim
+  tags: admin stream
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development apply -f storage/persistent-volume-claim.yaml
+
+# development: demoappstream
+- name: Create env secret
+  tags: admin stream
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl create secret generic demoappstream-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f -
+
+- name: Create demoappstream Deployment
+  tags: admin stream
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development replace --force -f deploy/demoappstream.yaml
+
+- name: Create demoappstream loadbalancer
+  tags: admin stream
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development replace --force -f service/demoappstream.yaml
+
+- name: Set demoappstream loadbalancer external IP
+  tags: admin stream
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc demoappstream-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
