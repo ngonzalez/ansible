@@ -166,28 +166,6 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc demonginxbackend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: persistent volume
-- name: Create Storage Class
-  tags: admin stream
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development apply -f storage/storage-class.yaml
-
-- name: Create Persistent Volume
-  tags: admin stream
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development apply -f storage/persistent-volume.yaml
-
-- name: Create Persistent Volume Claim
-  tags: admin stream
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development apply -f storage/persistent-volume-claim.yaml
-
 # development: demoappstream
 - name: Create env secret
   tags: admin stream
