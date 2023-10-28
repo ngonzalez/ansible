@@ -57,12 +57,6 @@
     src: cgroup-manager.conf.j2
     dest: /etc/crio/crio.conf.d/10-cgroup-manager.conf
 
-- name: Add bridge config
-  tags: kubernetes
-  template:
-    src: crio-flannel.conf.j2
-    dest: /etc/cni/net.d/10-crio.conf
-
 - name: Start CRI-O
   tags: kubernetes
   service:
@@ -139,30 +133,17 @@
 
 - name: Install the Tigera Calico operator and custom resource definitions
   tags: kubernetes
-  command: kubectl create -f https://docs.projectcalico.org/master/manifests/tigera-operator.yaml
+  command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/tigera-operator.yaml
   become: false
 
 - name: Install Calico by creating the necessary custom resource
   tags: kubernetes
-  command: kubectl create -f https://gist.githubusercontent.com/ngonzalez/2982b3115ed14982318088cf4cc8a415/raw/02f882a2a5570af59dcc36ebc512f2727537b1a3/custom-resources.yaml
+  command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/custom-resources.yaml
   become: false
 
-- name: Create kube flannel run directory
+- name: Install Calico CNI
   tags: kubernetes
-  file:
-    path: /run/flannel
-    state: directory
-    mode: 0755
-
-- name: Add subnet.env
-  tags: kubernetes
-  template:
-    src: subnet.env.j2
-    dest: /run/flannel/subnet.env
-
-- name: Apply kube flannel
-  tags: kubernetes
-  command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+  command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
   become: false
 
 - name: Add kubernetes-dashboard
@@ -172,5 +153,5 @@
 
 - name: Set kubernetes-dashboard service external IP
   tags: kubernetes
-  command: kubectl -n kubernetes-dashboard patch svc kubernetes-dashboard -p '{"spec":{"externalIPs":["192.168.1.14"]}}'
+  command: kubectl -n kubernetes-dashboard patch svc kubernetes-dashboard -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
   become: false
