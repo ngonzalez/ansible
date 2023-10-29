@@ -153,21 +153,21 @@
 
 # development: demonginxbackend
 - name: Create demonginxbackend deployment
-  tags: admin nginx
+  tags: admin nginx-backend
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/demonginxbackend.yaml
 
 - name: Create demonginxbackend loadbalancer
-  tags: admin nginx
+  tags: admin nginx-backend
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/demonginxbackend.yaml
 
 - name: Set demonginxbackend loadbalancer external IP
-  tags: admin nginx
+  tags: admin nginx-backend
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
@@ -211,3 +211,25 @@
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc demoappstream-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
+# development: demonginxfrontend
+- name: Create demonginxfrontend Deployment
+  tags: admin nginx-frontend
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development replace --force -f deploy/demonginxfrontend.yaml
+
+- name: Create demonginxfrontend loadbalancer
+  tags: admin nginx-frontend
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development replace --force -f service/demonginxfrontend.yaml
+
+- name: Set demonginxfrontend loadbalancer external IP
+  tags: admin nginx-frontend
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc demonginxfrontend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
