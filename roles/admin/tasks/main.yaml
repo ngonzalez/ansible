@@ -1,4 +1,10 @@
 ---
+# vault
+- name: Include vars from vault
+  tags: admin
+  include_vars: env_vault.yaml
+  no_log: True
+
 # git
 - name: Add github to known_hosts
   tags: admin
@@ -110,11 +116,12 @@
 - name: Create environment configuration for development
   tags: admin app
   template:
-    src: env.dev.j2
+    src: app.env.j2
     dest: /tmp/.env
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
+  no_log: True
 
 - name: Create env secret
   tags: admin app
@@ -167,6 +174,16 @@
     cmd: kubectl -n development patch svc demonginxbackend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 # development: demoappstream
+- name: Create environment configuration for development
+  tags: admin stream
+  template:
+    src: appstream.env.j2
+    dest: /tmp/.env
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0644
+  no_log: True
+
 - name: Create env secret
   tags: admin stream
   become_user: "{{ ansible_user }}"

@@ -2,15 +2,3 @@
 admin_repository: https://github.com/ngonzalez/admin.git
 admin_path: "/home/{{ ansible_user }}/admin"
 apiserver_advertise_address: 192.168.1.14
-azure_account_name: demoappstorage
-azure_container_name: dragonfly
-azure_access_key: 4kxBssMKBklduQzab1baJyzjtz7FAhoLkRkHMkdCjwbyU44lWmkPiD83MHWAqAjoRiRUcHiznvU8+ASt58bOIA==
-postgresql_host: "{{ apiserver_advertise_address }}"
-postgresql_port: 5432
-postgresql_username: postgres
-postgresql_password: postgres
-postgresql_db: demoapp
-redis_host: "{{ apiserver_advertise_address }}"
-redis_port: 6379
-redis_db: 1
-secret_key_base: a797255fd895fd168cf4b44057a99da23fdb05023545ecdec7d761b6c958e70806eb0fb07159e1b40ccb1f2171e12f24aefae5a4a923f2e5c3b093a2f36eea84
