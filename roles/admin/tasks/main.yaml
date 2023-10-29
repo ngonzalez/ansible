@@ -69,26 +69,26 @@
     cmd: kubectl apply -f namespace/development.yaml
 
 # development: demodb
-- name: Create demodb deployment
-  tags: admin db
+- name: Create demopostgresql deployment
+  tags: admin postgresql
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f deploy/demodb.yaml
+    cmd: kubectl -n development replace --force -f deploy/demopostgresql.yaml
 
-- name: Create demodb loadbalancer
-  tags: admin db
+- name: Create demopostgresql loadbalancer
+  tags: admin postgresql
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f service/demodb.yaml
+    cmd: kubectl -n development replace --force -f service/demopostgresql.yaml
 
-- name: Set demodb loadbalancer external IP
-  tags: admin db
+- name: Set demopostgresql loadbalancer external IP
+  tags: admin postgresql
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc demodb-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: kubectl -n development patch svc demopostgresql-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 # development: demoredis
 - name: Create demoredis deployment
