@@ -23,43 +23,6 @@
     dest: "{{ admin_path }}"
     version: dev
 
-# dns
-- name: Set kube-dns service external IP
-  tags: admin
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n kube-system patch svc kube-dns -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-
-- name: Add config for coredns
-  tags: admin
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl apply -f configmap/coredns.yaml
-
-# service-account
-- name: Setup Service Account Admin User
-  tags: admin
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl apply -f service-account/admin-user.yaml
-
-- name: Setup Service Account Cluster Admin
-  tags: admin
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl apply -f service-account/cluster-admin.yaml
-
-- name: Generate Service Account Token
-  tags: admin
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n kubernetes-dashboard create token admin-user
-
 # development: namespace
 - name: Create namespace
   tags: admin

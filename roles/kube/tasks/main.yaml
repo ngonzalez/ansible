@@ -121,6 +121,7 @@
     mode: 0644
     remote_src: True
 
+# deprecated
 # - name: Taint node as master
 #   tags: kubernetes
 #   command: kubectl taint nodes --all node-role.kubernetes.io/master-
@@ -131,6 +132,7 @@
   command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
   become: false
 
+# calico
 - name: Install Tigera Calico operator
   tags: kubernetes
   command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/tigera-operator.yaml
@@ -146,12 +148,50 @@
   command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
   become: false
 
-- name: Add kubernetes-dashboard
-  tags: kubernetes
-  command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
-  become: false
+# dns
+- name: Set kube-dns service external IP
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n kube-system patch svc kube-dns -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-- name: Set kubernetes-dashboard service external IP
-  tags: kubernetes
-  command: kubectl -n kubernetes-dashboard patch svc kubernetes-dashboard -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-  become: false
+- name: Add config for coredns
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f configmap/coredns.yaml
+
+# # kubernetes-dashboard
+# - name: Add kubernetes-dashboard
+#   tags: kubernetes
+#   command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+#   become: false
+#
+# - name: Set kubernetes-dashboard service external IP
+#   tags: kubernetes
+#   command: kubectl -n kubernetes-dashboard patch svc kubernetes-dashboard -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+#   become: false
+
+# # kubernetes-dashboard service-account
+# - name: Setup Service Account Admin User
+#   tags: admin
+#   become_user: "{{ ansible_user }}"
+#   shell:
+#     chdir: "{{ admin_path }}"
+#     cmd: kubectl apply -f service-account/admin-user.yaml
+#
+# - name: Setup Service Account Cluster Admin
+#   tags: admin
+#   become_user: "{{ ansible_user }}"
+#   shell:
+#     chdir: "{{ admin_path }}"
+#     cmd: kubectl apply -f service-account/cluster-admin.yaml
+#
+# - name: Generate Service Account Token
+#   tags: admin
+#   become_user: "{{ ansible_user }}"
+#   shell:
+#     chdir: "{{ admin_path }}"
+#     cmd: kubectl -n kubernetes-dashboard create token admin-user
