@@ -133,14 +133,14 @@
   become: false
 
 # calico
-- name: Install Tigera Calico operator
+- name: Install Tigera Operator
   tags: kubernetes
   command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/tigera-operator.yaml
   become: false
 
 - name: Install Calico Custom Resources
   tags: kubernetes
-  command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/custom-resources.yaml
+  command: kubectl apply -f https://gist.githubusercontent.com/ngonzalez/2982b3115ed14982318088cf4cc8a415/raw/4164e3dc48b4250481e39468a93808999c550610/custom-resources.yaml
   become: false
 
 - name: Install Calico CNI
