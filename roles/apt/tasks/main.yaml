@@ -1,7 +1,7 @@
 ---
-#- name: Update apt sources.list
-#  tags: apt
-#  shell: echo "deb http://ubuntu.mirrors.ovh.net/ubuntu/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/apt.list
+- name: Update apt sources.list
+  tags: apt
+  shell: echo "deb http://ubuntu.mirrors.ovh.net/ubuntu/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/apt.list
 
 - name: Run the equivalent of "apt-get update" as a separate step
   apt:

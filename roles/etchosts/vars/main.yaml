@@ -1,4 +1,4 @@
 ---
-apiserver_advertise_address: 10.211.55.3
+apiserver_advertise_address: "{{ ansible_host }}"
 hostname: link12.ddns.net
 node_name: node-1
