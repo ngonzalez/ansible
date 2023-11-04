@@ -14,5 +14,5 @@ ansible -i $INVENTORY_FILE all -m ansible.builtin.setup
 
 #### run playbook
 ```shell
-ansible-playbook -i $INVENTORY_FILE ubuntu.yml --flush-cache --diff -vv --limit "parallels-*"
+ansible-playbook -i $INVENTORY_FILE ubuntu.yml --flush-cache --diff -vv --limit "ubuntu-*"
 ```
