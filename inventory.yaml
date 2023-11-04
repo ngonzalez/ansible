@@ -5,7 +5,3 @@ D5BFA3BCA28:
       ansible_host: 192.168.1.14
       ansible_port: 22
       ansible_user: ngonzalez
-    parallels-QtbyVDWEVxRe:
-      ansible_host: 10.211.55.3
-      ansible_port: 22
-      ansible_user: ngonzalez
