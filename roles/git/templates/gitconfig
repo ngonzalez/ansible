@@ -23,6 +23,6 @@
   ls = ls-files
 [user]
   email = nicolasgonzalez180@gmail.com
-  name = Nicolas Gonzalez
+  name = Nicolas GONZALEZ
 [url "git@github.com:"]
   insteadOf = https://github.com/
