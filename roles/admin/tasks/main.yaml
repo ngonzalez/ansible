@@ -175,6 +175,28 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc demoappstream-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
+# development: demonginxstream
+- name: Create demonginxstream Deployment
+  tags: admin nginx-stream
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development replace --force -f deploy/demonginxstream.yaml
+
+- name: Create demonginxstream loadbalancer
+  tags: admin nginx-stream
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development replace --force -f service/demonginxstream.yaml
+
+- name: Set demonginxstream loadbalancer external IP
+  tags: admin nginx-stream
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc demonginxstream-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
 # development: demonginxfrontend
 - name: Create demonginxfrontend Deployment
   tags: admin nginx-frontend
