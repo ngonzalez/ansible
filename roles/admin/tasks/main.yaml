@@ -31,190 +31,190 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f namespace/development.yaml
 
-# development: demodb
-- name: Create demopostgresql deployment
+# development: postgresql
+- name: Create postgresql deployment
   tags: admin postgresql
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f deploy/demopostgresql.yaml
+    cmd: kubectl -n development replace --force -f deploy/postgresql.yaml
 
-- name: Create demopostgresql loadbalancer
+- name: Create postgresql loadbalancer
   tags: admin postgresql
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f service/demopostgresql.yaml
+    cmd: kubectl -n development replace --force -f service/postgresql.yaml
 
-- name: Set demopostgresql loadbalancer external IP
+- name: Set postgresql loadbalancer external IP
   tags: admin postgresql
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc demopostgresql-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: kubectl -n development patch svc postgresql-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: demoredis
-- name: Create demoredis deployment
+# development: redis
+- name: Create redis deployment
   tags: admin redis
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f deploy/demoredis.yaml
+    cmd: kubectl -n development replace --force -f deploy/redis.yaml
 
-- name: Create demoredis loadbalancer
+- name: Create redis loadbalancer
   tags: admin redis
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f service/demoredis.yaml
+    cmd: kubectl -n development replace --force -f service/redis.yaml
 
-- name: Set demoredis loadbalancer external IP
+- name: Set redis loadbalancer external IP
   tags: admin redis
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc demoredis-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: kubectl -n development patch svc redis-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: demoappbackend
-- name: Create environment configuration for development
-  tags: admin app
+# development: app-backend
+- name: Create app-backend environment configuration
+  tags: admin app-backend
   template:
-    src: app.env.j2
+    src: app-backend.env.j2
     dest: /tmp/.env
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
   no_log: True
 
-- name: Create env secret
-  tags: admin app
+- name: Create app-backend env secret
+  tags: admin app-backend
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl create secret generic demoappbackend-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f -
+    cmd: kubectl create secret generic app-backend-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f -
 
-- name: Create demoappbackend Deployment
-  tags: admin app
+- name: Create app-backend Deployment
+  tags: admin app-backend
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f deploy/demoappbackend.yaml
+    cmd: kubectl -n development replace --force -f deploy/app-backend.yaml
 
-- name: Create demoappbackend loadbalancer
-  tags: admin app
+- name: Create app-backend loadbalancer
+  tags: admin app-backend
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f service/demoappbackend.yaml
+    cmd: kubectl -n development replace --force -f service/app-backend.yaml
 
-- name: Set demoappbackend loadbalancer external IP
-  tags: admin app
+- name: Set app-backend loadbalancer external IP
+  tags: admin app-backend
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc demoappbackend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: kubectl -n development patch svc app-backend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: demonginxbackend
-- name: Create demonginxbackend deployment
+# development: nginx-backend
+- name: Create nginx-backend deployment
   tags: admin nginx-backend
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f deploy/demonginxbackend.yaml
+    cmd: kubectl -n development replace --force -f deploy/nginx-backend.yaml
 
-- name: Create demonginxbackend loadbalancer
+- name: Create nginx-backend loadbalancer
   tags: admin nginx-backend
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f service/demonginxbackend.yaml
+    cmd: kubectl -n development replace --force -f service/nginx-backend.yaml
 
-- name: Set demonginxbackend loadbalancer external IP
+- name: Set nginx-backend loadbalancer external IP
   tags: admin nginx-backend
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc demonginxbackend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: kubectl -n development patch svc nginx-backend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: demoappstream
-- name: Create environment configuration for development
-  tags: admin stream
+# development: app-stream
+- name: Create app-stream environment configuration
+  tags: admin app-stream
   template:
-    src: appstream.env.j2
+    src: app-stream.env.j2
     dest: /tmp/.env
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0644
   no_log: True
 
-- name: Create env secret
-  tags: admin stream
+- name: Create app-stream env secret
+  tags: admin app-stream
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl create secret generic demoappstream-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f -
+    cmd: kubectl create secret generic app-stream-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f -
 
-- name: Create demoappstream Deployment
-  tags: admin stream
+- name: Create app-stream deployment
+  tags: admin app-stream
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f deploy/demoappstream.yaml
+    cmd: kubectl -n development replace --force -f deploy/app-stream.yaml
 
-- name: Create demoappstream loadbalancer
-  tags: admin stream
+- name: Create app-stream loadbalancer
+  tags: admin app-stream
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f service/demoappstream.yaml
+    cmd: kubectl -n development replace --force -f service/app-stream.yaml
 
-- name: Set demoappstream loadbalancer external IP
-  tags: admin stream
+- name: Set app-stream loadbalancer external IP
+  tags: admin app-stream
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc demoappstream-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: kubectl -n development patch svc app-stream-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: demonginxstream
-- name: Create demonginxstream Deployment
+# development: nginx-stream
+- name: Create nginx-stream Deployment
   tags: admin nginx-stream
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f deploy/demonginxstream.yaml
+    cmd: kubectl -n development replace --force -f deploy/nginx-stream.yaml
 
-- name: Create demonginxstream loadbalancer
+- name: Create nginx-stream loadbalancer
   tags: admin nginx-stream
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f service/demonginxstream.yaml
+    cmd: kubectl -n development replace --force -f service/nginx-stream.yaml
 
-- name: Set demonginxstream loadbalancer external IP
+- name: Set nginx-stream loadbalancer external IP
   tags: admin nginx-stream
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc demonginxstream-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: kubectl -n development patch svc nginx-stream-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: demonginxfrontend
-- name: Create demonginxfrontend Deployment
+# development: nginx-frontend
+- name: Create nginx-frontend Deployment
   tags: admin nginx-frontend
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f deploy/demonginxfrontend.yaml
+    cmd: kubectl -n development replace --force -f deploy/nginx-frontend.yaml
 
-- name: Create demonginxfrontend loadbalancer
+- name: Create nginx-frontend loadbalancer
   tags: admin nginx-frontend
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f service/demonginxfrontend.yaml
+    cmd: kubectl -n development replace --force -f service/nginx-frontend.yaml
 
-- name: Set demonginxfrontend loadbalancer external IP
+- name: Set nginx-frontend loadbalancer external IP
   tags: admin nginx-frontend
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc demonginxfrontend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: kubectl -n development patch svc nginx-frontend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
