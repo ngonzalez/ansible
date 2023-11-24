@@ -3,3 +3,4 @@ apiserver_advertise_address: "{{ ansible_host }}"
 pod_network_cidr: 10.244.0.0/16
 cri_socket: /var/run/crio/crio.sock
 node_name: node-1
+admin_path: "/home/{{ ansible_user }}/admin"
