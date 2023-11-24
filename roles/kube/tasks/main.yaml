@@ -135,12 +135,12 @@
 # calico
 - name: Install Tigera Operator
   tags: kubernetes
-  command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/tigera-operator.yaml
+  command: kubectl create -f https://docs.projectcalico.org/master/manifests/tigera-operator.yaml
   become: false
 
 - name: Install Calico Custom Resources
   tags: kubernetes
-  command: kubectl apply -f https://gist.githubusercontent.com/ngonzalez/2982b3115ed14982318088cf4cc8a415/raw/4164e3dc48b4250481e39468a93808999c550610/custom-resources.yaml
+  command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/custom-resources.yaml
   become: false
 
 - name: Install Calico CNI
@@ -168,12 +168,12 @@
 #   tags: kubernetes
 #   command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
 #   become: false
-#
+# 
 # - name: Set kubernetes-dashboard service external IP
 #   tags: kubernetes
 #   command: kubectl -n kubernetes-dashboard patch svc kubernetes-dashboard -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 #   become: false
-
+# 
 # # kubernetes-dashboard service-account
 # - name: Setup Service Account Admin User
 #   tags: admin
@@ -181,14 +181,14 @@
 #   shell:
 #     chdir: "{{ admin_path }}"
 #     cmd: kubectl apply -f service-account/admin-user.yaml
-#
+# 
 # - name: Setup Service Account Cluster Admin
 #   tags: admin
 #   become_user: "{{ ansible_user }}"
 #   shell:
 #     chdir: "{{ admin_path }}"
 #     cmd: kubectl apply -f service-account/cluster-admin.yaml
-#
+# 
 # - name: Generate Service Account Token
 #   tags: admin
 #   become_user: "{{ ansible_user }}"
