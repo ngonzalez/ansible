@@ -163,35 +163,35 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f configmap/coredns.yaml
 
-# # kubernetes-dashboard
-# - name: Add kubernetes-dashboard
-#   tags: kubernetes
-#   command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
-#   become: false
-# 
-# - name: Set kubernetes-dashboard service external IP
-#   tags: kubernetes
-#   command: kubectl -n kubernetes-dashboard patch svc kubernetes-dashboard -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-#   become: false
-# 
-# # kubernetes-dashboard service-account
-# - name: Setup Service Account Admin User
-#   tags: admin
-#   become_user: "{{ ansible_user }}"
-#   shell:
-#     chdir: "{{ admin_path }}"
-#     cmd: kubectl apply -f service-account/admin-user.yaml
-# 
-# - name: Setup Service Account Cluster Admin
-#   tags: admin
-#   become_user: "{{ ansible_user }}"
-#   shell:
-#     chdir: "{{ admin_path }}"
-#     cmd: kubectl apply -f service-account/cluster-admin.yaml
-# 
-# - name: Generate Service Account Token
-#   tags: admin
-#   become_user: "{{ ansible_user }}"
-#   shell:
-#     chdir: "{{ admin_path }}"
-#     cmd: kubectl -n kubernetes-dashboard create token admin-user
+# kubernetes-dashboard
+- name: Add kubernetes-dashboard
+  tags: kubernetes
+  command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+  become: false
+
+- name: Set kubernetes-dashboard service external IP
+  tags: kubernetes
+  command: kubectl -n kubernetes-dashboard patch svc kubernetes-dashboard -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+  become: false
+
+# kubernetes-dashboard service-account
+- name: Setup Service Account Admin User
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f service-account/admin-user.yaml
+
+- name: Setup Service Account Cluster Admin
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f service-account/cluster-admin.yaml
+
+- name: Generate Service Account Token
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n kubernetes-dashboard create token admin-user
