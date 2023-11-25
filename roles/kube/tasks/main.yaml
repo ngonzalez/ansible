@@ -1,76 +1,5 @@
-# kubernetes
----
-- name: Upgrade the OS (apt-get dist-upgrade)
-  tags: kubernetes
-  apt:
-    upgrade: dist
-
-# Container Runtime Interface
-- name: Install apt dependencies
-  tags: kubernetes
-  apt:
-    name:
-      - gpg
-      - gpg-agent
-
-- name: Download CRIO-O gpg key
-  tags: kubernetes
-  shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
-  environment:
-    - OS: xUbuntu_22.04
-
-- name: Add CRIO-O apt repository
-  tags: kubernetes
-  shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
-  environment:
-    - OS: xUbuntu_22.04
-
-- name: Download CRIO-O gpg key
-  tags: kubernetes
-  shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
-  environment:
-    - OS: xUbuntu_22.04
-    - VERSION: 1.25
-
-- name: Add CRIO-O apt repository
-  tags: kubernetes
-  shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$VERSION.list
-  environment:
-    - OS: xUbuntu_22.04
-    - VERSION: 1.25
-
-- name: Run the equivalent of "apt-get update" as a separate step
-  tags: kubernetes
-  apt:
-    update_cache: yes
-
-- name: Install CRI-O
-  tags: kubernetes
-  apt:
-    name:
-    - cri-o
-    - cri-o-runc
-
-- name: Add cgroup config
-  tags: kubernetes
-  template:
-    src: cgroup-manager.conf.j2
-    dest: /etc/crio/crio.conf.d/10-cgroup-manager.conf
-
-- name: Add bridge configuration
-  tags: kubernetes
-  template:
-    src: cni.conf.j2
-    dest: /etc/cni/net.d/100-cni.conf
-
-- name: Start CRI-O
-  tags: kubernetes
-  service:
-    name: crio
-    state: restarted
-    daemon_reload: yes
-
 # Kubernetes
+---
 - name: Add an apt signing key for Kubernetes
   tags: kubernetes
   apt_key:
@@ -133,9 +62,9 @@
   command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 
 # helm
-- name: Install Helm
-  tags: kubernetes
-  command: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+#- name: Install Helm
+#  tags: kubernetes
+#  command: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 # tigera-operator
 - name: Add Calico Repository
@@ -163,10 +92,3 @@
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/custom-resources.yaml
-
-- name: Add Bridge Configuration
-  tags: kubernetes
-  become_user: "{{ ansible_user }}"
-  template:
-    src: crio-calico.conf.j2
-    dest: /etc/cni/net.d/10-crio.conf

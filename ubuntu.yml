@@ -5,6 +5,7 @@
     - apt
     - etchosts
     - docker
+    - crio
     - kube
     - git
     - admin
