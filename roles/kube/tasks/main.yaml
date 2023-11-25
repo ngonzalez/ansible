@@ -123,46 +123,40 @@
 
 - name: Taint node as control plane
   tags: kubernetes
+  become_user: "{{ ansible_user }}"
   command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
-  become: false
 
 # helm
 - name: Install Helm
   tags: kubernetes
-  shell:
-    cmd: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  command: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
 # tigera-operator
 - name: Add Calico Repository
   tags: kubernetes
   become_user: "{{ ansible_user }}"
-  shell:
-    cmd: helm repo add projectcalico https://projectcalico.docs.tigera.io/charts
+  command: helm repo add projectcalico https://projectcalico.docs.tigera.io/charts
 
 - name: Create Tigera Operator Namespace
   tags: kubernetes
   become_user: "{{ ansible_user }}"
-  shell:
-    cmd: kubectl create ns tigera-operator
+  command: kubectl create ns tigera-operator
 
 - name: Install Tigera Operator
   tags: kubernetes
   become_user: "{{ ansible_user }}"
-  shell:
-    cmd: helm upgrade --install calico projectcalico/tigera-operator --namespace tigera-operator
+  command: helm upgrade --install calico projectcalico/tigera-operator --namespace tigera-operator
 
 # calico
 - name: Install Calico CNI
   tags: kubernetes
   become_user: "{{ ansible_user }}"
-  shell:
-    cmd: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
+  command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
 
 - name: Install Calico Custom Resources
   tags: kubernetes
   become_user: "{{ ansible_user }}"
-  shell:
-    cmd: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/custom-resources.yaml
+  command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/custom-resources.yaml
 
 - name: Add Bridge Configuration
   tags: kubernetes
