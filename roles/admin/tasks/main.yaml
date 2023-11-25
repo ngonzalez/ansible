@@ -23,6 +23,21 @@
     dest: "{{ admin_path }}"
     version: dev
 
+# dns
+- name: Set kube-dns service external IP
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n kube-system patch svc kube-dns -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
+- name: Add config for coredns
+  tags: admin
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f configmap/coredns.yaml
+
 # development: namespace
 - name: Create namespace
   tags: admin
