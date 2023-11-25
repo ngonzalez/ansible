@@ -57,6 +57,12 @@
     src: cgroup-manager.conf.j2
     dest: /etc/crio/crio.conf.d/10-cgroup-manager.conf
 
+- name: Add bridge configuration
+  tags: kubernetes
+  template:
+    src: cni.conf.j2
+    dest: /etc/cni/net.d/100-cni.conf
+
 - name: Start CRI-O
   tags: kubernetes
   service:
