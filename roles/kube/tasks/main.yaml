@@ -118,80 +118,55 @@
     dest: "/home/{{ ansible_user }}/.kube/config"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: 0644
+    mode: 0400
     remote_src: True
-
-# deprecated
-# - name: Taint node as master
-#   tags: kubernetes
-#   command: kubectl taint nodes --all node-role.kubernetes.io/master-
-#   become: false
 
 - name: Taint node as control plane
   tags: kubernetes
   command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
   become: false
 
-# calico
+# helm
+- name: Install Helm
+  tags: kubernetes
+  shell:
+    cmd: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+# tigera-operator
+- name: Add Calico Repository
+  tags: kubernetes
+  become_user: "{{ ansible_user }}"
+  shell:
+    cmd: helm repo add projectcalico https://projectcalico.docs.tigera.io/charts
+
+- name: Create Tigera Operator Namespace
+  tags: kubernetes
+  become_user: "{{ ansible_user }}"
+  shell:
+    cmd: kubectl create ns tigera-operator
+
 - name: Install Tigera Operator
   tags: kubernetes
-  command: kubectl create -f https://docs.projectcalico.org/master/manifests/tigera-operator.yaml
-  become: false
+  become_user: "{{ ansible_user }}"
+  shell:
+    cmd: helm upgrade --install calico projectcalico/tigera-operator --namespace tigera-operator
+
+# calico
+- name: Install Calico CNI
+  tags: kubernetes
+  become_user: "{{ ansible_user }}"
+  shell:
+    cmd: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
 
 - name: Install Calico Custom Resources
   tags: kubernetes
-  command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/custom-resources.yaml
-  become: false
+  become_user: "{{ ansible_user }}"
+  shell:
+    cmd: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/custom-resources.yaml
 
-- name: Install Calico CNI
+- name: Add Bridge Configuration
   tags: kubernetes
-  command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
-  become: false
-
-# dns
-- name: Set kube-dns service external IP
-  tags: admin
   become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n kube-system patch svc kube-dns -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-
-- name: Add config for coredns
-  tags: admin
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl apply -f configmap/coredns.yaml
-
-# kubernetes-dashboard
-- name: Add kubernetes-dashboard
-  tags: kubernetes
-  command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
-  become: false
-
-- name: Set kubernetes-dashboard service external IP
-  tags: kubernetes
-  command: kubectl -n kubernetes-dashboard patch svc kubernetes-dashboard -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-  become: false
-
-# kubernetes-dashboard service-account
-- name: Setup Service Account Admin User
-  tags: admin
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl apply -f service-account/admin-user.yaml
-
-- name: Setup Service Account Cluster Admin
-  tags: admin
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl apply -f service-account/cluster-admin.yaml
-
-- name: Generate Service Account Token
-  tags: admin
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n kubernetes-dashboard create token admin-user
+  template:
+    src: crio-calico.conf.j2
+    dest: /etc/cni/net.d/10-crio.conf
