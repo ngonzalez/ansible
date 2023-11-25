@@ -19,7 +19,7 @@
 
 # apt dependencies
 - name: Install system packages
-  tags: admin
+  tags: apt
   apt:
     name:
     - curl
