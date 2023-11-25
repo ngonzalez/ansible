@@ -1,0 +1,70 @@
+# Container Runtime Interface
+---
+- name: Upgrade the OS (apt-get dist-upgrade)
+  tags: kubernetes
+  apt:
+    upgrade: dist
+
+- name: Install apt dependencies
+  tags: kubernetes
+  apt:
+    name:
+      - gpg
+      - gpg-agent
+
+- name: Download CRIO-O gpg key
+  tags: kubernetes
+  shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
+  environment:
+    - OS: xUbuntu_22.04
+
+- name: Add CRIO-O apt repository
+  tags: kubernetes
+  shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+  environment:
+    - OS: xUbuntu_22.04
+
+- name: Download CRIO-O gpg key
+  tags: kubernetes
+  shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
+  environment:
+    - OS: xUbuntu_22.04
+    - VERSION: 1.25
+
+- name: Add CRIO-O apt repository
+  tags: kubernetes
+  shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$VERSION.list
+  environment:
+    - OS: xUbuntu_22.04
+    - VERSION: 1.25
+
+- name: Run the equivalent of "apt-get update" as a separate step
+  tags: kubernetes
+  apt:
+    update_cache: yes
+
+- name: Install CRI-O
+  tags: kubernetes
+  apt:
+    name:
+    - cri-o
+    - cri-o-runc
+
+- name: Add cgroup config
+  tags: kubernetes
+  template:
+    src: cgroup-manager.conf.j2
+    dest: /etc/crio/crio.conf.d/10-cgroup-manager.conf
+
+- name: Add bridge configuration
+  tags: kubernetes
+  template:
+    src: cni.conf.j2
+    dest: /etc/cni/net.d/100-cni.conf
+
+- name: Start CRI-O
+  tags: kubernetes
+  service:
+    name: crio
+    state: restarted
+    daemon_reload: yes
