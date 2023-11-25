@@ -40,7 +40,7 @@
     cmd: kubectl apply -f configmap/coredns.yaml
 
 # development: namespace
-- name: Create namespace
+- name: Create development namespace
   tags: admin
   become_user: "{{ ansible_user }}"
   shell:
