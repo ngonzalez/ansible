@@ -7,14 +7,53 @@
   register: kubectlversion
   no_log: True
 
-- name: Add an apt signing key for Kubernetes
+- name: Load kernel module overlay
+  tags: kubernetes
+  community.general.modprobe:
+    name: overlay
+    state: present
+
+- name: Load kernel module br_netfilter
+  tags: kubernetes
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+
+- name: Set net.bridge.bridge-nf-call-iptables
+  tags: kubernetes
+  ansible.posix.sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    reload: True
+    state: present
+    sysctl_set: True
+    value: 1
+
+- name: Set net.bridge.bridge-nf-call-ip6tables
+  tags: kubernetes
+  ansible.posix.sysctl:
+    name: net.bridge.bridge-nf-call-ip6tables
+    reload: True
+    state: present
+    sysctl_set: True
+    value: 1
+
+- name: Set net.ipv4.ip_forward
+  tags: kubernetes
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    reload: True
+    state: present
+    sysctl_set: True
+    value: 1
+
+- name: Add apt signing key
   tags: kubernetes
   apt_key:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     state: present
   when: kubectlversion.stdout|int == 1
 
-- name: Adding apt repository for Kubernetes
+- name: Add apt repository
   tags: kubernetes
   apt_repository:
     repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
@@ -22,7 +61,7 @@
     filename: kubernetes.list
   when: kubectlversion.stdout|int == 1
 
-- name: Install Kubernetes binaries
+- name: Install binaries
   tags: kubernetes
   apt:
     name:
@@ -31,14 +70,14 @@
     - kubectl
   when: kubectlversion.stdout|int == 1
 
-- name: Check if Node exists
+- name: Check if node exists
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   command: kubectl get node {{ node_name }}
   register: nodeexists
   no_log: True
 
-- name: Reset Kubernetes cluster
+- name: Reset cluster
   tags: kubernetes
   command: kubeadm reset -f --cri-socket {{ cri_socket }}
   when: nodeexists.stdout|int == 1
@@ -48,7 +87,7 @@
   command: kubeadm config images pull --cri-socket {{ cri_socket }}
   when: nodeexists.stdout|int == 1
 
-- name: Initialize the Kubernetes cluster
+- name: Initialize cluster
   tags: kubernetes
   command: kubeadm init --apiserver-advertise-address {{ apiserver_advertise_address }} \
                         --apiserver-cert-extra-sans {{ apiserver_advertise_address }} \
@@ -57,7 +96,7 @@
                         --node-name {{ node_name }}
   when: nodeexists.stdout|int == 1
 
-- name: Taint node as control plane
+- name: Taint node as control-plane
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
@@ -73,7 +112,7 @@
     mode: 0755
   when: nodeexists.stdout|int == 1
 
-- name: Copy file with owner and permissions
+- name: Copy configuration file with owner and permissions
   tags: kubernetes
   copy:
     src: /etc/kubernetes/admin.conf
