@@ -1,10 +1,18 @@
 # Kubernetes
 ---
+- name: Check if kubernetes is installed
+  tags: kubernetes
+  become_user: "{{ ansible_user }}"
+  command: kubectl version
+  register: kubectlversion
+  no_log: True
+
 - name: Add an apt signing key for Kubernetes
   tags: kubernetes
   apt_key:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     state: present
+  when: kubectlversion.stdout|int == 1
 
 - name: Adding apt repository for Kubernetes
   tags: kubernetes
@@ -12,6 +20,7 @@
     repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
     state: present
     filename: kubernetes.list
+  when: kubectlversion.stdout|int == 1
 
 - name: Install Kubernetes binaries
   tags: kubernetes
@@ -20,14 +29,24 @@
     - kubelet
     - kubeadm
     - kubectl
+  when: kubectlversion.stdout|int == 1
+
+- name: Check if Node exists
+  tags: kubernetes
+  become_user: "{{ ansible_user }}"
+  command: kubectl get node {{ node_name }}
+  register: nodeexists
+  no_log: True
 
 - name: Reset Kubernetes cluster
   tags: kubernetes
   command: kubeadm reset -f --cri-socket {{ cri_socket }}
+  when: nodeexists.stdout|int == 1
 
 - name: Pull images
   tags: kubernetes
   command: kubeadm config images pull --cri-socket {{ cri_socket }}
+  when: nodeexists.stdout|int == 1
 
 - name: Initialize the Kubernetes cluster
   tags: kubernetes
@@ -36,6 +55,13 @@
                         --cri-socket {{ cri_socket }} \
                         --pod-network-cidr {{ pod_network_cidr }} \
                         --node-name {{ node_name }}
+  when: nodeexists.stdout|int == 1
+
+- name: Taint node as control plane
+  tags: kubernetes
+  become_user: "{{ ansible_user }}"
+  command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+  when: nodeexists.stdout|int == 1
 
 - name: Create .kube folder
   tags: kubernetes
@@ -45,6 +71,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0755
+  when: nodeexists.stdout|int == 1
 
 - name: Copy file with owner and permissions
   tags: kubernetes
@@ -55,40 +82,68 @@
     group: "{{ ansible_user }}"
     mode: 0400
     remote_src: True
-
-- name: Taint node as control plane
-  tags: kubernetes
-  become_user: "{{ ansible_user }}"
-  command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+  when: nodeexists.stdout|int == 1
 
 # helm
-#- name: Install Helm
-#  tags: kubernetes
-#  command: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+- name: Check if Helm exists
+  tags: kubernetes
+  stat:
+    path: /usr/local/bin/helm
+  register: helmexists
+  no_log: True
+
+- name: Download Helm
+  tags: kubernetes
+  unarchive:
+    src: https://get.helm.sh/helm-canary-linux-amd64.tar.gz
+    dest: /tmp
+    remote_src: True
+  when: not helmexists.stat.exists
+
+- name: Install Helm
+  tags: kubernetes
+  copy:
+    src: /tmp/linux-amd64/helm
+    dest: /usr/local/bin/helm
+    mode: 0751
+    remote_src: True
+  when: not helmexists.stat.exists
 
 # tigera-operator
-- name: Add Calico Repository
+- name: Check if Tigera Operator Namespace exists
   tags: kubernetes
   become_user: "{{ ansible_user }}"
-  command: helm repo add projectcalico https://projectcalico.docs.tigera.io/charts
+  command: kubectl get ns tigera-operator
+  register: tigeraoperatornamespaceexists
+  no_log: True
 
 - name: Create Tigera Operator Namespace
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   command: kubectl create ns tigera-operator
+  when: tigeraoperatornamespaceexists.stdout|int == 1
+
+- name: Add Calico Repository
+  tags: kubernetes
+  become_user: "{{ ansible_user }}"
+  command: helm repo add projectcalico https://projectcalico.docs.tigera.io/charts
+  when: tigeraoperatornamespaceexists.stdout|int == 1
 
 - name: Install Tigera Operator
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   command: helm upgrade --install calico projectcalico/tigera-operator --namespace tigera-operator
+  when: tigeraoperatornamespaceexists.stdout|int == 1
 
 # calico
 - name: Install Calico CNI
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
+  when: nodeexists.stdout|int == 1
 
 - name: Install Calico Custom Resources
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/custom-resources.yaml
+  when: nodeexists.stdout|int == 1

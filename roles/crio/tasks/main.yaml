@@ -1,70 +1,87 @@
 # Container Runtime Interface
 ---
-- name: Upgrade the OS (apt-get dist-upgrade)
-  tags: kubernetes
+- name: Check if cri-o is installed
+  tags: crio
+  command: crictl version
+  register: crictlversion
+  no_log: True
+
+- name: Upgrade the OS (apt-get dist-upgrade) {{ crictlversion.stdout|int }}
+  tags: crio
   apt:
     upgrade: dist
+  when: crictlversion.stdout|int == 1
 
 - name: Install apt dependencies
-  tags: kubernetes
+  tags: crio
   apt:
     name:
       - gpg
       - gpg-agent
+  when: crictlversion.stdout|int == 1
 
 - name: Download CRIO-O gpg key
-  tags: kubernetes
+  tags: crio
   shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
   environment:
     - OS: xUbuntu_22.04
+  when: crictlversion.stdout|int == 1
 
 - name: Add CRIO-O apt repository
-  tags: kubernetes
+  tags: crio
   shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
   environment:
     - OS: xUbuntu_22.04
+  when: crictlversion.stdout|int == 1
 
 - name: Download CRIO-O gpg key
-  tags: kubernetes
+  tags: crio
   shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
   environment:
     - OS: xUbuntu_22.04
     - VERSION: 1.25
+  when: crictlversion.stdout|int == 1
 
 - name: Add CRIO-O apt repository
-  tags: kubernetes
+  tags: crio
   shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$VERSION.list
   environment:
     - OS: xUbuntu_22.04
     - VERSION: 1.25
+  when: crictlversion.stdout|int == 1
 
 - name: Run the equivalent of "apt-get update" as a separate step
-  tags: kubernetes
+  tags: crio
   apt:
     update_cache: yes
+  when: crictlversion.stdout|int == 1
 
 - name: Install CRI-O
-  tags: kubernetes
+  tags: crio
   apt:
     name:
     - cri-o
     - cri-o-runc
+  when: crictlversion.stdout|int == 1
 
 - name: Add cgroup config
-  tags: kubernetes
+  tags: crio
   template:
     src: cgroup-manager.conf.j2
     dest: /etc/crio/crio.conf.d/10-cgroup-manager.conf
+  when: crictlversion.stdout|int == 1
 
 - name: Add bridge configuration
-  tags: kubernetes
+  tags: crio
   template:
     src: cni.conf.j2
     dest: /etc/cni/net.d/100-cni.conf
+  when: crictlversion.stdout|int == 1
 
 - name: Start CRI-O
-  tags: kubernetes
+  tags: crio
   service:
     name: crio
     state: restarted
     daemon_reload: yes
+  when: crictlversion.stdout|int == 1

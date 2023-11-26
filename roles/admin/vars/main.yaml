@@ -1,4 +1,4 @@
 ---
 admin_repository: https://github.com/ngonzalez/admin.git
-admin_path: "/home/{{ ansible_user }}/admin"
+admin_path: "/home/{{ ansible_user }}/.admin"
 apiserver_advertise_address: "{{ ansible_host }}"
