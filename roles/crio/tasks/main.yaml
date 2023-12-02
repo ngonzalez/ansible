@@ -1,16 +1,9 @@
 # Container Runtime Interface
 ---
-- name: Check if cri-o is installed
-  tags: crio
-  command: crictl version
-  register: crictlversion
-  no_log: True
-
 - name: Upgrade the OS (apt-get dist-upgrade) {{ crictlversion.stdout|int }}
   tags: crio
   apt:
     upgrade: dist
-  when: crictlversion.stdout|int == 1
 
 - name: Install apt dependencies
   tags: crio
@@ -18,21 +11,18 @@
     name:
       - gpg
       - gpg-agent
-  when: crictlversion.stdout|int == 1
 
 - name: Download CRIO-O gpg key
   tags: crio
   shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
   environment:
     - OS: xUbuntu_22.04
-  when: crictlversion.stdout|int == 1
 
 - name: Add CRIO-O apt repository
   tags: crio
   shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
   environment:
     - OS: xUbuntu_22.04
-  when: crictlversion.stdout|int == 1
 
 - name: Download CRIO-O gpg key
   tags: crio
@@ -40,7 +30,6 @@
   environment:
     - OS: xUbuntu_22.04
     - VERSION: 1.25
-  when: crictlversion.stdout|int == 1
 
 - name: Add CRIO-O apt repository
   tags: crio
@@ -48,13 +37,11 @@
   environment:
     - OS: xUbuntu_22.04
     - VERSION: 1.25
-  when: crictlversion.stdout|int == 1
 
 - name: Run the equivalent of "apt-get update" as a separate step
   tags: crio
   apt:
     update_cache: yes
-  when: crictlversion.stdout|int == 1
 
 - name: Install CRI-O
   tags: crio
@@ -62,21 +49,18 @@
     name:
     - cri-o
     - cri-o-runc
-  when: crictlversion.stdout|int == 1
 
 - name: Add cgroup config
   tags: crio
   template:
     src: cgroup-manager.conf.j2
     dest: /etc/crio/crio.conf.d/10-cgroup-manager.conf
-  when: crictlversion.stdout|int == 1
 
 - name: Add bridge configuration
   tags: crio
   template:
     src: cni.conf.j2
     dest: /etc/cni/net.d/100-cni.conf
-  when: crictlversion.stdout|int == 1
 
 - name: Start CRI-O
   tags: crio
@@ -84,4 +68,3 @@
     name: crio
     state: restarted
     daemon_reload: yes
-  when: crictlversion.stdout|int == 1
