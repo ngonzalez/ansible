@@ -95,11 +95,6 @@
     mode: 0400
     remote_src: True
 
-- name: Taint node as control-plane
-  tags: kubernetes
-  become_user: "{{ ansible_user }}"
-  command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
-
 - name: Check if node exists
   tags: kubernetes
   become_user: "{{ ansible_user }}"
@@ -112,6 +107,11 @@
   tags: kubernetes
   debug:
     var: nodeexists
+
+- name: Taint node as control-plane
+  tags: kubernetes
+  become_user: "{{ ansible_user }}"
+  command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 
 # helm
 - name: Check if Helm exists
@@ -140,14 +140,6 @@
   when: not helmexists.stat.exists
 
 # tigera-operator
-- name: Check if Tigera Operator Namespace exists
-  tags: kubernetes
-  become_user: "{{ ansible_user }}"
-  command: kubectl get ns tigera-operator
-  register: tigeraoperatornamespaceexists
-  ignore_errors: True
-  no_log: True
-
 - name: Create Tigera Operator Namespace
   tags: kubernetes
   become_user: "{{ ansible_user }}"
