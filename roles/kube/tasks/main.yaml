@@ -165,3 +165,45 @@
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/custom-resources.yaml
+
+# dns
+- name: Add config for coredns
+  tags: kubernetes
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: |
+      cat <<EOF | kubectl apply -f -
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: coredns
+          namespace: kube-system
+        data:
+          Corefile: |
+            .:53 {
+                errors
+                health {
+                    lameduck 5s
+                }
+                ready
+                kubernetes link12.ddns.net in-addr.arpa ip6.arpa {
+                    pods insecure
+                    fallthrough in-addr.arpa ip6.arpa
+                    ttl 30
+                }
+                prometheus :9153
+                forward . /etc/resolv.conf
+                cache 30
+                loop
+                reload
+                loadbalance
+            }
+      EOF
+
+- name: Set kube-dns service external IP
+  tags: kubernetes
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n kube-system patch svc kube-dns -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
