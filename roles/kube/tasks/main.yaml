@@ -1,12 +1,5 @@
 # Kubernetes
 ---
-- name: Check if kubernetes is installed
-  tags: kubernetes
-  become_user: "{{ ansible_user }}"
-  command: kubectl version
-  register: kubectlversion
-  no_log: True
-
 - name: Load kernel module overlay
   tags: kubernetes
   community.general.modprobe:
@@ -51,7 +44,6 @@
   apt_key:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
     state: present
-  when: kubectlversion.stdout|int == 1
 
 - name: Add apt repository
   tags: kubernetes
@@ -59,7 +51,6 @@
     repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
     state: present
     filename: kubernetes.list
-  when: kubectlversion.stdout|int == 1
 
 - name: Install binaries
   tags: kubernetes
@@ -68,24 +59,14 @@
     - kubelet
     - kubeadm
     - kubectl
-  when: kubectlversion.stdout|int == 1
-
-- name: Check if node exists
-  tags: kubernetes
-  become_user: "{{ ansible_user }}"
-  command: kubectl get node {{ node_name }}
-  register: nodeexists
-  no_log: True
 
 - name: Reset cluster
   tags: kubernetes
   command: kubeadm reset -f --cri-socket {{ cri_socket }}
-  when: nodeexists.stdout|int == 1
 
 - name: Pull images
   tags: kubernetes
   command: kubeadm config images pull --cri-socket {{ cri_socket }}
-  when: nodeexists.stdout|int == 1
 
 - name: Initialize cluster
   tags: kubernetes
@@ -94,13 +75,6 @@
                         --cri-socket {{ cri_socket }} \
                         --pod-network-cidr {{ pod_network_cidr }} \
                         --node-name {{ node_name }}
-  when: nodeexists.stdout|int == 1
-
-- name: Taint node as control-plane
-  tags: kubernetes
-  become_user: "{{ ansible_user }}"
-  command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
-  when: nodeexists.stdout|int == 1
 
 - name: Create .kube folder
   tags: kubernetes
@@ -110,7 +84,6 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: 0755
-  when: nodeexists.stdout|int == 1
 
 - name: Copy configuration file with owner and permissions
   tags: kubernetes
@@ -121,7 +94,24 @@
     group: "{{ ansible_user }}"
     mode: 0400
     remote_src: True
-  when: nodeexists.stdout|int == 1
+
+- name: Taint node as control-plane
+  tags: kubernetes
+  become_user: "{{ ansible_user }}"
+  command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
+
+- name: Check if node exists
+  tags: kubernetes
+  become_user: "{{ ansible_user }}"
+  command: kubectl get node {{ node_name }}
+  register: nodeexists
+  ignore_errors: True
+  no_log: True
+
+- name: Debug
+  tags: kubernetes
+  debug:
+    var: nodeexists
 
 # helm
 - name: Check if Helm exists
@@ -129,6 +119,7 @@
   stat:
     path: /usr/local/bin/helm
   register: helmexists
+  ignore_errors: True
   no_log: True
 
 - name: Download Helm
@@ -154,35 +145,31 @@
   become_user: "{{ ansible_user }}"
   command: kubectl get ns tigera-operator
   register: tigeraoperatornamespaceexists
+  ignore_errors: True
   no_log: True
 
 - name: Create Tigera Operator Namespace
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   command: kubectl create ns tigera-operator
-  when: tigeraoperatornamespaceexists.stdout|int == 1
 
 - name: Add Calico Repository
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   command: helm repo add projectcalico https://projectcalico.docs.tigera.io/charts
-  when: tigeraoperatornamespaceexists.stdout|int == 1
 
 - name: Install Tigera Operator
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   command: helm upgrade --install calico projectcalico/tigera-operator --namespace tigera-operator
-  when: tigeraoperatornamespaceexists.stdout|int == 1
 
 # calico
 - name: Install Calico CNI
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
-  when: nodeexists.stdout|int == 1
 
 - name: Install Calico Custom Resources
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/custom-resources.yaml
-  when: nodeexists.stdout|int == 1
