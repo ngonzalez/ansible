@@ -171,7 +171,6 @@
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   shell:
-    chdir: "{{ admin_path }}"
     cmd: |
       cat <<EOF | kubectl apply -f -
         apiVersion: v1
@@ -205,5 +204,4 @@
   tags: kubernetes
   become_user: "{{ ansible_user }}"
   shell:
-    chdir: "{{ admin_path }}"
     cmd: kubectl -n kube-system patch svc kube-dns -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
