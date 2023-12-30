@@ -203,5 +203,4 @@
 - name: Set kube-dns service external IP
   tags: kubernetes
   become_user: "{{ ansible_user }}"
-  shell:
-    cmd: kubectl -n kube-system patch svc kube-dns -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+  command: kubectl -n kube-system patch svc kube-dns -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
