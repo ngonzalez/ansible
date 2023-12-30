@@ -1,2 +1,3 @@
 ---
 cri_socket: /var/run/crio/crio.sock
+pod_network_cidr: 10.244.0.0/16
