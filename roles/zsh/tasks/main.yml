@@ -1,0 +1,19 @@
+- name: Install zsh
+  apt:
+    name: zsh
+
+- name: Configure zshrc for user
+  template:
+    src: zshrc
+    dest: "/home/{{ ansible_user }}/.zshrc"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: 0644
+
+- name: Configure zshrc for root
+  template:
+    src: zshrc
+    dest: /root/.zshrc
+    owner: root
+    group: root
+    mode: 0644

@@ -3,7 +3,9 @@
   become: True
   roles:
     - apt
-    - etchosts
+    - zsh
+    - vim
+    - git
     - docker
     - crio
     - kube
