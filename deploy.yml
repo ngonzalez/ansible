@@ -2,5 +2,4 @@
 - hosts: '*'
   become: True
   roles:
-    - git
     - admin
