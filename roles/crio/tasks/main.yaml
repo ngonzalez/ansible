@@ -1,6 +1,6 @@
 # Container Runtime Interface
 ---
-- name: Upgrade the OS (apt-get dist-upgrade) {{ crictlversion.stdout|int }}
+- name: Upgrade the OS (apt-get dist-upgrade)
   tags: crio
   apt:
     upgrade: dist
