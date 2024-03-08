@@ -3,10 +3,15 @@ export CLICOLOR='YES'
 export DEBIAN_FRONTEND='interactive'
 export PROMPT='%(?.%F{green}▱▱▱.%F{red}?%?)%f %B%F{240}%1~%f%b %# '
 export RPROMPT="%n:%m"
+export GOPATH=/usr/local/go/bin
+export CFSSLPATH=/usr/local/cfssl/bin
+export PATH="$PATH:$GOPATH:$CFSSLPATH"
 
 alias grep='grep --color=auto'
 alias ls='ls --color'
 alias l='ls -alrth'
+
+eval "$(/home/$USER/.rbenv/bin/rbenv init -)"
 
 if [ -d /etc/profile.d ]; then
   for i in /etc/profile.d/*.sh; do
