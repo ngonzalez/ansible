@@ -33,5 +33,5 @@ ansible-playbook -i $INVENTORY_FILE deploy.yml \
     --flush-cache        \
     --limit "ubuntu-*"   \
     --connection "local" \
-    --tags "admin, admin nginx-frontend"
+    --tags "admin, admin app-backend"
 ```
