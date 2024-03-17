@@ -219,3 +219,41 @@
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc nginx-frontend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
+# development: prometheus-community charts
+- name: Add prometheus-community repository
+  tags: admin prometheus
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+# development: prometheus-postgres-exporter
+- name: Install prometheus-postgres-exporter
+  tags: admin prometheus
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: helm upgrade --install -f deploy/prometheus-postgres-exporter.yaml prometheus-postgres-exporter prometheus-community/prometheus-postgres-exporter --namespace development
+
+- name: Set prometheus-postgres-exporter loadbalancer external IP
+  tags: admin prometheus
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc prometheus-postgres-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
+# development: prometheus-redis-exporter
+- name: Install prometheus-postgres-exporter
+  tags: admin prometheus
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: helm upgrade --install -f deploy/prometheus-redis-exporter.yaml prometheus-redis-exporter prometheus-community/prometheus-redis-exporter --namespace development
+
+- name: Set prometheus-redis-exporter loadbalancer external IP
+  tags: admin prometheus
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc prometheus-redis-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
