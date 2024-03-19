@@ -258,20 +258,50 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc prometheus-redis-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: prometheus-nginx-exporter
-- name: Install prometheus-nginx-exporter
+# development: prometheus-nginx-exporter backend
+- name: Install prometheus-nginx-exporter backend
   tags: admin prometheus
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f deploy/prometheus-nginx-exporter.yaml prometheus-nginx-exporter prometheus-community/prometheus-nginx-exporter --namespace development
+    cmd: helm upgrade --install -f deploy/prometheus-nginx-exporter-backend.yaml prometheus-nginx-exporter-backend prometheus-community/prometheus-nginx-exporter --namespace development
 
-- name: Set prometheus-nginx-exporter loadbalancer external IP
+- name: Set prometheus-nginx-exporter backend loadbalancer external IP
   tags: admin prometheus
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc prometheus-nginx-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: kubectl -n development patch svc prometheus-nginx-exporter-backend -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
+# development: prometheus-nginx-exporter frontend
+- name: Install prometheus-nginx-exporter frontend
+  tags: admin prometheus
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: helm upgrade --install -f deploy/prometheus-nginx-exporter-frontend.yaml prometheus-nginx-exporter-frontend prometheus-community/prometheus-nginx-exporter --namespace development
+
+- name: Set prometheus-nginx-exporter frontend loadbalancer external IP
+  tags: admin prometheus
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc prometheus-nginx-exporter-frontend -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
+# development: prometheus-nginx-exporter stream
+- name: Install prometheus-nginx-exporter stream
+  tags: admin prometheus
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: helm upgrade --install -f deploy/prometheus-nginx-exporter-stream.yaml prometheus-nginx-exporter-stream prometheus-community/prometheus-nginx-exporter --namespace development
+
+- name: Set prometheus-nginx-exporter stream loadbalancer external IP
+  tags: admin prometheus
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc prometheus-nginx-exporter-stream -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 # development: prometheus
 - name: Install prometheus
