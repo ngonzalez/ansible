@@ -161,11 +161,6 @@
   become_user: "{{ ansible_user }}"
   command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
 
-- name: Install Calico Custom Resources
-  tags: kubernetes
-  become_user: "{{ ansible_user }}"
-  command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/custom-resources.yaml
-
 # dns
 - name: Add config for coredns
   tags: kubernetes
