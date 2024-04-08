@@ -1,9 +1,15 @@
 # App deployment
 ---
-# vault
+# vault env app-backend
 - name: Include vars from vault
   tags: admin
-  include_vars: env_vault.yaml
+  include_vars: env_vault_backend.yaml
+  no_log: True
+
+# vault env app-stream
+- name: Include vars from vault
+  tags: admin
+  include_vars: env_vault_stream.yaml
   no_log: True
 
 # git
