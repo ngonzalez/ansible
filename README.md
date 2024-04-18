@@ -33,5 +33,5 @@ ansible-playbook -i $INVENTORY_FILE deploy.yml \
     --flush-cache        \
     --limit "ubuntu-*"   \
     --connection "local" \
-    --tags "admin, admin prometheus"
+    --tags "admin, admin grafana"
 ```
