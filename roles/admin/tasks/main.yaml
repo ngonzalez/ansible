@@ -392,6 +392,12 @@
 - name: Login to grafana
   tags: admin grafana
   become_user: "{{ ansible_user }}"
+  register: grafanapasswd  
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl get secret --namespace development grafana -o jsonpath="{.data.admin-password}" | base64 --decode ; echo
+    cmd: kubectl get secret --namespace development grafana -o jsonpath="{.data.admin-password}" | base64 --decode
+
+- name: Debug
+  tags: admin grafana
+  debug:
+    var: grafanapasswd
