@@ -4,14 +4,15 @@
 
 ###### Install Ansible
 ```shell
-brew install git python3 curl
-sudo pip3 install virtualenv
+pyenv local 3.12.4
+pip3 install virtualenv
 virtualenv -p python3 .venv
 source .venv/bin/activate
 pip install ansible
+python --version
 ansible --version
+source config.sh
 ```
-
 
 #### Ping Inventory
 ```shell
@@ -23,9 +24,9 @@ ansible -i $INVENTORY_FILE all -m ping
 ansible -i $INVENTORY_FILE all -m ansible.builtin.setup
 ```
 
-#### Run Playbook
+#### Run Playbook locally
 ```shell
-ansible-playbook -i $INVENTORY_FILE deploy.yml \
+ansible-playbook -i $INVENTORY_FILE setup.yml \
     --ask-become-pass    \
     --become             \
     --become-user=root   \
@@ -33,5 +34,5 @@ ansible-playbook -i $INVENTORY_FILE deploy.yml \
     --flush-cache        \
     --limit "ubuntu-*"   \
     --connection "local" \
-    --tags "admin, admin grafana"
+    --tags "admin, admin app-backend"
 ```
