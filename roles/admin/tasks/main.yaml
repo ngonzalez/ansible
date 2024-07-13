@@ -359,19 +359,19 @@
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f deploy/node-exporter.yaml node-exporter prometheus-community/prometheus-node-exporter --namespace development
 
-# - name: Set node-exporter-prometheus-node-exporter loadbalancer external IP
-#   tags: admin node-exporter
-#   become_user: "{{ ansible_user }}"
-#   shell:
-#     chdir: "{{ admin_path }}"
-#     cmd: kubectl -n development patch svc node-exporter-prometheus-node-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-#
-# - name: Set prometheus-prometheus-node-exporter loadbalancer external IP
-#   tags: admin node-exporter
-#   become_user: "{{ ansible_user }}"
-#   shell:
-#     chdir: "{{ admin_path }}"
-#     cmd: kubectl -n development patch svc prometheus-prometheus-node-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+- name: Set node-exporter-prometheus-node-exporter loadbalancer external IP
+  tags: admin node-exporter
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc node-exporter-prometheus-node-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
+- name: Set prometheus-prometheus-node-exporter loadbalancer external IP
+  tags: admin node-exporter
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc prometheus-prometheus-node-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 # development: grafana
 - name: Install grafana
