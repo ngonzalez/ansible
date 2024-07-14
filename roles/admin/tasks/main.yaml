@@ -239,14 +239,7 @@
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f deploy/prometheus-postgres-exporter.yaml prometheus-postgres-exporter prometheus-community/prometheus-postgres-exporter --namespace development
-
-- name: Set prometheus-postgres-exporter loadbalancer external IP
-  tags: admin prometheus
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc prometheus-postgres-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: helm upgrade --install -f helm/prometheus-postgres-exporter.yaml prometheus-postgres-exporter prometheus-community/prometheus-postgres-exporter --namespace development
 
 # development: prometheus-redis-exporter
 - name: Install prometheus-redis-exporter
@@ -254,7 +247,7 @@
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f deploy/prometheus-redis-exporter.yaml prometheus-redis-exporter prometheus-community/prometheus-redis-exporter --namespace development
+    cmd: helm upgrade --install -f helm/prometheus-redis-exporter.yaml prometheus-redis-exporter prometheus-community/prometheus-redis-exporter --namespace development
 
 - name: Set prometheus-redis-exporter loadbalancer external IP
   tags: admin prometheus
@@ -269,14 +262,7 @@
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f deploy/prometheus-nginx-exporter-backend.yaml prometheus-nginx-exporter-backend prometheus-community/prometheus-nginx-exporter --namespace development
-
-- name: Set prometheus-nginx-exporter backend loadbalancer external IP
-  tags: admin prometheus
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc prometheus-nginx-exporter-backend -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: helm upgrade --install -f helm/prometheus-nginx-exporter-backend.yaml prometheus-nginx-exporter-backend prometheus-community/prometheus-nginx-exporter --namespace development
 
 # development: prometheus-nginx-exporter frontend
 - name: Install prometheus-nginx-exporter frontend
@@ -284,14 +270,7 @@
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f deploy/prometheus-nginx-exporter-frontend.yaml prometheus-nginx-exporter-frontend prometheus-community/prometheus-nginx-exporter --namespace development
-
-- name: Set prometheus-nginx-exporter frontend loadbalancer external IP
-  tags: admin prometheus
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc prometheus-nginx-exporter-frontend -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: helm upgrade --install -f helm/prometheus-nginx-exporter-frontend.yaml prometheus-nginx-exporter-frontend prometheus-community/prometheus-nginx-exporter --namespace development
 
 # development: prometheus-nginx-exporter stream
 - name: Install prometheus-nginx-exporter stream
@@ -299,14 +278,7 @@
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f deploy/prometheus-nginx-exporter-stream.yaml prometheus-nginx-exporter-stream prometheus-community/prometheus-nginx-exporter --namespace development
-
-- name: Set prometheus-nginx-exporter stream loadbalancer external IP
-  tags: admin prometheus
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc prometheus-nginx-exporter-stream -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: helm upgrade --install -f helm/prometheus-nginx-exporter-stream.yaml prometheus-nginx-exporter-stream prometheus-community/prometheus-nginx-exporter --namespace development
 
 # development: prometheus
 - name: Install prometheus
@@ -314,42 +286,7 @@
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f deploy/prometheus.yaml prometheus prometheus-community/prometheus --namespace development
-
-- name: Set prometheus-server loadbalancer external IP
-  tags: admin prometheus
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc prometheus-server -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-
-- name: Set prometheus-prometheus-pushgateway loadbalancer external IP
-  tags: admin prometheus
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc prometheus-prometheus-pushgateway -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-
-- name: Set prometheus-alertmanager loadbalancer external IP
-  tags: admin prometheus
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc prometheus-alertmanager -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-
-- name: Set prometheus-alertmanager-headless loadbalancer external IP
-  tags: admin prometheus
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc prometheus-alertmanager-headless -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-
-- name: Set prometheus-kube-state-metrics loadbalancer external IP
-  tags: admin prometheus
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc prometheus-kube-state-metrics -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: helm upgrade --install -f helm/prometheus.yaml prometheus prometheus-community/prometheus --namespace development
 
 # development: node-exporter
 - name: Install node-exporter
@@ -357,21 +294,7 @@
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f deploy/node-exporter.yaml node-exporter prometheus-community/prometheus-node-exporter --namespace development
-
-- name: Set node-exporter-prometheus-node-exporter loadbalancer external IP
-  tags: admin node-exporter
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc node-exporter-prometheus-node-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-
-- name: Set prometheus-prometheus-node-exporter loadbalancer external IP
-  tags: admin node-exporter
-  become_user: "{{ ansible_user }}"
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc prometheus-prometheus-node-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: helm upgrade --install -f helm/node-exporter.yaml node-exporter prometheus-community/prometheus-node-exporter --namespace development
 
 # development: grafana
 - name: Install grafana
@@ -379,7 +302,7 @@
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f deploy/grafana.yaml grafana grafana/grafana --namespace development
+    cmd: helm upgrade --install -f helm/grafana.yaml grafana grafana/grafana --namespace development
 
 - name: Set grafana loadbalancer external IP
   tags: admin grafana
@@ -389,7 +312,7 @@
     cmd: kubectl -n development patch svc grafana -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 - name: Login to grafana
-  tags: admin grafana
+  tags: admin grafana-login
   become_user: "{{ ansible_user }}"
   register: grafanapasswd  
   shell:
@@ -397,6 +320,6 @@
     cmd: kubectl get secret --namespace development grafana -o jsonpath="{.data.admin-password}" | base64 --decode
 
 - name: Debug
-  tags: admin grafana
+  tags: admin grafana-login
   debug:
     var: grafanapasswd

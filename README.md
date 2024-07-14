@@ -24,9 +24,20 @@ ansible -i $INVENTORY_FILE all -m ping
 ansible -i $INVENTORY_FILE all -m ansible.builtin.setup
 ```
 
+#### Run Playbook
+```shell
+ansible-playbook -i $INVENTORY_FILE ubuntu.yml \
+    --ask-become-pass    \
+    --become             \
+    --become-user=root   \
+    --diff               \
+    --flush-cache        \
+    --limit "ubuntu-*"
+```
+
 #### Run Playbook locally
 ```shell
-ansible-playbook -i $INVENTORY_FILE setup.yml \
+ansible-playbook -i $INVENTORY_FILE deploy.yml \
     --ask-become-pass    \
     --become             \
     --become-user=root   \
@@ -34,5 +45,5 @@ ansible-playbook -i $INVENTORY_FILE setup.yml \
     --flush-cache        \
     --limit "ubuntu-*"   \
     --connection "local" \
-    --tags "admin, admin app-backend"
+    --tags "admin, admin nginx-frontend"
 ```
