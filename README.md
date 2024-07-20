@@ -37,14 +37,14 @@ ansible-playbook -i $INVENTORY_FILE ubuntu.yml \
 
 #### Run Playbook with tags
 ```shell
-ansible-playbook -i $INVENTORY_FILE ubuntu.yml \
+ansible-playbook -i $INVENTORY_FILE deploy.yml \
     --ask-become-pass    \
     --become             \
     --become-user=root   \
     --diff               \
     --flush-cache        \
     --limit "ubuntu-*"   \
-    --tags "admin, admin postgresql, admin prometheus postgresql"
+    --tags "admin, admin nginx-frontend, admin prometheus nginx-frontend"
 ```
 
 #### Run Playbook locally
