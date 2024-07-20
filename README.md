@@ -24,7 +24,7 @@ ansible -i $INVENTORY_FILE all -m ping
 ansible -i $INVENTORY_FILE all -m ansible.builtin.setup
 ```
 
-#### Run Playbook
+#### Run Playbook for ubuntu-* target host
 ```shell
 ansible-playbook -i $INVENTORY_FILE ubuntu.yml \
     --ask-become-pass    \
@@ -35,6 +35,18 @@ ansible-playbook -i $INVENTORY_FILE ubuntu.yml \
     --limit "ubuntu-*"
 ```
 
+#### Run Playbook with tags
+```shell
+ansible-playbook -i $INVENTORY_FILE ubuntu.yml \
+    --ask-become-pass    \
+    --become             \
+    --become-user=root   \
+    --diff               \
+    --flush-cache        \
+    --limit "ubuntu-*"   \
+    --tags "admin, admin postgresql, admin prometheus postgresql"
+```
+
 #### Run Playbook locally
 ```shell
 ansible-playbook -i $INVENTORY_FILE deploy.yml \
@@ -43,7 +55,6 @@ ansible-playbook -i $INVENTORY_FILE deploy.yml \
     --become-user=root   \
     --diff               \
     --flush-cache        \
-    --limit "ubuntu-*"   \
     --connection "local" \
-    --tags "admin, admin nginx-frontend"
+    --limit "ubuntu-*"
 ```
