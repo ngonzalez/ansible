@@ -38,12 +38,21 @@
     cmd: kubectl apply -f namespace/development.yaml
 
 # development: postgresql
+- name: Check for previous deployments for postgresql
+  tags: admin postgresql
+  become_user: "{{ ansible_user }}"
+  register: postgresqldeployment
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development get deployments -o json | jq -r '.items[].spec.template.spec.containers[].name' | grep ^postgresql
+
 - name: Create postgresql deployment
   tags: admin postgresql
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/postgresql.yaml
+  when: postgresqldeployment == ""
 
 - name: Create postgresql loadbalancer
   tags: admin postgresql
@@ -51,6 +60,7 @@
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/postgresql.yaml
+  when: postgresqldeployment == ""
 
 - name: Set postgresql loadbalancer external IP
   tags: admin postgresql
@@ -58,14 +68,24 @@
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc postgresql-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+  when: postgresqldeployment == ""
 
 # development: redis
+- name: Check for previous deployments for redis
+  tags: admin redis
+  become_user: "{{ ansible_user }}"
+  register: redisdeployment
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development get deployments -o json | jq -r '.items[].spec.template.spec.containers[].name' | grep ^redis
+
 - name: Create redis deployment
   tags: admin redis
   become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/redis.yaml
+  when: redisdeployment == ""
 
 - name: Create redis loadbalancer
   tags: admin redis
@@ -73,6 +93,7 @@
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/redis.yaml
+  when: redisdeployment == ""
 
 - name: Set redis loadbalancer external IP
   tags: admin redis
@@ -80,6 +101,7 @@
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc redis-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+  when: redisdeployment == ""
 
 # development: app-backend
 - name: Create app-backend environment configuration
