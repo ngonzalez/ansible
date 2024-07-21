@@ -9,8 +9,7 @@ export RBENVPATH=$HOME/.rbenv/bin
 export PATH="$PATH:$GOPATH:$CFSSLPATH:$RBENVPATH"
 
 alias grep='grep --color=auto'
-alias ls='ls --color'
-alias l='ls -alrth'
+alias ls='ls --color -lrthN'
 
 eval "$(rbenv init -)"
 
