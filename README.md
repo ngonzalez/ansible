@@ -4,8 +4,9 @@
 
 ###### Install Ansible
 ```shell
+pyenv install -s 3.12.4
 pyenv local 3.12.4
-pip3 install virtualenv
+pip install virtualenv
 virtualenv -p python3 .venv
 source .venv/bin/activate
 pip install ansible
