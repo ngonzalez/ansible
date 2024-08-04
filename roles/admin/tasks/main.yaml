@@ -59,7 +59,6 @@
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc prometheus-server -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-  when: postgresqldeployment.stdout == ""
 
 # development: node-exporter
 - name: Install node-exporter
