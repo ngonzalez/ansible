@@ -46,7 +46,7 @@ ansible-playbook -i $INVENTORY_FILE deploy.yml \
     --diff               \
     --flush-cache        \
     --limit "ubuntu-*"   \
-    --tags "admin, admin nginx-frontend, admin prometheus nginx-frontend"
+    --tags "admin, admin nginx-stream, admin app-stream"
 ```
 
 #### Run Playbook locally
