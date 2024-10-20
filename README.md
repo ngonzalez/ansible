@@ -4,8 +4,8 @@
 
 ###### Install Ansible
 ```shell
-pyenv install -s 3.12.4
-pyenv local 3.12.4
+pyenv install -s 3.12.7
+pyenv local 3.12.7
 pip install virtualenv
 virtualenv -p python3 .venv
 source .venv/bin/activate
@@ -13,6 +13,7 @@ pip install ansible
 python --version
 ansible --version
 source config.sh
+
 ```
 
 #### Ping Inventory
