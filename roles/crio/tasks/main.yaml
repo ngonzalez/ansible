@@ -29,14 +29,14 @@
   shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
   environment:
     - OS: xUbuntu_22.04
-    - VERSION: 1.25
+    - VERSION: 1.28
 
 - name: Add CRIO-O apt repository
   tags: crio
   shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$VERSION.list
   environment:
     - OS: xUbuntu_22.04
-    - VERSION: 1.25
+    - VERSION: 1.28
 
 - name: Run the equivalent of "apt-get update" as a separate step
   tags: crio
