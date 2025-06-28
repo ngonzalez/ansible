@@ -6,6 +6,7 @@
 ```shell
 pyenv install -s 3.12.7
 pyenv local 3.12.7
+sudo python3.12 -m pip install --upgrade pip
 pip install virtualenv
 virtualenv -p python3 .venv
 source .venv/bin/activate
