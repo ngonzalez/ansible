@@ -358,6 +358,14 @@
     cmd: kubectl -n development patch svc prometheus-nginx-exporter-frontend -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 # development: grafana
+
+- name: Add grafana repository
+  tags: admin grafana
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: helm repo add grafana https://grafana.github.io/helm-charts
+
 - name: Install grafana
   tags: admin grafana
   become_user: "{{ ansible_user }}"
@@ -384,3 +392,18 @@
   tags: admin grafana grafana-login
   debug:
     var: grafanapasswd
+
+# NATS
+- name: Add nats-io repository
+  tags: admin nats
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: helm repo add nats https://nats-io.github.io/k8s/helm/charts/
+
+- name: Install NATS
+  tags: admin nats
+  become_user: "{{ ansible_user }}"
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: helm upgrade --install nats nats/nats --namespace development
