@@ -3,9 +3,10 @@
   tags: apt
   shell: echo "deb http://ubuntu.mirrors.ovh.net/ubuntu/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/apt.list
 
-- name: Run the equivalent of "apt-get update" as a separate step
-  apt:
-    update_cache: yes
+# - name: Run the equivalent of "apt-get update" as a separate step
+#   tags: apt
+#   apt:
+#     update_cache: yes
 
 - name: Install packages that allow apt to be used over https
   tags: apt
