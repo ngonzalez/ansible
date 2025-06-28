@@ -27,11 +27,6 @@
     - OS: xUbuntu_22.04
     - CRIO_VERSION: 1.28
 
-# - name: Run the equivalent of "apt-get update" as a separate step
-#   tags: crio
-#   apt:
-#     update_cache: yes
-
 - name: Install CRI-O
   tags: crio
   apt:
