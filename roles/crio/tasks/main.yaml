@@ -12,36 +12,25 @@
       - gpg
       - gpg-agent
 
-- name: Download CRIO-O gpg key
+- name: Add CRIO-O apt repository
   tags: crio
-  shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-archive-keyring.gpg
+  shell: echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
   environment:
     - OS: xUbuntu_22.04
+    - CRIO_VERSION: 1.28
+
 
 - name: Add CRIO-O apt repository
   tags: crio
-  shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+  shell: echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list
   environment:
     - OS: xUbuntu_22.04
+    - CRIO_VERSION: 1.28
 
-- name: Download CRIO-O gpg key
-  tags: crio
-  shell: curl -fsSL https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/Release.key | gpg --dearmor --yes -o /usr/share/keyrings/libcontainers-crio-archive-keyring.gpg
-  environment:
-    - OS: xUbuntu_22.04
-    - VERSION: 1.28
-
-- name: Add CRIO-O apt repository
-  tags: crio
-  shell: echo "deb [signed-by=/usr/share/keyrings/libcontainers-crio-archive-keyring.gpg] https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$VERSION/$OS/ /" > /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$VERSION.list
-  environment:
-    - OS: xUbuntu_22.04
-    - VERSION: 1.28
-
-- name: Run the equivalent of "apt-get update" as a separate step
-  tags: crio
-  apt:
-    update_cache: yes
+# - name: Run the equivalent of "apt-get update" as a separate step
+#   tags: crio
+#   apt:
+#     update_cache: yes
 
 - name: Install CRI-O
   tags: crio
