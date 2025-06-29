@@ -12,27 +12,28 @@
       - gpg
       - gpg-agent
 
-- name: Add CRIO-O apt repository
+- name: Add CRIO-O apt repository key
   tags: crio
-  shell: echo "deb https://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list
+  shell: curl -fsSL https://download.opensuse.org/repositories/isv:/cri-o:/stable:/$CRIO_VERSION/deb/Release.key | gpg --dearmor --yes -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
   environment:
-    - OS: xUbuntu_22.04
-    - CRIO_VERSION: 1.28
-
+    - CRIO_VERSION: v1.32
 
 - name: Add CRIO-O apt repository
   tags: crio
-  shell: echo "deb http://download.opensuse.org/repositories/devel:/kubic:/libcontainers:/stable:/cri-o:/$CRIO_VERSION/$OS/ /"|sudo tee /etc/apt/sources.list.d/devel:kubic:libcontainers:stable:cri-o:$CRIO_VERSION.list
+  shell: echo "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://download.opensuse.org/repositories/isv:/cri-o:/stable:/$CRIO_VERSION/deb/ /" | tee /etc/apt/sources.list.d/cri-o.list
   environment:
-    - OS: xUbuntu_22.04
-    - CRIO_VERSION: 1.28
+    - CRIO_VERSION: v1.32
+
+# - name: Run the equivalent of "apt-get update" as a separate step
+#   tags: crio
+#   apt:
+#     update_cache: yes
 
 - name: Install CRI-O
   tags: crio
   apt:
     name:
     - cri-o
-    - cri-o-runc
 
 - name: Add cgroup config
   tags: crio
