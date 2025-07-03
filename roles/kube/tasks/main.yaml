@@ -43,13 +43,13 @@
   tags: kubernetes
   shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/$KUBERNETES_VERSION/deb/Release.key | gpg --dearmor --yes -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
   environment:
-    - KUBERNETES_VERSION: v1.32
+    - KUBERNETES_VERSION: v1.33
 
 - name: Add apt repository
   tags: kubernetes
   shell: echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/$KUBERNETES_VERSION/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list
   environment:
-    - KUBERNETES_VERSION: v1.32
+    - KUBERNETES_VERSION: v1.33
 
 # - name: Run the equivalent of "apt-get update" as a separate step
 #   tags: kubernetes
