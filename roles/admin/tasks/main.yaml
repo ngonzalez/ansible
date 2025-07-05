@@ -1,4 +1,3 @@
-# App deployment
 ---
 # vault env app-backend
 - name: Include vars from vault
@@ -17,9 +16,9 @@
   tags: admin
   lineinfile:
     line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
-    dest: "/home/{{ ansible_user }}/.ssh/known_hosts"
+    dest: "/root/.ssh/known_hosts"
     mode: 0644
-    owner: "{{ ansible_user }}"
+    owner: root
     create: True
 
 - name: Checkout admin repository
@@ -29,49 +28,43 @@
     dest: "{{ admin_path }}"
     version: dev
 
-# development: namespace
+# namespace
 - name: Create development namespace
   tags: admin
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f namespace/development.yaml
 
-# development: prometheus-community charts
+# prometheus-community charts
 - name: Add prometheus-community repository
   tags: admin prometheus
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
-# development: prometheus
+# prometheus
 - name: Install prometheus
   tags: admin prometheus
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/prometheus.yaml prometheus prometheus-community/prometheus --namespace development
 
 - name: Set prometheus service external IP
   tags: admin prometheus
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc prometheus-server -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: node-exporter
+# node-exporter
 - name: Install node-exporter
   tags: admin prometheus node-exporter
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/node-exporter.yaml node-exporter prometheus-community/prometheus-node-exporter --namespace development
 
-# development: postgresql
+# postgresql
 - name: Check for previous deployments for postgresql
   tags: admin postgresql
-  become_user: "{{ ansible_user }}"
   register: postgresqldeployment
   shell:
     chdir: "{{ admin_path }}"
@@ -79,7 +72,6 @@
 
 - name: Create postgresql deployment
   tags: admin postgresql
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/postgresql.yaml
@@ -87,7 +79,6 @@
 
 - name: Create postgresql loadbalancer
   tags: admin postgresql
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/postgresql.yaml
@@ -95,16 +86,14 @@
 
 - name: Set postgresql service external IP
   tags: admin postgresql
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc postgresql-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
   # when: postgresqldeployment.stdout == ""
 
-# development: prometheus-postgres-exporter
+# prometheus-postgres-exporter
 - name: Install prometheus-postgres-exporter
   tags: admin prometheus postgresql
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/prometheus-postgres-exporter.yaml prometheus-postgres-exporter prometheus-community/prometheus-postgres-exporter --namespace development
@@ -112,16 +101,14 @@
 
 - name: Set prometheus-postgres-exporter service external IP
   tags: admin prometheus postgresql
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc prometheus-postgres-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
   # when: postgresqldeployment.stdout == ""
 
-# development: redis
+# redis
 - name: Check for previous deployments for redis
   tags: admin redis
-  become_user: "{{ ansible_user }}"
   register: redisdeployment
   shell:
     chdir: "{{ admin_path }}"
@@ -129,7 +116,6 @@
 
 - name: Create redis deployment
   tags: admin redis
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/redis.yaml
@@ -137,7 +123,6 @@
 
 - name: Create redis loadbalancer
   tags: admin redis
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/redis.yaml
@@ -145,16 +130,14 @@
 
 - name: Set redis service external IP
   tags: admin redis
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc redis-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
   # when: redisdeployment.stdout == ""
 
-# development: prometheus-redis-exporter
+# prometheus-redis-exporter
 - name: Install prometheus-redis-exporter
   tags: admin prometheus redis
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/prometheus-redis-exporter.yaml prometheus-redis-exporter prometheus-community/prometheus-redis-exporter --namespace development
@@ -162,227 +145,198 @@
 
 - name: Set prometheus-redis-exporter service external IP
   tags: admin prometheus redis
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc prometheus-redis-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
   # when: redisdeployment.stdout == ""
 
-# development: app-backend
+# app-backend
 - name: Create app-backend environment configuration
   tags: admin app-backend
   template:
     src: app-backend.env.j2
     dest: /tmp/.env
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    owner: root
+    group: root
     mode: 0644
   no_log: True
 
 - name: Create app-backend env secret
   tags: admin app-backend
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl create secret generic app-backend-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f -
 
 - name: Create app-backend Deployment
   tags: admin app-backend
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/app-backend.yaml
 
 - name: Create app-backend loadbalancer
   tags: admin app-backend
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/app-backend.yaml
 
 - name: Set app-backend service external IP
   tags: admin app-backend
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc app-backend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: nginx-backend
+# nginx-backend
 - name: Create nginx-backend deployment
   tags: admin nginx-backend
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/nginx-backend.yaml
 
 - name: Create nginx-backend loadbalancer
   tags: admin nginx-backend
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/nginx-backend.yaml
 
 - name: Set nginx-backend service external IP
   tags: admin nginx-backend
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc nginx-backend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: prometheus-nginx-exporter backend
+# prometheus-nginx-exporter backend
 - name: Install prometheus-nginx-exporter backend
   tags: admin prometheus nginx-backend
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/prometheus-nginx-exporter-backend.yaml prometheus-nginx-exporter-backend prometheus-community/prometheus-nginx-exporter --namespace development
 
 - name: Set prometheus-nginx-exporter backend service external IP
   tags: admin prometheus nginx-backend
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc prometheus-nginx-exporter-backend -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: app-stream
+# app-stream
 - name: Create app-stream environment configuration
   tags: admin app-stream
   template:
     src: app-stream.env.j2
     dest: /tmp/.env
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    owner: root
+    group: root
     mode: 0644
   no_log: True
 
 - name: Create app-stream env secret
   tags: admin app-stream
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl create secret generic app-stream-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f -
 
 - name: Create app-stream deployment
   tags: admin app-stream
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/app-stream.yaml
 
 - name: Create app-stream loadbalancer
   tags: admin app-stream
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/app-stream.yaml
 
 - name: Set app-stream service external IP
   tags: admin app-stream
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc app-stream-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: nginx-stream
+# nginx-stream
 - name: Create nginx-stream Deployment
   tags: admin nginx-stream
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/nginx-stream.yaml
 
 - name: Create nginx-stream loadbalancer
   tags: admin nginx-stream
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/nginx-stream.yaml
 
 - name: Set nginx-stream service external IP
   tags: admin nginx-stream
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc nginx-stream-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: prometheus-nginx-exporter stream
+# prometheus-nginx-exporter stream
 - name: Install prometheus-nginx-exporter stream
   tags: admin prometheus nginx-stream
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/prometheus-nginx-exporter-stream.yaml prometheus-nginx-exporter-stream prometheus-community/prometheus-nginx-exporter --namespace development
 
 - name: Set nginx-stream service external IP
   tags: admin prometheus nginx-stream
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc prometheus-nginx-exporter-stream -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: nginx-frontend
+# nginx-frontend
 - name: Create nginx-frontend Deployment
   tags: admin nginx-frontend
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/nginx-frontend.yaml
 
 - name: Create nginx-frontend loadbalancer
   tags: admin nginx-frontend
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/nginx-frontend.yaml
 
 - name: Set nginx-frontend service external IP
   tags: admin nginx-frontend
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc nginx-frontend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: prometheus-nginx-exporter frontend
+# prometheus-nginx-exporter frontend
 - name: Install prometheus-nginx-exporter frontend
   tags: admin prometheus nginx-frontend
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/prometheus-nginx-exporter-frontend.yaml prometheus-nginx-exporter-frontend prometheus-community/prometheus-nginx-exporter --namespace development
 
 - name: Set prometheus-nginx-exporter-frontend service external IP
   tags: admin prometheus nginx-frontend
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc prometheus-nginx-exporter-frontend -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
-# development: grafana
-
+# grafana
 - name: Add grafana repository
   tags: admin grafana
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm repo add grafana https://grafana.github.io/helm-charts
 
 - name: Install grafana
   tags: admin grafana
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/grafana.yaml grafana grafana/grafana --namespace development
 
 - name: Set grafana service external IP
   tags: admin grafana
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc grafana -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 - name: Login to grafana
   tags: admin grafana grafana-login
-  become_user: "{{ ansible_user }}"
   register: grafanapasswd  
   shell:
     chdir: "{{ admin_path }}"
@@ -396,14 +350,12 @@
 # NATS
 - name: Add nats-io repository
   tags: admin nats
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm repo add nats https://nats-io.github.io/k8s/helm/charts/
 
 - name: Install NATS
   tags: admin nats
-  become_user: "{{ ansible_user }}"
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install nats nats/nats --namespace development
