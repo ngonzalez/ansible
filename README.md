@@ -29,7 +29,7 @@ ansible -i $INVENTORY_FILE all -m ansible.builtin.setup
 
 #### Run Playbook for ubuntu-* target host
 ```shell
-ansible-playbook -i $INVENTORY_FILE ubuntu.yml \
+ansible-playbook -i $INVENTORY_FILE setup.yml \
     --ask-become-pass    \
     --become             \
     --become-user=root   \
