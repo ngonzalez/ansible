@@ -1,7 +1,7 @@
 ---
 - name: Update apt sources.list
   tags: apt
-  shell: echo "deb http://ubuntu.mirrors.ovh.net/ubuntu/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/apt.list
+  shell: echo 'deb http://ftp.fr.debian.org/debian/ unstable main contrib non-free non-free-firmware' > /etc/apt/sources.list
 
 # - name: Run the equivalent of "apt-get update" as a separate step
 #   tags: apt
@@ -15,7 +15,6 @@
     - apt-transport-https
     - ca-certificates
     - gnupg
-    - software-properties-common
     - lsb-release
 
 # apt dependencies
@@ -29,3 +28,11 @@
     - net-tools
     - htop
     - jq
+
+# gpg
+- name: Install apt dependencies
+  tags: apt
+  apt:
+    name:
+      - gpg
+      - gpg-agent

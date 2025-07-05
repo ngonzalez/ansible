@@ -15,7 +15,7 @@
   tags: git
   template:
     src: gitconfig
-    dest: /home/{{ ansible_user }}/.gitconfig
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    dest: /root/.gitconfig
+    owner: root
+    group: root
     mode: 0644

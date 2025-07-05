@@ -83,30 +83,28 @@
 - name: Create .kube folder
   tags: kubernetes
   file:
-    path: "/home/{{ ansible_user }}/.kube"
+    path: "/root/.kube"
     state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    owner: root
+    group: root
     mode: 0755
 
 - name: Copy configuration file with owner and permissions
   tags: kubernetes
   copy:
     src: /etc/kubernetes/admin.conf
-    dest: "/home/{{ ansible_user }}/.kube/config"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    dest: "/root/.kube/config"
+    owner: root
+    group: root
     mode: 0400
     remote_src: True
 
 - name: Taint node as control-plane
   tags: kubernetes
-  become_user: "{{ ansible_user }}"
   command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 
 - name: Check if node exists
   tags: kubernetes
-  become_user: "{{ ansible_user }}"
   command: kubectl get node {{ node_name }}
   register: nodeexists
   ignore_errors: True
@@ -146,29 +144,24 @@
 # tigera-operator
 - name: Create Tigera Operator Namespace
   tags: kubernetes
-  become_user: "{{ ansible_user }}"
   command: kubectl create ns tigera-operator
 
 - name: Add Calico Repository
   tags: kubernetes
-  become_user: "{{ ansible_user }}"
   command: helm repo add projectcalico https://projectcalico.docs.tigera.io/charts
 
 - name: Install Tigera Operator
   tags: kubernetes
-  become_user: "{{ ansible_user }}"
   command: helm upgrade --install calico projectcalico/tigera-operator --namespace tigera-operator
 
 # calico
 - name: Install Calico CNI
   tags: kubernetes
-  become_user: "{{ ansible_user }}"
   command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
 
 # dns
 - name: Add config for coredns
   tags: kubernetes
-  become_user: "{{ ansible_user }}"
   shell:
     cmd: |
       cat <<EOF | kubectl apply -f -
@@ -201,5 +194,4 @@
 
 - name: Set kube-dns service external IP
   tags: kubernetes
-  become_user: "{{ ansible_user }}"
   command: kubectl -n kube-system patch svc kube-dns -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
