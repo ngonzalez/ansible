@@ -27,10 +27,10 @@
     - docker-ce
     - containerd.io
 
-- name: Add user to docker group
+- name: Add docker group
   tags: docker
   user:
-    name: "{{ ansible_user }}"
+    name: root
     group: docker
 
 - name: Remove swapfile from /etc/fstab
