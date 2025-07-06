@@ -35,7 +35,7 @@ ansible-playbook -i $INVENTORY_FILE setup.yml \
     --become-user=root   \
     --diff               \
     --flush-cache        \
-    --limit "ubuntu-*"
+    --limit "debian-*"
 ```
 
 #### Run Playbook with tags
@@ -46,7 +46,7 @@ ansible-playbook -i $INVENTORY_FILE deploy.yml \
     --become-user=root   \
     --diff               \
     --flush-cache        \
-    --limit "ubuntu-*"   \
+    --limit "debian-*"   \
     --tags "admin, admin nginx-stream, admin app-stream"
 ```
 
@@ -59,5 +59,5 @@ ansible-playbook -i $INVENTORY_FILE deploy.yml \
     --diff               \
     --flush-cache        \
     --connection "local" \
-    --limit "ubuntu-*"
+    --limit "debian-*"
 ```
