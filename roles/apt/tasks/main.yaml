@@ -3,11 +3,7 @@
   tags: apt
   shell: echo 'deb http://ftp.fr.debian.org/debian/ unstable main contrib non-free non-free-firmware' > /etc/apt/sources.list
 
-# - name: Run the equivalent of "apt-get update" as a separate step
-#   tags: apt
-#   apt:
-#     update_cache: yes
-
+# system dependencies
 - name: Install packages that allow apt to be used over https
   tags: apt
   apt:
@@ -17,8 +13,8 @@
     - gnupg
     - lsb-release
 
-# apt dependencies
-- name: Install system packages
+# developer
+- name: Install developer packages
   tags: apt
   apt:
     name:
@@ -30,9 +26,16 @@
     - jq
 
 # gpg
-- name: Install apt dependencies
+- name: Install gpg
   tags: apt
   apt:
     name:
       - gpg
       - gpg-agent
+
+# sudo
+- name: Install sudo
+  tags: apt
+  apt:
+    name:
+      - sudo
