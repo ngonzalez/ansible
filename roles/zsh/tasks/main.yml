@@ -1,11 +1,17 @@
 - name: Install zsh
+  tags: zsh
   apt:
     name: zsh
 
 - name: Configure zshrc for root
+  tags: zsh
   template:
     src: zshrc
     dest: /root/.zshrc
     owner: root
     group: root
     mode: 0644
+
+- name: Set zsh as default shell
+  tags: zsh
+  shell: chsh -s $(which zsh)
