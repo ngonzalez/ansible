@@ -359,3 +359,31 @@
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install nats nats/nats --namespace development
+
+# kubernetes-dashboard
+- name: Add kubernetes-dashboard
+  tags: admin kubernetes-dashboard
+  command: kubectl apply -f deploy/kubernetes-dashboard.yaml
+
+- name: Set kubernetes-dashboard service external IP
+  tags: admin kubernetes-dashboard
+  command: kubectl -n kubernetes-dashboard patch svc kubernetes-dashboard -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
+# kubernetes-dashboard service-account
+- name: Setup Service Account Admin User
+  tags: admin kubernetes-dashboard
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f service-account/admin-user.yaml
+
+- name: Setup Service Account Cluster Admin
+  tags: admin kubernetes-dashboard
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f service-account/cluster-admin.yaml
+
+- name: Generate Service Account Token
+  tags: admin kubernetes-dashboard
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n kubernetes-dashboard create token admin-user
