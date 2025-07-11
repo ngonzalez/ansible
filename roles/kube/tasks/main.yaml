@@ -68,11 +68,9 @@
   tags: kubernetes
   command: kubeadm reset -f --cri-socket {{ cri_socket }}
 
-# - name: Pull images
-#   tags: kubernetes
-#   command: kubeadm config images pull --cri-socket {{ cri_socket }}
-#   ignore_errors: True
-#   no_log: True
+- name: Pull images
+  tags: kubernetes
+  command: kubeadm config images pull --cri-socket {{ cri_socket }}
 
 - name: Initialize cluster
   tags: kubernetes
