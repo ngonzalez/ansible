@@ -43,13 +43,13 @@
   tags: kubernetes
   shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/$KUBERNETES_VERSION/deb/Release.key | gpg --dearmor --yes -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
   environment:
-    - KUBERNETES_VERSION: v1.32
+    - KUBERNETES_VERSION: v1.33
 
 - name: Add apt repository
   tags: kubernetes
   shell: echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/$KUBERNETES_VERSION/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list
   environment:
-    - KUBERNETES_VERSION: v1.32
+    - KUBERNETES_VERSION: v1.33
 
 # - name: Run the equivalent of "apt-get update" as a separate step
 #   tags: kubernetes
@@ -71,6 +71,8 @@
 # - name: Pull images
 #   tags: kubernetes
 #   command: kubeadm config images pull --cri-socket {{ cri_socket }}
+#   ignore_errors: True
+#   no_log: True
 
 - name: Initialize cluster
   tags: kubernetes
@@ -128,23 +130,41 @@
     remote_src: True
   when: not helmexists.stat.exists
 
-#flannel
-- name: Create kube flannel run directory
+# tigera-operator
+- name: Create Tigera Operator Namespace
   tags: kubernetes
-  file:
-    path: /run/flannel
-    state: directory
-    mode: 0755
+  command: kubectl create ns tigera-operator
 
-- name: Add subnet.env
+- name: Add Calico Repository
   tags: kubernetes
-  template:
-    src: subnet.env.j2
-    dest: /run/flannel/subnet.env
+  command: helm repo add projectcalico https://projectcalico.docs.tigera.io/charts
 
-- name: Install flannel
+- name: Install Tigera Operator
   tags: kubernetes
-  command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
+  command: helm upgrade --install calico projectcalico/tigera-operator --namespace tigera-operator
+
+# calico
+- name: Install Calico CNI
+  tags: kubernetes
+  command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
+
+# #flannel
+# - name: Create kube flannel run directory
+#   tags: kubernetes
+#   file:
+#     path: /run/flannel
+#     state: directory
+#     mode: 0755
+#
+# - name: Add subnet.env
+#   tags: kubernetes
+#   template:
+#     src: subnet.env.j2
+#     dest: /run/flannel/subnet.env
+#
+# - name: Install flannel
+#   tags: kubernetes
+#   command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
 
 # dns
 - name: Add config for coredns
