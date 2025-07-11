@@ -74,7 +74,7 @@
   tags: admin postgresql
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f deploy/postgresql.yaml
+    cmd: kubectl -n development replace --force -f statefulsets/postgresql.yaml
   when: postgresqldeployment.stdout == ""
 
 - name: Create postgresql loadbalancer
@@ -118,7 +118,7 @@
   tags: admin redis
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f deploy/redis.yaml
+    cmd: kubectl -n development replace --force -f statefulsets/redis.yaml
   when: redisdeployment.stdout == ""
 
 - name: Create redis loadbalancer
