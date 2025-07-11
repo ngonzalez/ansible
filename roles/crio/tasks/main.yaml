@@ -9,13 +9,13 @@
   tags: crio
   shell: curl -fsSL https://download.opensuse.org/repositories/isv:/cri-o:/stable:/$CRIO_VERSION/deb/Release.key | gpg --dearmor --yes -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
   environment:
-    - CRIO_VERSION: v1.32
+    - CRIO_VERSION: v1.33
 
 - name: Add CRIO-O apt repository
   tags: crio
   shell: echo "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://download.opensuse.org/repositories/isv:/cri-o:/stable:/$CRIO_VERSION/deb/ /" | tee /etc/apt/sources.list.d/cri-o.list
   environment:
-    - CRIO_VERSION: v1.32
+    - CRIO_VERSION: v1.33
 
 # - name: Run the equivalent of "apt-get update" as a separate step
 #   tags: crio
@@ -28,11 +28,11 @@
     name:
     - cri-o
 
-- name: Add cgroup config
-  tags: crio
-  template:
-    src: cgroup-manager.conf.j2
-    dest: /etc/crio/crio.conf.d/10-cgroup-manager.conf
+# - name: Add cgroup config
+#   tags: crio
+#   template:
+#     src: cgroup-manager.conf.j2
+#     dest: /etc/crio/crio.conf.d/10-cgroup-manager.conf
 
 - name: Add bridge configuration
   tags: crio

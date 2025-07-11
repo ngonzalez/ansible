@@ -1,12 +1,5 @@
 # docker
 ---
-- name: Install apt dependencies
-  tags: docker
-  apt:
-    name:
-      - gpg
-      - gpg-agent
-
 - name: Add docker apt key
   tags: docker
   shell: curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor --yes -o /usr/share/keyrings/docker.gpg
@@ -48,12 +41,12 @@
   command: swapoff -a
   when: ansible_swaptotal_mb > 0
 
-- name: Configure docker daemon
-  tags: docker
-  lineinfile:
-    path: /etc/docker/daemon.json
-    line: "{ \"exec-opts\": [\"native.cgroupdriver=systemd\"] }"
-    create: yes
+# - name: Configure docker daemon
+#   tags: docker
+#   lineinfile:
+#     path: /etc/docker/daemon.json
+#     line: "{ \"exec-opts\": [\"native.cgroupdriver=systemd\"] }"
+#     create: yes
 
 - name: Start docker
   tags: docker
