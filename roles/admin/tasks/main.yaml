@@ -63,6 +63,22 @@
     cmd: helm upgrade --install -f helm/node-exporter.yaml node-exporter prometheus-community/prometheus-node-exporter --namespace development
 
 # postgresql
+- name: Create postgresql environment configuration
+  tags: admin postgresql
+  template:
+    src: postgresql.env.j2
+    dest: /tmp/.env
+    owner: root
+    group: root
+    mode: 0644
+  no_log: True
+
+- name: Create postgresql configmap
+  tags: admin postgresql
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl create configmap postgresql-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f -
+
 - name: Create postgresql persistent volume
   tags: admin postgresql
   shell:
@@ -375,7 +391,9 @@
 # kubernetes-dashboard
 - name: Add kubernetes-dashboard
   tags: admin kubernetes-dashboard
-  command: kubectl apply -f deploy/kubernetes-dashboard.yaml
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f deploy/kubernetes-dashboard.yaml
 
 - name: Set kubernetes-dashboard service external IP
   tags: admin kubernetes-dashboard
@@ -396,6 +414,12 @@
 
 - name: Generate Service Account Token
   tags: admin kubernetes-dashboard
+  register: kubernetesdashboardtoken
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n kubernetes-dashboard create token admin-user
+
+- name: Debug
+  tags: admin kubernetes-dashboard
+  debug:
+    var: kubernetesdashboardtoken
