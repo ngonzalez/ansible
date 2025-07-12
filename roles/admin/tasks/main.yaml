@@ -63,6 +63,18 @@
     cmd: helm upgrade --install -f helm/node-exporter.yaml node-exporter prometheus-community/prometheus-node-exporter --namespace development
 
 # postgresql
+- name: Create postgresql persistent volume
+  tags: admin postgresql
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development apply -f storage/persistent-volume.yaml
+
+- name: Create postgresql persistent volume claim
+  tags: admin postgresql
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development apply -f storage/persistent-volume-claim.yaml
+
 - name: Check for previous deployments for postgresql
   tags: admin postgresql
   register: postgresqldeployment
