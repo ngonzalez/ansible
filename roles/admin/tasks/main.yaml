@@ -69,12 +69,12 @@
     cmd: helm upgrade --install -f helm/node-exporter.yaml node-exporter prometheus-community/prometheus-node-exporter --namespace development
 
 # postgresql
-- name: Check for previous deployments for postgresql
+- name: Check for previous deployments of postgresql
   tags: admin postgresql
   register: postgresqldeployment
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development get deployments -o json | jq -r '.items[].spec.template.spec.containers[].name' | grep ^postgresql || true
+    cmd: kubectl -n development get statefulsets -o json | jq -r '.items[].spec.template.spec.containers[].name' | grep ^postgresql || true
 
 - name: Create postgresql configmap
   tags: admin postgresql
@@ -132,26 +132,24 @@
 
 # prometheus-postgres-exporter
 - name: Install prometheus-postgres-exporter
-  tags: admin prometheus postgresql
+  tags: admin prometheus
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/prometheus-postgres-exporter.yaml prometheus-postgres-exporter prometheus-community/prometheus-postgres-exporter --namespace development
-  when: postgresqldeployment.stdout == ""
 
 - name: Set prometheus-postgres-exporter service external IP
-  tags: admin prometheus postgresql
+  tags: admin prometheus
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc prometheus-postgres-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-  when: postgresqldeployment.stdout == ""
 
 # redis
-- name: Check for previous deployments for redis
+- name: Check for previous deployments of redis
   tags: admin redis
   register: redisdeployment
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development get deployments -o json | jq -r '.items[].spec.template.spec.containers[].name' | grep ^redis || true
+    cmd: kubectl -n development get statefulset -o json | jq -r '.items[].spec.template.spec.containers[].name' | grep ^redis || true
 
 - name: Create redis deployment
   tags: admin redis
@@ -176,18 +174,16 @@
 
 # prometheus-redis-exporter
 - name: Install prometheus-redis-exporter
-  tags: admin prometheus redis
+  tags: admin prometheus
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/prometheus-redis-exporter.yaml prometheus-redis-exporter prometheus-community/prometheus-redis-exporter --namespace development
-  when: redisdeployment.stdout == ""
 
 - name: Set prometheus-redis-exporter service external IP
-  tags: admin prometheus redis
+  tags: admin prometheus
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc prometheus-redis-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-  when: redisdeployment.stdout == ""
 
 # app-backend
 - name: Create app-backend environment configuration
