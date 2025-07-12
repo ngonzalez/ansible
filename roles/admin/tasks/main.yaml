@@ -1,14 +1,20 @@
 ---
 # vault env app-backend
-- name: Include vars from vault
-  tags: admin
+- name: Include vault app-backend
+  tags: admin app-backend
   include_vars: env_vault_backend.yaml
   no_log: True
 
 # vault env app-stream
-- name: Include vars from vault
-  tags: admin
+- name: Include vault app-stream
+  tags: admin app-stream
   include_vars: env_vault_stream.yaml
+  no_log: True
+
+# vault env postgresql
+- name: Include vault postgresql
+  tags: admin postgresql
+  include_vars: env_vault_postgresql.yaml
   no_log: True
 
 # git
@@ -63,21 +69,23 @@
     cmd: helm upgrade --install -f helm/node-exporter.yaml node-exporter prometheus-community/prometheus-node-exporter --namespace development
 
 # postgresql
-- name: Create postgresql environment configuration
-  tags: admin postgresql
-  template:
-    src: postgresql.env.j2
-    dest: /tmp/.env
-    owner: root
-    group: root
-    mode: 0644
-  no_log: True
-
 - name: Create postgresql configmap
   tags: admin postgresql
   shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl create configmap postgresql-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f -
+    cmd: |
+      cat <<EOF | kubectl apply -f -
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: postgresql-env
+          namespace: development
+          labels:
+            app: postgresql
+        data:
+          POSTGRES_DB: {{ postgres_db }}
+          POSTGRES_USER: {{ postgres_user }}
+          POSTGRES_PASSWORD: {{ postgres_password }}
+      EOF
 
 - name: Create postgresql persistent volume
   tags: admin postgresql
@@ -102,7 +110,7 @@
   tags: admin postgresql
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f statefulsets/postgresql.yaml
+    cmd: kubectl -n development replace --force -f statefulset/postgresql.yaml
   when: postgresqldeployment.stdout == ""
 
 - name: Create postgresql loadbalancer
@@ -146,7 +154,7 @@
   tags: admin redis
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f statefulsets/redis.yaml
+    cmd: kubectl -n development replace --force -f statefulset/redis.yaml
   when: redisdeployment.stdout == ""
 
 - name: Create redis loadbalancer
