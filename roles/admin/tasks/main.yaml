@@ -69,6 +69,13 @@
     cmd: helm upgrade --install -f helm/node-exporter.yaml node-exporter prometheus-community/prometheus-node-exporter --namespace development
 
 # postgresql
+- name: Check for previous deployments for postgresql
+  tags: admin postgresql
+  register: postgresqldeployment
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development get deployments -o json | jq -r '.items[].spec.template.spec.containers[].name' | grep ^postgresql || true
+
 - name: Create postgresql configmap
   tags: admin postgresql
   shell:
@@ -86,25 +93,21 @@
           POSTGRES_USER: {{ postgres_user }}
           POSTGRES_PASSWORD: {{ postgres_password }}
       EOF
+  when: postgresqldeployment.stdout == ""
 
 - name: Create postgresql persistent volume
   tags: admin postgresql
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development apply -f storage/persistent-volume.yaml
+  when: postgresqldeployment.stdout == ""
 
 - name: Create postgresql persistent volume claim
   tags: admin postgresql
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development apply -f storage/persistent-volume-claim.yaml
-
-- name: Check for previous deployments for postgresql
-  tags: admin postgresql
-  register: postgresqldeployment
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development get deployments -o json | jq -r '.items[].spec.template.spec.containers[].name' | grep ^postgresql || true
+  when: postgresqldeployment.stdout == ""
 
 - name: Create postgresql deployment
   tags: admin postgresql
