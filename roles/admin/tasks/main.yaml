@@ -88,7 +88,7 @@
   tags: admin postgresql
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc postgresql-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: kubectl -n development patch svc postgresql-svc -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
   when: postgresqldeployment.stdout == ""
 
 # prometheus-postgres-exporter
