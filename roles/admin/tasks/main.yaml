@@ -1,22 +1,4 @@
 ---
-# vault env app-backend
-- name: Include vault app-backend
-  tags: admin app-backend
-  include_vars: env_vault_backend.yaml
-  no_log: True
-
-# vault env app-stream
-- name: Include vault app-stream
-  tags: admin app-stream
-  include_vars: env_vault_stream.yaml
-  no_log: True
-
-# vault env postgresql
-- name: Include vault postgresql
-  tags: admin postgresql
-  include_vars: env_vault_postgresql.yaml
-  no_log: True
-
 # git
 - name: Add github to known_hosts
   tags: admin
@@ -69,6 +51,11 @@
     cmd: helm upgrade --install -f helm/node-exporter.yaml node-exporter prometheus-community/prometheus-node-exporter --namespace development
 
 # postgresql
+- name: Include vault postgresql
+  tags: postgresql
+  include_vars: env_vault_postgresql.yaml
+  # no_log: True
+
 - name: Check for previous deployments of postgresql
   tags: admin postgresql
   register: postgresqldeployment
@@ -186,7 +173,11 @@
     cmd: kubectl -n development patch svc prometheus-redis-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 # app-backend
-- name: Create app-backend environment configuration
+- name: Include vault
+  tags: app-backend
+  include_vars: env_vault_backend.yaml
+
+- name: Create environment temporary configuration file
   tags: admin app-backend
   template:
     src: app-backend.env.j2
@@ -196,13 +187,20 @@
     mode: 0644
   no_log: True
 
-- name: Create app-backend env secret
+- name: Create environment secret
   tags: admin app-backend
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl create secret generic app-backend-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f -
 
-- name: Create app-backend Deployment
+- name: Remove environment temporary configuration file
+  tags: admin app-backend
+  ansible.builtin.file:
+    path: /tmp/.env
+    state: absent
+  no_log: True
+
+- name: Create app-backend deployment
   tags: admin app-backend
   shell:
     chdir: "{{ admin_path }}"
@@ -253,7 +251,11 @@
     cmd: kubectl -n development patch svc prometheus-nginx-exporter-backend -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 # app-stream
-- name: Create app-stream environment configuration
+- name: Include vault
+  tags: app-stream
+  include_vars: env_vault_stream.yaml
+
+- name: Create environment temporary configuration file
   tags: admin app-stream
   template:
     src: app-stream.env.j2
@@ -263,11 +265,18 @@
     mode: 0644
   no_log: True
 
-- name: Create app-stream env secret
+- name: Create environment secret
   tags: admin app-stream
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl create secret generic app-stream-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f -
+
+- name: Remove environment temporary configuration file
+  tags: admin app-stream
+  ansible.builtin.file:
+    path: /tmp/.env
+    state: absent
+  no_log: True
 
 - name: Create app-stream deployment
   tags: admin app-stream
@@ -381,19 +390,6 @@
   tags: admin grafana grafana-login
   debug:
     var: grafanapasswd
-
-# NATS
-- name: Add nats-io repository
-  tags: admin nats
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: helm repo add nats https://nats-io.github.io/k8s/helm/charts/
-
-- name: Install NATS
-  tags: admin nats
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install nats nats/nats --namespace development
 
 # kubernetes-dashboard
 - name: Add kubernetes-dashboard
