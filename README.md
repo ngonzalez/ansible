@@ -17,6 +17,18 @@ source config.sh
 
 ```
 
+#### Create Inventory
+Create inventory.yaml file at the root of the repository.
+
+```yaml
+D5BFA3BCA28:
+  hosts:
+    debian-01:
+      ansible_host: 192.168.1.14
+      ansible_port: 22
+      ansible_user: root
+```
+
 #### Ping Inventory
 ```shell
 ansible -i $INVENTORY_FILE all -m ping
@@ -39,6 +51,9 @@ ansible-playbook -i $INVENTORY_FILE setup.yml \
 ```
 
 #### Run Playbook with tags
+Run the playbook with or without admin tag
+to make sure all tasks are included.
+
 ```shell
 ansible-playbook -i $INVENTORY_FILE deploy.yml \
     --ask-become-pass    \
@@ -47,7 +62,7 @@ ansible-playbook -i $INVENTORY_FILE deploy.yml \
     --diff               \
     --flush-cache        \
     --limit "debian-*"   \
-    --tags "admin, admin nginx-stream, admin app-stream"
+    --tags "admin, app-backend, admin app-backend"
 ```
 
 #### Run Playbook locally
