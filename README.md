@@ -1,6 +1,6 @@
 # ansible
 
-![logo](https://user-images.githubusercontent.com/26479/113611957-81d90b80-964f-11eb-95c9-2fb0dfa3cb0b.png)
+![logo](https://bit.ly/47WuP1s)
 
 ###### Install Ansible
 ```shell
@@ -14,7 +14,6 @@ pip install ansible
 python --version
 ansible --version
 source config.sh
-
 ```
 
 #### Create Inventory
