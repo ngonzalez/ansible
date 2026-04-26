@@ -191,7 +191,7 @@
   tags: admin app-backend
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl create secret generic app-backend-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f -
+    cmd: kubectl create secret generic app-backend-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development replace --force -f -
 
 - name: Remove environment temporary configuration file
   tags: admin app-backend
@@ -269,7 +269,7 @@
   tags: admin app-stream
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl create secret generic app-stream-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development apply -f -
+    cmd: kubectl create secret generic app-stream-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development replace --force -f -
 
 - name: Remove environment temporary configuration file
   tags: admin app-stream
@@ -329,11 +329,38 @@
     cmd: kubectl -n development patch svc prometheus-nginx-exporter-stream -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 # nginx-frontend
+- name: Include vault
+  tags: admin nginx-frontend
+  include_vars: env_vault_frontend.yaml
+
 - name: Create nginx-frontend Deployment
   tags: admin nginx-frontend
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/nginx-frontend.yaml
+
+- name: Create environment temporary configuration file
+  tags: admin nginx-frontend
+  template:
+    src: app-frontend.env.j2
+    dest: /tmp/.env
+    owner: root
+    group: root
+    mode: 0644
+  no_log: True
+
+- name: Create environment secret
+  tags: admin nginx-frontend
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl create secret generic app-frontend-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development replace --force -f -
+
+- name: Remove environment temporary configuration file
+  tags: admin nginx-frontend
+  ansible.builtin.file:
+    path: /tmp/.env
+    state: absent
+  no_log: True
 
 - name: Create nginx-frontend loadbalancer
   tags: admin nginx-frontend
