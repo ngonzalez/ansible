@@ -329,10 +329,6 @@
     cmd: kubectl -n development patch svc prometheus-nginx-exporter-stream -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 # nginx-frontend
-- name: Include vault
-  tags: admin nginx-frontend
-  include_vars: env_vault_frontend.yaml
-
 - name: Create nginx-frontend Deployment
   tags: admin nginx-frontend
   shell:
@@ -348,12 +344,6 @@
     group: root
     mode: 0644
   no_log: True
-
-- name: Create environment secret
-  tags: admin nginx-frontend
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl create secret generic app-frontend-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development replace --force -f -
 
 - name: Remove environment temporary configuration file
   tags: admin nginx-frontend
