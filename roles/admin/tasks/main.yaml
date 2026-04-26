@@ -335,23 +335,6 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/nginx-frontend.yaml
 
-- name: Create environment temporary configuration file
-  tags: admin nginx-frontend
-  template:
-    src: app-frontend.env.j2
-    dest: /tmp/.env
-    owner: root
-    group: root
-    mode: 0644
-  no_log: True
-
-- name: Remove environment temporary configuration file
-  tags: admin nginx-frontend
-  ansible.builtin.file:
-    path: /tmp/.env
-    state: absent
-  no_log: True
-
 - name: Create nginx-frontend loadbalancer
   tags: admin nginx-frontend
   shell:
