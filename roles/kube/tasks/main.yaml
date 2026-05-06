@@ -43,13 +43,13 @@
   tags: kubernetes
   shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/$KUBERNETES_VERSION/deb/Release.key | gpg --dearmor --yes -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
   environment:
-    - KUBERNETES_VERSION: v1.33
+    - KUBERNETES_VERSION: v1.36
 
 - name: Add apt repository
   tags: kubernetes
   shell: echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/$KUBERNETES_VERSION/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list
   environment:
-    - KUBERNETES_VERSION: v1.33
+    - KUBERNETES_VERSION: v1.36
 
 # - name: Run the equivalent of "apt-get update" as a separate step
 #   tags: kubernetes
@@ -78,6 +78,7 @@
                         --cri-socket {{ cri_socket }} \
                         --pod-network-cidr {{ pod_network_cidr }} \
                         --node-name {{ node_name }}
+                        # --ignore-preflight-errors=all
 
 - name: Create .kube folder
   tags: kubernetes
@@ -142,9 +143,9 @@
   command: helm upgrade --install calico projectcalico/tigera-operator --namespace tigera-operator
 
 # calico
-- name: Install Calico CNI
-  tags: kubernetes
-  command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
+# - name: Install Calico CNI
+#   tags: kubernetes
+#   command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
 
 # #flannel
 # - name: Create kube flannel run directory
