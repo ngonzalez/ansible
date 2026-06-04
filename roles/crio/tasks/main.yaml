@@ -1,38 +1,22 @@
 # Container Runtime Interface
 ---
-# - name: Upgrade the OS (apt-get dist-upgrade)
-#   tags: crio
-#   apt:
-#     upgrade: dist
-
 - name: Add CRIO-O apt repository key
   tags: crio
   shell: curl -fsSL https://download.opensuse.org/repositories/isv:/cri-o:/stable:/$CRIO_VERSION/deb/Release.key | gpg --dearmor --yes -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
   environment:
-    - CRIO_VERSION: v1.35
+    - CRIO_VERSION: v1.36
 
 - name: Add CRIO-O apt repository
   tags: crio
   shell: echo "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://download.opensuse.org/repositories/isv:/cri-o:/stable:/$CRIO_VERSION/deb/ /" | tee /etc/apt/sources.list.d/cri-o.list
   environment:
-    - CRIO_VERSION: v1.35
-
-# - name: Run the equivalent of "apt-get update" as a separate step
-#   tags: crio
-#   apt:
-#     update_cache: yes
+    - CRIO_VERSION: v1.36
 
 - name: Install CRI-O
   tags: crio
   apt:
     name:
     - cri-o
-
-# - name: Add cgroup config
-#   tags: crio
-#   template:
-#     src: cgroup-manager.conf.j2
-#     dest: /etc/crio/crio.conf.d/10-cgroup-manager.conf
 
 - name: Add bridge configuration
   tags: crio
