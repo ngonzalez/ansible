@@ -185,7 +185,7 @@
     owner: root
     group: root
     mode: 0644
-  no_log: True
+  # no_log: True
 
 - name: Create environment secret
   tags: admin app-backend
@@ -263,7 +263,7 @@
     owner: root
     group: root
     mode: 0644
-  no_log: True
+  # no_log: True
 
 - name: Create environment secret
   tags: admin app-stream
