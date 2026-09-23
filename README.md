@@ -61,7 +61,7 @@ ansible-playbook -i $INVENTORY_FILE deploy.yml \
     --diff               \
     --flush-cache        \
     --limit "debian-*"   \
-    --tags "admin, redis, admin redis"
+    --tags "admin, nginx-backend, admin nginx-backend"
 ```
 
 #### Run Playbook locally
