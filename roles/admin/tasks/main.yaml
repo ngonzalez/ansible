@@ -28,27 +28,20 @@
   tags: admin prometheus
   shell:
     chdir: "{{ admin_path }}"
-    cmd: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+    cmd: helm repo add --force-update prometheus-community https://prometheus-community.github.io/helm-charts && helm repo update prometheus-community
 
 # prometheus
 - name: Install prometheus
   tags: admin prometheus
   shell:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f helm/prometheus.yaml prometheus prometheus-community/prometheus --namespace development
+    cmd: helm upgrade --install -f helm/prometheus.yaml prometheus prometheus-community/prometheus --version 29.35.0 --namespace development
 
 - name: Set prometheus service external IP
   tags: admin prometheus
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc prometheus-server -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-
-# node-exporter
-- name: Install node-exporter
-  tags: admin prometheus node-exporter
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f helm/node-exporter.yaml node-exporter prometheus-community/prometheus-node-exporter --namespace development
 
 # postgresql
 - name: Include vault postgresql
