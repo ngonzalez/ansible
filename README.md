@@ -38,6 +38,22 @@ ansible -i $INVENTORY_FILE all -m ping
 ansible -i $INVENTORY_FILE all -m ansible.builtin.setup
 ```
 
+#### GitLab token
+The Rails apps read `RAILS_MASTER_KEY` from the CI/CD variables of their
+GitLab `-org` project. Create a personal access token with the `read_api`
+scope, then store it in the vault:
+
+```shell
+ansible-vault create roles/admin/vars/env_vault_gitlab.yaml
+```
+
+```yaml
+gitlab_api_token: glpat-...
+```
+
+The `RAILS_MASTER_KEY` variables must be masked, not hidden: the API never
+returns the value of a hidden variable.
+
 #### Run Playbook for ubuntu-* target host
 ```shell
 ansible-playbook -i $INVENTORY_FILE setup.yml \
