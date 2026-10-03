@@ -148,6 +148,30 @@
     cmd: kubectl -n development patch svc prometheus-postgres-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 # redis
+- name: Include vault redis
+  tags: redis
+  include_vars: env_vault_redis.yaml
+
+- name: Create redis environment temporary file
+  tags: admin redis
+  template:
+    src: redis.env.j2
+    dest: /tmp/.redis.env
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Create redis environment secret
+  tags: admin redis
+  shell:
+    cmd: kubectl create secret generic redis-env --namespace=development --from-env-file=/tmp/.redis.env --dry-run=client -o yaml | kubectl -n development apply -f -
+
+- name: Remove redis environment temporary file
+  tags: admin redis
+  ansible.builtin.file:
+    path: /tmp/.redis.env
+    state: absent
+
 - name: Check for previous deployments of redis
   tags: admin redis
   register: redisdeployment
@@ -271,6 +295,10 @@
 - name: Include vault
   tags: app-stream
   include_vars: env_vault_stream.yaml
+
+- name: Include vault redis for app-stream
+  tags: app-stream
+  include_vars: env_vault_redis.yaml
 
 - name: Create environment temporary configuration file
   tags: admin app-stream
