@@ -184,7 +184,7 @@
                     lameduck 5s
                 }
                 ready
-                kubernetes link12.ddns.net in-addr.arpa ip6.arpa {
+                kubernetes cluster.local link12.ddns.net in-addr.arpa ip6.arpa {
                     pods insecure
                     fallthrough in-addr.arpa ip6.arpa
                     ttl 30
