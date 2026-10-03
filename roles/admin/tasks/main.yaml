@@ -43,6 +43,19 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc prometheus-server -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
+# metrics-server
+- name: Add metrics-server repository
+  tags: admin metrics-server
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: helm repo add --force-update metrics-server https://kubernetes-sigs.github.io/metrics-server/ && helm repo update metrics-server
+
+- name: Install metrics-server
+  tags: admin metrics-server
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: helm upgrade --install -f helm/metrics-server.yaml metrics-server metrics-server/metrics-server --version 3.14.0 --namespace kube-system
+
 # postgresql
 - name: Include vault postgresql
   tags: postgresql
@@ -111,6 +124,17 @@
   when: postgresqldeployment.stdout == ""
 
 # prometheus-postgres-exporter
+- name: Include vault postgresql for prometheus-postgres-exporter
+  tags: admin prometheus
+  include_vars: env_vault_postgresql.yaml
+  no_log: True
+
+- name: Create prometheus-postgres-exporter password secret
+  tags: admin prometheus
+  no_log: True
+  shell:
+    cmd: kubectl -n development create secret generic prometheus-postgres-exporter-password --from-literal=password='{{ postgres_password }}' --dry-run=client -o yaml | kubectl -n development apply -f -
+
 - name: Install prometheus-postgres-exporter
   tags: admin prometheus
   shell:

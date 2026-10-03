@@ -1,0 +1,24 @@
+# journald: cap the systemd journal, which otherwise grows without limit
+---
+- name: Create journald configuration directory
+  tags: journald
+  file:
+    path: /etc/systemd/journald.conf.d
+    state: directory
+    mode: 0755
+
+- name: Limit journal size
+  tags: journald
+  copy:
+    dest: /etc/systemd/journald.conf.d/size.conf
+    mode: 0644
+    content: |
+      [Journal]
+      SystemMaxUse=500M
+      MaxRetentionSec=1month
+
+- name: Restart journald
+  tags: journald
+  service:
+    name: systemd-journald
+    state: restarted
