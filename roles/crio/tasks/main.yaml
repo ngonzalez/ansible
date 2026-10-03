@@ -29,6 +29,17 @@
     src: cni.conf.j2
     dest: /etc/cni/net.d/100-cni.conf
 
+# CRI-O, the kubelet, Alloy and Loki each hold inotify instances: with the
+# default of 128 CRI-O fails to start with "too many open files"
+- name: Set fs.inotify.max_user_instances
+  tags: crio
+  ansible.posix.sysctl:
+    name: fs.inotify.max_user_instances
+    reload: True
+    state: present
+    sysctl_set: True
+    value: 8192
+
 - name: Start CRI-O
   tags: crio
   service:
