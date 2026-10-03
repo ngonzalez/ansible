@@ -345,6 +345,71 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc prometheus-nginx-exporter-stream -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
+# app-showcase
+- name: Include vault
+  tags: app-showcase
+  include_vars: env_vault_showcase.yaml
+
+- name: Create environment temporary configuration file
+  tags: admin app-showcase
+  template:
+    src: app-showcase.env.j2
+    dest: /tmp/.env
+    owner: root
+    group: root
+    mode: 0644
+  # no_log: True
+
+- name: Create environment secret
+  tags: admin app-showcase
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl create secret generic app-showcase-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development replace --force -f -
+
+- name: Remove environment temporary configuration file
+  tags: admin app-showcase
+  ansible.builtin.file:
+    path: /tmp/.env
+    state: absent
+  no_log: True
+
+- name: Create app-showcase deployment
+  tags: admin app-showcase
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development replace --force -f deploy/app-showcase.yaml
+
+- name: Create app-showcase loadbalancer
+  tags: admin app-showcase
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development replace --force -f service/app-showcase.yaml
+
+- name: Set app-showcase service external IP
+  tags: admin app-showcase
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc app-showcase-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
+# nginx-showcase
+- name: Create nginx-showcase Deployment
+  tags: admin nginx-showcase
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development replace --force -f deploy/nginx-showcase.yaml
+
+- name: Create nginx-showcase loadbalancer
+  tags: admin nginx-showcase
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development replace --force -f service/nginx-showcase.yaml
+
+- name: Set nginx-showcase service external IP
+  tags: admin nginx-showcase
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc nginx-showcase-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
 # nginx-frontend
 - name: Create nginx-frontend Deployment
   tags: admin nginx-frontend
