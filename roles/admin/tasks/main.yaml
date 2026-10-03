@@ -418,6 +418,12 @@
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/loki.yaml loki grafana/loki --version 7.3.0 --namespace development
 
+- name: Set loki service external IP
+  tags: admin loki
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc loki -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
 # alloy
 - name: Install alloy
   tags: admin alloy
