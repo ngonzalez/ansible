@@ -419,3 +419,18 @@
   tags: admin kubernetes-dashboard
   debug:
     var: kubernetesdashboardtoken
+
+# azure storage cleanup: only runs when asked for, e.g.
+#   ansible-playbook deploy.yml --tags azure-cleanup                          (dry run)
+#   ansible-playbook deploy.yml --tags azure-cleanup -e azure_cleanup_confirm=1
+- name: Purge orphaned azure storage files and unattached blobs
+  tags: [never, azure-cleanup]
+  register: azurecleanup
+  shell:
+    executable: /bin/bash
+    cmd: set -o pipefail && kubectl -n development exec deploy/app-backend -- env CONFIRM={{ azure_cleanup_confirm | default(0) }} bundle exec rails storage:purge_orphans 2>&1 | grep -v sass-lang
+
+- name: Debug
+  tags: [never, azure-cleanup]
+  debug:
+    var: azurecleanup.stdout_lines
