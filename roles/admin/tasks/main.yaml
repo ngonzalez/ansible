@@ -194,15 +194,6 @@
   tags: app-backend
   include_vars: env_vault_backend.yaml
 
-- name: Read RAILS_MASTER_KEY from GitLab
-  tags: admin app-backend
-  include_tasks:
-    file: rails_master_key.yaml
-    apply:
-      tags: admin app-backend
-  vars:
-    gitlab_project: ngonzalez121/demo-app-backend-org
-
 - name: Create environment temporary configuration file
   tags: admin app-backend
   template:
@@ -280,15 +271,6 @@
 - name: Include vault
   tags: app-stream
   include_vars: env_vault_stream.yaml
-
-- name: Read RAILS_MASTER_KEY from GitLab
-  tags: admin app-stream
-  include_tasks:
-    file: rails_master_key.yaml
-    apply:
-      tags: admin app-stream
-  vars:
-    gitlab_project: ngonzalez121/demo-app-stream-org
 
 - name: Create environment temporary configuration file
   tags: admin app-stream
