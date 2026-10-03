@@ -51,10 +51,9 @@
   environment:
     - KUBERNETES_VERSION: v1.37
 
-# - name: Run the equivalent of "apt-get update" as a separate step
-#   tags: kubernetes
-#   apt:
-#     update_cache: yes
+- name: Refresh the kubernetes apt repository
+  tags: kubernetes
+  shell: apt-get update -o Dir::Etc::sourcelist=sources.list.d/kubernetes.list -o Dir::Etc::sourceparts=- -o APT::Get::List-Cleanup=0
 
 - name: Install binaries
   tags: kubernetes
@@ -63,6 +62,7 @@
     - kubelet
     - kubeadm
     - kubectl
+    state: latest
 
 - name: Reset cluster
   tags: kubernetes

@@ -12,11 +12,16 @@
   environment:
     - CRIO_VERSION: v1.37
 
+- name: Refresh the CRI-O apt repository
+  tags: crio
+  shell: apt-get update -o Dir::Etc::sourcelist=sources.list.d/cri-o.list -o Dir::Etc::sourceparts=- -o APT::Get::List-Cleanup=0
+
 - name: Install CRI-O
   tags: crio
   apt:
     name:
     - cri-o
+    state: latest
 
 - name: Add bridge configuration
   tags: crio
