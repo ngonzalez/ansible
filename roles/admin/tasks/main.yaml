@@ -410,6 +410,19 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc nginx-showcase-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
+# prometheus-nginx-exporter showcase
+- name: Install prometheus-nginx-exporter showcase
+  tags: admin prometheus nginx-showcase
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: helm upgrade --install -f helm/prometheus-nginx-exporter-showcase.yaml prometheus-nginx-exporter-showcase prometheus-community/prometheus-nginx-exporter --version 1.9.1 --namespace development
+
+- name: Set prometheus-nginx-exporter showcase service external IP
+  tags: admin prometheus nginx-showcase
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc prometheus-nginx-exporter-showcase -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
 # nginx-frontend
 - name: Create nginx-frontend Deployment
   tags: admin nginx-frontend
