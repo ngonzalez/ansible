@@ -382,7 +382,7 @@
   tags: admin grafana
   shell:
     chdir: "{{ admin_path }}"
-    cmd: helm repo add grafana https://grafana.github.io/helm-charts
+    cmd: helm repo add --force-update grafana https://grafana.github.io/helm-charts && helm repo update grafana
 
 - name: Install grafana
   tags: admin grafana
@@ -395,6 +395,41 @@
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc grafana -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+
+# loki
+- name: Create loki data directory
+  tags: admin loki
+  file:
+    path: /data/loki
+    state: directory
+    owner: "10001"
+    group: "10001"
+    mode: 0750
+
+- name: Create loki persistent volume
+  tags: admin loki
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f storage/loki-persistent-volume.yaml
+
+- name: Install loki
+  tags: admin loki
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: helm upgrade --install -f helm/loki.yaml loki grafana/loki --version 7.3.0 --namespace development
+
+# alloy
+- name: Install alloy
+  tags: admin alloy
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: helm upgrade --install -f helm/alloy.yaml alloy grafana/alloy --version 1.13.0 --namespace development
+
+- name: Set alloy service external IP
+  tags: admin alloy
+  shell:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl -n development patch svc alloy -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 - name: Login to grafana
   tags: admin grafana grafana-login
