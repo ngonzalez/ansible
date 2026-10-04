@@ -13,7 +13,8 @@ PLAYBOOK = ansible-playbook -i $(INVENTORY)
 help: ## List the targets
 	@echo "ansible: make <target> [VAR=value]"
 	@grep -hE '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | sed -E 's/:.*## /\t/' | expand -t 10 | sed 's/^/  /'
-	@echo "  setup, deploy: TAGS=<tags from make tags, comma-separated> or TAGS=all"
+	@echo "  setup: TAGS=<tags from make tags, comma-separated> or TAGS=all"
+	@echo "  deploy: TAGS=<tags from make tags, comma-separated>, or nothing to deploy everything"
 	@echo "  dry-run: TAGS=<setup tags, e.g. firewall>"
 .PHONY: help
 
@@ -51,7 +52,6 @@ setup: ## Configure the node with setup.yml (TAGS required)
 	@$(PLAYBOOK) setup.yml --diff $(if $(filter all,$(TAGS)),,--tags $(TAGS))
 .PHONY: setup
 
-deploy: ## Deploy to the cluster with deploy.yml (TAGS required)
-	@[ -n "$(TAGS)" ] || { echo "TAGS is required (TAGS=all deploys everything):"; $(MAKE) -s tags | grep '^deploy'; exit 1; }
-	@$(PLAYBOOK) deploy.yml --diff $(if $(filter all,$(TAGS)),,--tags $(TAGS))
+deploy: ## Deploy to the cluster with deploy.yml (all projects, or TAGS)
+	@$(PLAYBOOK) deploy.yml --diff $(if $(filter-out all,$(TAGS)),--tags $(TAGS))
 .PHONY: deploy
