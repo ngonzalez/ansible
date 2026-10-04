@@ -2,6 +2,12 @@
 # Calico and kube-proxy chains run before ufw's, so pod, hostPort and
 # NodePort traffic is not filtered here.
 ---
+- name: Keep SSH open, since rules that are not listed get removed
+  tags: firewall
+  assert:
+    that: 22 in firewall_allowed_ports
+    fail_msg: firewall_allowed_ports must include 22, or Ansible locks itself out
+
 - name: Install ufw
   tags: firewall
   apt:
@@ -16,6 +22,23 @@
     from_ip: "{{ item.0 }}"
     to_port: "{{ item.1 | string }}"
   loop: "{{ firewall_allowed_sources | product(firewall_allowed_ports) | list }}"
+
+- name: List the ufw rules
+  tags: firewall
+  command: ufw show added
+  register: firewall_added
+  changed_when: false
+  check_mode: false
+
+# Any rule not built from the allowed sources and ports above is removed
+- name: Remove the rules that are not listed
+  tags: firewall
+  command: "ufw delete {{ item | regex_replace('^ufw ', '') }}"
+  loop: "{{ firewall_added.stdout_lines | select('match', '^ufw ') | difference(firewall_expected_rules) }}"
+  vars:
+    firewall_expected_rules: >-
+      {{ firewall_allowed_sources | product(firewall_allowed_ports)
+         | map('join', ' to any port ') | map('regex_replace', '^', 'ufw allow from ') | list }}
 
 - name: Deny incoming and routed traffic by default
   tags: firewall
