@@ -296,11 +296,13 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/app-backend.yaml
 
+# apply, not replace --force: the service keeps its address, which nginx
+# resolves once when it starts
 - name: Create app-backend loadbalancer
   tags: [admin, app-backend]
   command:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f service/app-backend.yaml
+    cmd: kubectl -n development apply -f service/app-backend.yaml
 
 # nginx-backend
 - name: Create nginx-backend deployment
@@ -380,7 +382,7 @@
   tags: [admin, app-stream]
   command:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f service/app-stream.yaml
+    cmd: kubectl -n development apply -f service/app-stream.yaml
 
 # nginx-stream
 - name: Create nginx-stream Deployment
@@ -456,7 +458,7 @@
   tags: [admin, app-showcase]
   command:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f service/app-showcase.yaml
+    cmd: kubectl -n development apply -f service/app-showcase.yaml
 
 # nginx-showcase
 - name: Create nginx-showcase Deployment
