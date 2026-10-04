@@ -113,31 +113,43 @@
   tags: kubernetes
   command: kubectl taint nodes --all node-role.kubernetes.io/control-plane-
 
-# helm
-- name: Check if Helm exists
-  tags: kubernetes
-  stat:
-    path: /usr/local/bin/helm
-  register: kube_helm_exists
-  ignore_errors: true
-  no_log: true
+# helm, pinned to kube_helm_version: installed when the node has another
+# version. Tagged helm too, so `make setup TAGS=helm` updates it without
+# rebuilding the cluster.
+- name: Check the Helm version
+  tags: [kubernetes, helm]
+  command: /usr/local/bin/helm version --short
+  register: kube_helm_installed
+  changed_when: false
+  failed_when: false
+  check_mode: false
 
 - name: Download Helm
-  tags: kubernetes
+  tags: [kubernetes, helm]
+  get_url:
+    url: https://get.helm.sh/helm-{{ kube_helm_version }}-linux-amd64.tar.gz
+    checksum: sha256:https://get.helm.sh/helm-{{ kube_helm_version }}-linux-amd64.tar.gz.sha256sum
+    dest: /tmp/helm-{{ kube_helm_version }}-linux-amd64.tar.gz
+    mode: "0644"
+  when: not kube_helm_installed.stdout.startswith(kube_helm_version ~ '+')
+
+- name: Extract Helm
+  tags: [kubernetes, helm]
   unarchive:
-    src: https://get.helm.sh/helm-canary-linux-amd64.tar.gz
+    src: /tmp/helm-{{ kube_helm_version }}-linux-amd64.tar.gz
     dest: /tmp
     remote_src: true
-  when: not kube_helm_exists.stat.exists
+  # in --check the download above didn't happen: nothing to extract
+  when: not kube_helm_installed.stdout.startswith(kube_helm_version ~ '+') and not ansible_check_mode
 
 - name: Install Helm
-  tags: kubernetes
+  tags: [kubernetes, helm]
   copy:
     src: /tmp/linux-amd64/helm
     dest: /usr/local/bin/helm
     mode: "0751"
     remote_src: true
-  when: not kube_helm_exists.stat.exists
+  when: not kube_helm_installed.stdout.startswith(kube_helm_version ~ '+') and not ansible_check_mode
 
 # tigera-operator
 - name: Create Tigera Operator Namespace

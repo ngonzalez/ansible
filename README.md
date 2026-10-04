@@ -40,6 +40,7 @@ again afterwards (`make deploy`). Use TAGS to run only some roles.
 ```shell
 make dry-run TAGS=firewall   # --check --diff: what would change
 make setup TAGS=firewall,vim
+make setup TAGS=helm         # installs kube_helm_version, without the cluster reset
 make setup                   # every role: rebuilds the cluster
 ```
 
@@ -61,7 +62,7 @@ localhost, without the node:
 - `admin-files.yml`: every manifest and helm values file the admin role
   deploys exists in the admin repository checked out next to this one
   (`ADMIN_DIR` to use another), is valid and targets `development`, and
-  every file there is deployed (or listed in `admin_unused_files`)
+  every file there is deployed
 - `admin-env.yml`: the apps' env templates render from the vault (the vault
   password is needed), with no empty or duplicate keys, and the Postgres and
   Redis passwords agree across the vault files. No secret is printed.
@@ -69,5 +70,5 @@ localhost, without the node:
   every deploy task runs with `admin`, and each `include_vars` runs with
   the tasks that read it
 - `versions.yml`: CRI-O and Kubernetes versions match, the pod networks
-  agree, and every helm chart is pinned
+  agree, and every helm chart and the helm binary are pinned
 - `firewall.yml`: the ufw rules the firewall role keeps and removes
