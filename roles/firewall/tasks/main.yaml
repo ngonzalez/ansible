@@ -1,0 +1,44 @@
+# firewall: ufw denies incoming traffic except from the allowed sources.
+# Calico and kube-proxy chains run before ufw's, so pod, hostPort and
+# NodePort traffic is not filtered here.
+---
+- name: Install ufw
+  tags: firewall
+  apt:
+    name: ufw
+    state: present
+
+- name: Allow ports from the allowed sources
+  tags: firewall
+  community.general.ufw:
+    rule: allow
+    direction: in
+    from_ip: "{{ item.0 }}"
+    to_port: "{{ item.1 | string }}"
+  loop: "{{ firewall_allowed_sources | product(firewall_allowed_ports) | list }}"
+
+- name: Deny incoming and routed traffic by default
+  tags: firewall
+  community.general.ufw:
+    direction: "{{ item }}"
+    default: deny
+  loop:
+    - incoming
+    - routed
+
+- name: Allow outgoing traffic by default
+  tags: firewall
+  community.general.ufw:
+    direction: outgoing
+    default: allow
+
+- name: Log blocked packets
+  tags: firewall
+  community.general.ufw:
+    logging: low
+
+# Enabled last, once the SSH rule is in place
+- name: Enable ufw
+  tags: firewall
+  community.general.ufw:
+    state: enabled
