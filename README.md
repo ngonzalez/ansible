@@ -33,12 +33,14 @@ make tags    # the TAGS setup and deploy accept
 ```
 
 #### Set up the node
-`setup.yml` configures the node, role by role. TAGS is required; `TAGS=all`
-runs every role. The kube role (tag `kubernetes`) resets the cluster with
-`kubeadm reset -f` and builds a new one, so it also needs `CONFIRM=1`.
+`setup.yml` configures the node, role by role. Without TAGS it runs every
+role, including the kube role (tag `kubernetes`), which resets the cluster
+with `kubeadm reset -f` and builds a new one: everything must be deployed
+again afterwards (`make deploy`). Use TAGS to run only some roles.
 ```shell
 make dry-run TAGS=firewall   # --check --diff: what would change
 make setup TAGS=firewall,vim
+make setup                   # every role: rebuilds the cluster
 ```
 
 #### Deploy
