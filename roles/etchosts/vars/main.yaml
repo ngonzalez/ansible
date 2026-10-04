@@ -1,4 +1,2 @@
 ---
-apiserver_advertise_address: "{{ ansible_host }}"
-hostname: link12.ddns.net
-node_name: node-1
+etchosts_hostname: link12.ddns.net

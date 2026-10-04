@@ -5,9 +5,9 @@
   lineinfile:
     line: "{{ lookup('pipe', 'ssh-keyscan -t rsa github.com') }}"
     dest: "/root/.ssh/known_hosts"
-    mode: 0644
+    mode: "0644"
     owner: root
-    create: True
+    create: true
 
 - name: Checkout admin repository
   tags: admin
@@ -19,7 +19,7 @@
 # namespace
 - name: Create development namespace
   tags: admin
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f namespace/development.yaml
 
@@ -27,28 +27,30 @@
 - name: Include vault tls
   tags: admin tls
   include_vars: env_vault_tls.yaml
-  no_log: True
+  no_log: true
 
 - name: Create TLS certificate temporary file
   tags: admin tls
   copy:
     content: "{{ tls_certificate }}"
     dest: /tmp/tls.crt
-    mode: 0600
-  no_log: True
+    mode: "0600"
+  no_log: true
 
 - name: Create TLS key temporary file
   tags: admin tls
   copy:
     content: "{{ tls_private_key }}"
     dest: /tmp/tls.key
-    mode: 0600
-  no_log: True
+    mode: "0600"
+  no_log: true
 
 - name: Create TLS secret
   tags: admin tls
   shell:
-    cmd: kubectl -n development create secret tls link12-ddns-net-tls --cert=/tmp/tls.crt --key=/tmp/tls.key --dry-run=client -o yaml | kubectl -n development apply -f -
+    cmd: >-
+      kubectl -n development create secret tls link12-ddns-net-tls --cert=/tmp/tls.crt --key=/tmp/tls.key
+      --dry-run=client -o yaml | kubectl -n development apply -f -
 
 - name: Remove TLS temporary files
   tags: admin tls
@@ -69,7 +71,7 @@
 # prometheus
 - name: Install prometheus
   tags: admin prometheus
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/prometheus.yaml prometheus prometheus-community/prometheus --version 29.35.0 --namespace development
 
@@ -88,7 +90,7 @@
 
 - name: Install metrics-server
   tags: admin metrics-server
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/metrics-server.yaml metrics-server metrics-server/metrics-server --version 3.14.0 --namespace kube-system
 
@@ -100,7 +102,7 @@
 
 - name: Check for previous deployments of postgresql
   tags: admin postgresql
-  register: postgresqldeployment
+  register: admin_postgresql_deployment
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development get statefulsets -o json | jq -r '.items[].spec.template.spec.containers[].name' | grep ^postgresql || true
@@ -122,60 +124,65 @@
           POSTGRES_USER: {{ postgres_user }}
           POSTGRES_PASSWORD: {{ postgres_password }}
       EOF
-  when: postgresqldeployment.stdout == ""
+  when: admin_postgresql_deployment.stdout == ""
 
 - name: Create postgresql persistent volume
   tags: admin postgresql
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development apply -f storage/persistent-volume.yaml
-  when: postgresqldeployment.stdout == ""
+  when: admin_postgresql_deployment.stdout == ""
 
 - name: Create postgresql persistent volume claim
   tags: admin postgresql
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development apply -f storage/persistent-volume-claim.yaml
-  when: postgresqldeployment.stdout == ""
+  when: admin_postgresql_deployment.stdout == ""
 
 - name: Create postgresql deployment
   tags: admin postgresql
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f statefulset/postgresql.yaml
-  when: postgresqldeployment.stdout == ""
+  when: admin_postgresql_deployment.stdout == ""
 
 - name: Create postgresql loadbalancer
   tags: admin postgresql
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/postgresql.yaml
-  when: postgresqldeployment.stdout == ""
+  when: admin_postgresql_deployment.stdout == ""
 
 - name: Set postgresql service external IP
   tags: admin postgresql
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc postgresql-svc -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-  when: postgresqldeployment.stdout == ""
+  when: admin_postgresql_deployment.stdout == ""
 
 # prometheus-postgres-exporter
 - name: Include vault postgresql for prometheus-postgres-exporter
   tags: admin prometheus
   include_vars: env_vault_postgresql.yaml
-  no_log: True
+  no_log: true
 
 - name: Create prometheus-postgres-exporter password secret
   tags: admin prometheus
-  no_log: True
+  no_log: true
   shell:
-    cmd: kubectl -n development create secret generic prometheus-postgres-exporter-password --from-literal=password='{{ postgres_password }}' --dry-run=client -o yaml | kubectl -n development apply -f -
+    cmd: >-
+      kubectl -n development create secret generic prometheus-postgres-exporter-password
+      --from-literal=password='{{ postgres_password }}' --dry-run=client -o yaml | kubectl -n development
+      apply -f -
 
 - name: Install prometheus-postgres-exporter
   tags: admin prometheus
-  shell:
+  command:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f helm/prometheus-postgres-exporter.yaml prometheus-postgres-exporter prometheus-community/prometheus-postgres-exporter --version 7.0.0 --namespace development
+    cmd: >-
+      helm upgrade --install -f helm/prometheus-postgres-exporter.yaml prometheus-postgres-exporter
+      prometheus-community/prometheus-postgres-exporter --version 7.0.0 --namespace development
 
 - name: Set prometheus-postgres-exporter service external IP
   tags: admin prometheus
@@ -195,12 +202,14 @@
     dest: /tmp/.redis.env
     owner: root
     group: root
-    mode: 0600
+    mode: "0600"
 
 - name: Create redis environment secret
   tags: admin redis
   shell:
-    cmd: kubectl create secret generic redis-env --namespace=development --from-env-file=/tmp/.redis.env --dry-run=client -o yaml | kubectl -n development apply -f -
+    cmd: >-
+      kubectl create secret generic redis-env --namespace=development --from-env-file=/tmp/.redis.env
+      --dry-run=client -o yaml | kubectl -n development apply -f -
 
 - name: Remove redis environment temporary file
   tags: admin redis
@@ -210,38 +219,40 @@
 
 - name: Check for previous deployments of redis
   tags: admin redis
-  register: redisdeployment
+  register: admin_redis_deployment
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development get statefulset -o json | jq -r '.items[].spec.template.spec.containers[].name' | grep ^redis || true
 
 - name: Create redis deployment
   tags: admin redis
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f statefulset/redis.yaml
-  when: redisdeployment.stdout == ""
+  when: admin_redis_deployment.stdout == ""
 
 - name: Create redis loadbalancer
   tags: admin redis
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/redis.yaml
-  when: redisdeployment.stdout == ""
+  when: admin_redis_deployment.stdout == ""
 
 - name: Set redis service external IP
   tags: admin redis
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc redis-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-  when: redisdeployment.stdout == ""
+  when: admin_redis_deployment.stdout == ""
 
 # prometheus-redis-exporter
 - name: Install prometheus-redis-exporter
   tags: admin prometheus
-  shell:
+  command:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f helm/prometheus-redis-exporter.yaml prometheus-redis-exporter prometheus-community/prometheus-redis-exporter --version 6.12.0 --namespace development
+    cmd: >-
+      helm upgrade --install -f helm/prometheus-redis-exporter.yaml prometheus-redis-exporter
+      prometheus-community/prometheus-redis-exporter --version 6.12.0 --namespace development
 
 - name: Set prometheus-redis-exporter service external IP
   tags: admin prometheus
@@ -261,31 +272,33 @@
     dest: /tmp/.env
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   # no_log: True
 
 - name: Create environment secret
   tags: admin app-backend
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl create secret generic app-backend-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development replace --force -f -
+    cmd: >-
+      kubectl create secret generic app-backend-env --namespace=development --from-file=/tmp/.env
+      --dry-run=client -o yaml | kubectl -n development replace --force -f -
 
 - name: Remove environment temporary configuration file
   tags: admin app-backend
   ansible.builtin.file:
     path: /tmp/.env
     state: absent
-  no_log: True
+  no_log: true
 
 - name: Create app-backend deployment
   tags: admin app-backend
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/app-backend.yaml
 
 - name: Create app-backend loadbalancer
   tags: admin app-backend
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/app-backend.yaml
 
@@ -298,13 +311,13 @@
 # nginx-backend
 - name: Create nginx-backend deployment
   tags: admin nginx-backend
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/nginx-backend.yaml
 
 - name: Create nginx-backend loadbalancer
   tags: admin nginx-backend
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/nginx-backend.yaml
 
@@ -317,9 +330,11 @@
 # prometheus-nginx-exporter backend
 - name: Install prometheus-nginx-exporter backend
   tags: admin prometheus nginx-backend
-  shell:
+  command:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f helm/prometheus-nginx-exporter-backend.yaml prometheus-nginx-exporter-backend prometheus-community/prometheus-nginx-exporter --version 1.9.1 --namespace development
+    cmd: >-
+      helm upgrade --install -f helm/prometheus-nginx-exporter-backend.yaml prometheus-nginx-exporter-backend
+      prometheus-community/prometheus-nginx-exporter --version 1.9.1 --namespace development
 
 - name: Set prometheus-nginx-exporter backend service external IP
   tags: admin prometheus nginx-backend
@@ -343,31 +358,33 @@
     dest: /tmp/.env
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   # no_log: True
 
 - name: Create environment secret
   tags: admin app-stream
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl create secret generic app-stream-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development replace --force -f -
+    cmd: >-
+      kubectl create secret generic app-stream-env --namespace=development --from-file=/tmp/.env
+      --dry-run=client -o yaml | kubectl -n development replace --force -f -
 
 - name: Remove environment temporary configuration file
   tags: admin app-stream
   ansible.builtin.file:
     path: /tmp/.env
     state: absent
-  no_log: True
+  no_log: true
 
 - name: Create app-stream deployment
   tags: admin app-stream
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/app-stream.yaml
 
 - name: Create app-stream loadbalancer
   tags: admin app-stream
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/app-stream.yaml
 
@@ -380,13 +397,13 @@
 # nginx-stream
 - name: Create nginx-stream Deployment
   tags: admin nginx-stream
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/nginx-stream.yaml
 
 - name: Create nginx-stream loadbalancer
   tags: admin nginx-stream
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/nginx-stream.yaml
 
@@ -399,9 +416,11 @@
 # prometheus-nginx-exporter stream
 - name: Install prometheus-nginx-exporter stream
   tags: admin prometheus nginx-stream
-  shell:
+  command:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f helm/prometheus-nginx-exporter-stream.yaml prometheus-nginx-exporter-stream prometheus-community/prometheus-nginx-exporter --version 1.9.1 --namespace development
+    cmd: >-
+      helm upgrade --install -f helm/prometheus-nginx-exporter-stream.yaml prometheus-nginx-exporter-stream
+      prometheus-community/prometheus-nginx-exporter --version 1.9.1 --namespace development
 
 - name: Set nginx-stream service external IP
   tags: admin prometheus nginx-stream
@@ -421,31 +440,33 @@
     dest: /tmp/.env
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   # no_log: True
 
 - name: Create environment secret
   tags: admin app-showcase
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl create secret generic app-showcase-env --namespace=development --from-file=/tmp/.env --dry-run=client -o yaml | kubectl -n development replace --force -f -
+    cmd: >-
+      kubectl create secret generic app-showcase-env --namespace=development --from-file=/tmp/.env
+      --dry-run=client -o yaml | kubectl -n development replace --force -f -
 
 - name: Remove environment temporary configuration file
   tags: admin app-showcase
   ansible.builtin.file:
     path: /tmp/.env
     state: absent
-  no_log: True
+  no_log: true
 
 - name: Create app-showcase deployment
   tags: admin app-showcase
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/app-showcase.yaml
 
 - name: Create app-showcase loadbalancer
   tags: admin app-showcase
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/app-showcase.yaml
 
@@ -458,13 +479,13 @@
 # nginx-showcase
 - name: Create nginx-showcase Deployment
   tags: admin nginx-showcase
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/nginx-showcase.yaml
 
 - name: Create nginx-showcase loadbalancer
   tags: admin nginx-showcase
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/nginx-showcase.yaml
 
@@ -477,9 +498,12 @@
 # prometheus-nginx-exporter showcase
 - name: Install prometheus-nginx-exporter showcase
   tags: admin prometheus nginx-showcase
-  shell:
+  command:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f helm/prometheus-nginx-exporter-showcase.yaml prometheus-nginx-exporter-showcase prometheus-community/prometheus-nginx-exporter --version 1.9.1 --namespace development
+    cmd: >-
+      helm upgrade --install -f helm/prometheus-nginx-exporter-showcase.yaml
+      prometheus-nginx-exporter-showcase prometheus-community/prometheus-nginx-exporter --version 1.9.1
+      --namespace development
 
 - name: Set prometheus-nginx-exporter showcase service external IP
   tags: admin prometheus nginx-showcase
@@ -490,13 +514,13 @@
 # nginx-frontend
 - name: Create nginx-frontend Deployment
   tags: admin nginx-frontend
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/nginx-frontend.yaml
 
 - name: Create nginx-frontend loadbalancer
   tags: admin nginx-frontend
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/nginx-frontend.yaml
 
@@ -509,9 +533,12 @@
 # prometheus-nginx-exporter frontend
 - name: Install prometheus-nginx-exporter frontend
   tags: admin prometheus nginx-frontend
-  shell:
+  command:
     chdir: "{{ admin_path }}"
-    cmd: helm upgrade --install -f helm/prometheus-nginx-exporter-frontend.yaml prometheus-nginx-exporter-frontend prometheus-community/prometheus-nginx-exporter --version 1.9.1 --namespace development
+    cmd: >-
+      helm upgrade --install -f helm/prometheus-nginx-exporter-frontend.yaml
+      prometheus-nginx-exporter-frontend prometheus-community/prometheus-nginx-exporter --version 1.9.1
+      --namespace development
 
 - name: Set prometheus-nginx-exporter-frontend service external IP
   tags: admin prometheus nginx-frontend
@@ -528,7 +555,7 @@
 
 - name: Install grafana
   tags: admin grafana
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/grafana.yaml grafana grafana/grafana --version 9.2.10 --namespace development
 
@@ -546,11 +573,11 @@
     state: directory
     owner: "10001"
     group: "10001"
-    mode: 0750
+    mode: "0750"
 
 - name: Create loki persistent volume
   tags: admin loki
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f storage/loki-persistent-volume.yaml
 
@@ -564,7 +591,7 @@
 
 - name: Install loki
   tags: admin loki
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/loki.yaml loki grafana/loki --version 7.3.0 --namespace development
 
@@ -579,7 +606,7 @@
 # alloy
 - name: Install alloy
   tags: admin alloy
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/alloy.yaml alloy grafana/alloy --version 1.13.0 --namespace development
 
@@ -591,7 +618,7 @@
 
 - name: Login to grafana
   tags: admin grafana grafana-login
-  register: grafanapasswd  
+  register: admin_grafana_password
   shell:
     chdir: "{{ admin_path }}"
     cmd: kubectl get secret --namespace development grafana -o jsonpath="{.data.admin-password}" | base64 --decode
@@ -599,12 +626,12 @@
 - name: Debug
   tags: admin grafana grafana-login
   debug:
-    var: grafanapasswd
+    var: admin_grafana_password
 
 # kubernetes-dashboard
 - name: Add kubernetes-dashboard
   tags: admin kubernetes-dashboard
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f deploy/kubernetes-dashboard.yaml
 
@@ -615,39 +642,41 @@
 # kubernetes-dashboard service-account
 - name: Setup Service Account Admin User
   tags: admin kubernetes-dashboard
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f service-account/admin-user.yaml
 
 - name: Setup Service Account Cluster Admin
   tags: admin kubernetes-dashboard
-  shell:
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f service-account/cluster-admin.yaml
 
 - name: Generate Service Account Token
   tags: admin kubernetes-dashboard
-  register: kubernetesdashboardtoken
-  shell:
+  register: admin_dashboard_token
+  command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n kubernetes-dashboard create token admin-user
 
 - name: Debug
   tags: admin kubernetes-dashboard
   debug:
-    var: kubernetesdashboardtoken
+    var: admin_dashboard_token
 
 # azure storage cleanup: only runs when asked for, e.g.
 #   ansible-playbook deploy.yml --tags azure-cleanup                          (dry run)
 #   ansible-playbook deploy.yml --tags azure-cleanup -e azure_cleanup_confirm=1
 - name: Purge orphaned azure storage files and unattached blobs
   tags: [never, azure-cleanup]
-  register: azurecleanup
+  register: admin_azure_cleanup
   shell:
     executable: /bin/bash
-    cmd: set -o pipefail && kubectl -n development exec deploy/app-backend -- env CONFIRM={{ azure_cleanup_confirm | default(0) }} bundle exec rails storage:purge_orphans 2>&1 | grep -v sass-lang
+    cmd: >-
+      set -o pipefail && kubectl -n development exec deploy/app-backend -- env CONFIRM={{
+      azure_cleanup_confirm | default(0) }} bundle exec rails storage:purge_orphans 2>&1 | grep -v sass-lang
 
 - name: Debug
   tags: [never, azure-cleanup]
   debug:
-    var: azurecleanup.stdout_lines
+    var: admin_azure_cleanup.stdout_lines

@@ -81,4 +81,4 @@ ansible-playbook -i $INVENTORY_FILE deploy.yml \
 make -C ../admin ansible-test                    # syntax, ansible-lint, tests/*.yml
 make -C ../admin ansible-dry-run TAGS=firewall   # --check --diff against the node
 ```
-`.ansible-lint-ignore` lists the lint findings that predate the lint config.
+ansible-lint runs at the basic profile.

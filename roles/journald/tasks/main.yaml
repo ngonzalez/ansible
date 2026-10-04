@@ -5,13 +5,13 @@
   file:
     path: /etc/systemd/journald.conf.d
     state: directory
-    mode: 0755
+    mode: "0755"
 
 - name: Limit journal size
   tags: journald
   copy:
     dest: /etc/systemd/journald.conf.d/size.conf
-    mode: 0644
+    mode: "0644"
     content: |
       [Journal]
       SystemMaxUse=500M

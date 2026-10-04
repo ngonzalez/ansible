@@ -1,5 +1,6 @@
 ---
-- hosts: '*'
-  become: True
+- name: Deploy the applications
+  hosts: '*'
+  become: true
   roles:
     - admin
