@@ -142,29 +142,6 @@
   tags: kubernetes
   command: helm upgrade --install calico projectcalico/tigera-operator --namespace tigera-operator
 
-# calico
-# - name: Install Calico CNI
-#   tags: kubernetes
-#   command: kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
-
-# #flannel
-# - name: Create kube flannel run directory
-#   tags: kubernetes
-#   file:
-#     path: /run/flannel
-#     state: directory
-#     mode: 0755
-#
-# - name: Add subnet.env
-#   tags: kubernetes
-#   template:
-#     src: subnet.env.j2
-#     dest: /run/flannel/subnet.env
-#
-# - name: Install flannel
-#   tags: kubernetes
-#   command: kubectl apply -f https://raw.githubusercontent.com/flannel-io/flannel/master/Documentation/kube-flannel.yml
-
 # dns
 - name: Add config for coredns
   tags: kubernetes

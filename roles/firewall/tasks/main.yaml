@@ -34,11 +34,7 @@
 - name: Remove the rules that are not listed
   tags: firewall
   command: "ufw delete {{ item | regex_replace('^ufw ', '') }}"
-  loop: "{{ firewall_added.stdout_lines | select('match', '^ufw ') | difference(firewall_expected_rules) }}"
-  vars:
-    firewall_expected_rules: >-
-      {{ firewall_allowed_sources | product(firewall_allowed_ports)
-         | map('join', ' to any port ') | map('regex_replace', '^', 'ufw allow from ') | list }}
+  loop: "{{ firewall_extra_rules }}"
 
 - name: Deny incoming and routed traffic by default
   tags: firewall

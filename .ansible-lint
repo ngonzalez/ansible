@@ -1,0 +1,7 @@
+---
+# ansible-lint config. Findings that predate it are listed in
+# .ansible-lint-ignore; fix them there to tighten the lint.
+profile: basic
+exclude_paths:
+  - .venv/
+  - inventory.yaml
