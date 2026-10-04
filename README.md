@@ -2,18 +2,14 @@
 
 ![logo](https://bit.ly/47WuP1s)
 
-###### Install Ansible
+The commands run from the admin repository (`make help` lists them all),
+with this repository checked out next to it in `../ansible`.
+
+#### Install Ansible
+Installs the versions pinned in `requirements.txt` with pyenv's Python
+(`.python-version`).
 ```shell
-pyenv install -s 3.12.7
-pyenv local 3.12.7
-sudo python3.12 -m pip install --upgrade pip
-pip install virtualenv
-virtualenv -p python3 .venv
-source .venv/bin/activate
-pip install ansible
-python --version
-ansible --version
-source config.sh
+make -C ../admin ansible-install
 ```
 
 #### Create Inventory
@@ -28,57 +24,32 @@ D5BFA3BCA28:
       ansible_user: root
 ```
 
-#### Ping Inventory
+#### Check the node
 ```shell
-ansible -i $INVENTORY_FILE all -m ping
+make -C ../admin ansible-ping    # ansible reaches the node
+make -C ../admin ansible-facts   # the facts ansible gathers
+make -C ../admin ansible-tags    # the TAGS setup and deploy accept
 ```
 
-#### Gather Facts
+#### Set up the node
+`setup.yml` configures the node, role by role. TAGS is required; `TAGS=all`
+runs every role. The kube role (tag `kubernetes`) resets the cluster with
+`kubeadm reset -f` and builds a new one, so it also needs `CONFIRM=1`.
 ```shell
-ansible -i $INVENTORY_FILE all -m ansible.builtin.setup
+make -C ../admin ansible-dry-run TAGS=firewall   # --check --diff: what would change
+make -C ../admin setup TAGS=firewall,vim
 ```
 
-#### Run Playbook for ubuntu-* target host
+#### Deploy
+`deploy.yml` deploys the applications and the monitoring to the cluster.
+TAGS is required; `TAGS=all` deploys everything.
 ```shell
-ansible-playbook -i $INVENTORY_FILE setup.yml \
-    --ask-become-pass    \
-    --become             \
-    --become-user=root   \
-    --diff               \
-    --flush-cache        \
-    --limit "debian-*"
-```
-
-#### Run Playbook with tags
-Run the playbook with or without admin tag
-to make sure all tasks are included.
-
-```shell
-ansible-playbook -i $INVENTORY_FILE deploy.yml \
-    --ask-become-pass    \
-    --become             \
-    --become-user=root   \
-    --diff               \
-    --flush-cache        \
-    --limit "debian-*"   \
-    --tags "admin, redis, admin redis"
-```
-
-#### Run Playbook locally
-```shell
-ansible-playbook -i $INVENTORY_FILE deploy.yml \
-    --ask-become-pass    \
-    --become             \
-    --become-user=root   \
-    --diff               \
-    --flush-cache        \
-    --connection "local" \
-    --limit "debian-*"
+make -C ../admin deploy TAGS=nginx-stream,nginx-frontend
+make -C ../admin deploy TAGS=all
 ```
 
 #### Test
 ```shell
-make -C ../admin ansible-test                    # syntax, ansible-lint, tests/*.yml
-make -C ../admin ansible-dry-run TAGS=firewall   # --check --diff against the node
+make -C ../admin ansible-test   # syntax, ansible-lint, tests/*.yml
 ```
 ansible-lint runs at the basic profile.
