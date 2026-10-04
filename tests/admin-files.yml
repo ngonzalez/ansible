@@ -13,12 +13,7 @@
     # Every file passed to kubectl or helm with -f (not -f -, which is stdin)
     admin_used_files: "{{ admin_tasks | regex_findall('-f ([\\w./-]+\\.yaml)') | unique | sort }}"
     # The directories whose files the role should all deploy
-    admin_deployed_dirs: [deploy, helm, namespace, service, service-account, statefulset, storage]
-    # Files kept there on purpose although no task uses them
-    admin_unused_files:
-      # The chart's default values, for reference: the dashboard is deployed
-      # from deploy/kubernetes-dashboard.yaml
-      - helm/kubernetes-dashboard.yaml
+    admin_deployed_dirs: [configmap, deploy, helm, namespace, service, service-account, statefulset, storage]
     admin_repo_files: >-
       {{ admin_deployed_dirs | map('regex_replace', '^(.*)$', admin_dir ~ '/\1/*.yaml')
          | map('fileglob') | flatten | map('regex_replace', '^' ~ admin_dir ~ '/', '') | sort }}
@@ -45,10 +40,8 @@
 
     - name: Check every manifest and helm values file is deployed
       ansible.builtin.assert:
-        that: admin_repo_files | difference(admin_used_files) | difference(admin_unused_files) == []
-        fail_msg: >-
-          Not used by roles/admin: {{ admin_repo_files | difference(admin_used_files) | difference(admin_unused_files) }}
-          (deploy them, or list them in admin_unused_files)
+        that: admin_repo_files | difference(admin_used_files) == []
+        fail_msg: "Not used by roles/admin, deploy or remove them: {{ admin_repo_files | difference(admin_used_files) }}"
 
     - name: Check the kubernetes manifests are valid YAML objects
       vars:

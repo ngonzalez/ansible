@@ -62,3 +62,12 @@
           - versions_installs | length > 10
           - versions_installs | reject('search', '--version ') | list == []
         fail_msg: "Unpinned: {{ versions_installs | reject('search', '--version ') }}"
+
+    # The helm binary too: a canary build changes under us
+    - name: Check the Helm binary is pinned to a release
+      ansible.builtin.assert:
+        that:
+          - kube_helm_version is match('^v\\d+\\.\\d+\\.\\d+$')
+          - versions_commands | select('search', 'canary') | list == []
+          - lookup('file', versions_roles_dir ~ '/kube/tasks/main.yaml') is not search('helm-canary')
+        fail_msg: "kube_helm_version {{ kube_helm_version }} must be a release such as v4.3.0"
