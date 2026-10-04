@@ -1,0 +1,10 @@
+---
+# The rules ufw should have, as `ufw show added` prints them
+firewall_expected_rules: >-
+  {{ firewall_allowed_sources | product(firewall_allowed_ports)
+     | map('join', ' to any port ') | map('regex_replace', '^', 'ufw allow from ') | list }}
+
+# The rules on the node that are not expected, from `ufw show added`
+firewall_extra_rules: >-
+  {{ firewall_added.stdout_lines | select('match', '^ufw ')
+     | reject('in', firewall_expected_rules) | list }}

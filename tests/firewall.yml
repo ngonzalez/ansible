@@ -1,0 +1,54 @@
+# Check which ufw rules the firewall role removes, without a node:
+# ansible-playbook tests/firewall.yml
+---
+- name: Test the firewall role's rule removal
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../roles/firewall/defaults/main.yaml
+    - ../roles/firewall/vars/main.yaml
+  vars:
+    firewall_header: "Added user rules (see 'ufw status' for running firewall):"
+  tasks:
+    - name: Keep the listed rules
+      vars:
+        firewall_added:
+          stdout_lines: "{{ [firewall_header] + firewall_expected_rules }}"
+      ansible.builtin.assert:
+        that: firewall_extra_rules == []
+
+    - name: Remove an unlisted port, an unlisted source and a rule without a source
+      vars:
+        firewall_added:
+          stdout_lines:
+            - "{{ firewall_header }}"
+            - ufw allow from 192.168.1.11 to any port 22
+            - ufw allow from 192.168.1.11 to any port 6060
+            - ufw allow from 10.0.0.5 to any port 22
+            - ufw allow 9100/tcp
+      ansible.builtin.assert:
+        that: >-
+          firewall_extra_rules == [
+            'ufw allow from 192.168.1.11 to any port 6060',
+            'ufw allow from 10.0.0.5 to any port 22',
+            'ufw allow 9100/tcp']
+
+    - name: Expect one rule per source and port
+      vars:
+        firewall_allowed_sources: [192.168.1.11, 192.168.1.12]
+        firewall_allowed_ports: [22, 443]
+      ansible.builtin.assert:
+        that: >-
+          firewall_expected_rules == [
+            'ufw allow from 192.168.1.11 to any port 22',
+            'ufw allow from 192.168.1.11 to any port 443',
+            'ufw allow from 192.168.1.12 to any port 22',
+            'ufw allow from 192.168.1.12 to any port 443']
+
+    - name: Handle a node without rules
+      vars:
+        firewall_added:
+          stdout_lines: ["{{ firewall_header }}"]
+      ansible.builtin.assert:
+        that: firewall_extra_rules == []
