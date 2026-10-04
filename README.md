@@ -43,10 +43,10 @@ make setup TAGS=firewall,vim
 
 #### Deploy
 `deploy.yml` deploys the applications and the monitoring to the cluster.
-TAGS is required; `TAGS=all` deploys everything.
+Without TAGS it deploys everything; TAGS limits it to some projects.
 ```shell
+make deploy
 make deploy TAGS=nginx-stream,nginx-frontend
-make deploy TAGS=all
 ```
 
 #### Test
