@@ -1,0 +1,82 @@
+# Check the admin repository files the admin role deploys, without a node:
+# ansible-playbook tests/admin-files.yml
+# The node pulls the admin repository's dev branch; this reads the local
+# checkout next to this repository (ADMIN_DIR to use another one).
+---
+- name: Test the admin role's manifests and helm values
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    admin_dir: "{{ lookup('env', 'ADMIN_DIR') | default(playbook_dir ~ '/../../admin', true) }}"
+    admin_tasks: "{{ lookup('file', playbook_dir ~ '/../roles/admin/tasks/main.yaml') }}"
+    # Every file passed to kubectl or helm with -f (not -f -, which is stdin)
+    admin_used_files: "{{ admin_tasks | regex_findall('-f ([\\w./-]+\\.yaml)') | unique | sort }}"
+    # The directories whose files the role should all deploy
+    admin_deployed_dirs: [deploy, helm, namespace, service, service-account, statefulset, storage]
+    # Files kept there on purpose although no task uses them
+    admin_unused_files:
+      # The chart's default values, for reference: the dashboard is deployed
+      # from deploy/kubernetes-dashboard.yaml
+      - helm/kubernetes-dashboard.yaml
+    admin_repo_files: >-
+      {{ admin_deployed_dirs | map('regex_replace', '^(.*)$', admin_dir ~ '/\1/*.yaml')
+         | map('fileglob') | flatten | map('regex_replace', '^' ~ admin_dir ~ '/', '') | sort }}
+  tasks:
+    - name: Find the admin repository
+      ansible.builtin.stat:
+        path: "{{ admin_dir }}/deploy"
+      register: admin_dir_stat
+
+    - name: Check the admin repository is there
+      ansible.builtin.assert:
+        that: admin_dir_stat.stat.exists
+        fail_msg: "No admin repository at {{ admin_dir }}: set ADMIN_DIR"
+
+    - name: Check the role uses files
+      ansible.builtin.assert:
+        that: admin_used_files | length > 20
+        fail_msg: "Only found {{ admin_used_files }}: did the -f pattern change?"
+
+    - name: Check every file the role uses exists
+      ansible.builtin.assert:
+        that: admin_used_files | difference(admin_repo_files) == []
+        fail_msg: "Missing from {{ admin_dir }}: {{ admin_used_files | difference(admin_repo_files) }}"
+
+    - name: Check every manifest and helm values file is deployed
+      ansible.builtin.assert:
+        that: admin_repo_files | difference(admin_used_files) | difference(admin_unused_files) == []
+        fail_msg: >-
+          Not used by roles/admin: {{ admin_repo_files | difference(admin_used_files) | difference(admin_unused_files) }}
+          (deploy them, or list them in admin_unused_files)
+
+    - name: Check the kubernetes manifests are valid YAML objects
+      vars:
+        admin_docs: "{{ lookup('file', admin_dir ~ '/' ~ item) | from_yaml_all | select | list }}"
+      ansible.builtin.assert:
+        that:
+          - admin_docs | length > 0
+          - admin_docs | rejectattr('apiVersion', 'defined') | list == []
+          - admin_docs | rejectattr('kind', 'defined') | list == []
+          - admin_docs | map(attribute='metadata.name', default='') | select('equalto', '') | list == []
+        fail_msg: "{{ item }}: every document needs apiVersion, kind and metadata.name"
+        quiet: true
+      loop: "{{ admin_used_files | reject('match', '^helm/') | list }}"
+
+    - name: Check the helm values files are YAML mappings
+      ansible.builtin.assert:
+        that: lookup('file', admin_dir ~ '/' ~ item) | from_yaml is mapping
+        fail_msg: "{{ item }} is not a YAML mapping"
+        quiet: true
+      loop: "{{ admin_used_files | select('match', '^helm/') | list }}"
+
+    - name: Check the namespaced manifests target development
+      vars:
+        admin_namespaces: >-
+          {{ lookup('file', admin_dir ~ '/' ~ item) | from_yaml_all | select
+             | map(attribute='metadata.namespace', default='development') | unique }}
+      ansible.builtin.assert:
+        that: admin_namespaces == ['development']
+        fail_msg: "{{ item }} targets {{ admin_namespaces }}"
+        quiet: true
+      loop: "{{ admin_used_files | select('match', '^(deploy|service|statefulset)/') | reject('search', 'kubernetes-dashboard') | list }}"

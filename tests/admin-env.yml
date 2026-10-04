@@ -1,0 +1,104 @@
+# Render the apps' environment files from the vault, without a node:
+# ansible-playbook tests/admin-env.yml
+# Needs the vault password (vault_password_file in ansible.cfg). Secrets are
+# never printed: the assertions only name the keys that fail.
+---
+- name: Test the admin role's environment templates
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    env_role_dir: "{{ playbook_dir }}/../roles/admin"
+    # Each app's template and the vault files the role includes for it.
+    # Backend and stream use the same variable names, so each is rendered
+    # with its own vault files only.
+    env_apps:
+      app-backend: [env_vault_backend.yaml]
+      app-showcase: [env_vault_showcase.yaml]
+      app-stream: [env_vault_stream.yaml, env_vault_redis.yaml]
+    # Keys every Rails app reads
+    env_required_keys:
+      - APP_HOSTNAME
+      - POSTGRESQL_DB
+      - POSTGRESQL_HOST
+      - POSTGRESQL_PASSWORD
+      - POSTGRESQL_PORT
+      - POSTGRESQL_USERNAME
+      - RAILS_MASTER_KEY
+      - SECRET_KEY_BASE
+  tasks:
+    - name: Load the vault files
+      ansible.builtin.include_vars:
+        file: "{{ env_role_dir }}/vars/{{ item }}"
+        name: "env_vault_{{ item | regex_replace('^env_vault_|\\.yaml$', '') }}"
+      loop: "{{ env_apps.values() | flatten | union(['env_vault_postgresql.yaml']) }}"
+      no_log: true
+
+    - name: Render the templates
+      vars:
+        env_vars: >-
+          {{ item.value | map('regex_replace', '^env_vault_(.*)\.yaml$', 'env_vault_\1')
+             | map('extract', vars) | combine }}
+        env_text: "{{ lookup('template', env_role_dir ~ '/templates/' ~ item.key ~ '.env.j2', template_vars=env_vars) }}"
+      ansible.builtin.set_fact:
+        env_rendered: "{{ env_rendered | default({}) | combine({item.key: env_text}) }}"
+      loop: "{{ env_apps | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      no_log: true
+
+    - name: Parse the rendered files
+      vars:
+        env_lines: "{{ item.value.splitlines() | reject('match', '^\\s*(#|$)') | list }}"
+        env_pairs: "{{ env_lines | map('regex_findall', '^([A-Z][A-Z0-9_]*)=\"([^\"]+)\"$') | select | map('first') | list }}"
+        env_item:
+          bad: "{{ env_lines | reject('match', '^[A-Z][A-Z0-9_]*=\"[^\"]+\"$') | map('regex_replace', '=.*', '') | list }}"
+          keys: "{{ env_lines | map('regex_replace', '=.*', '') | list }}"
+          env: "{{ env_pairs | community.general.dict }}"
+      ansible.builtin.set_fact:
+        env_parsed: "{{ env_parsed | default({}) | combine({item.key: env_item}) }}"
+      loop: "{{ env_rendered | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      no_log: true
+
+    - name: Check every line is KEY="value", without empty values
+      ansible.builtin.assert:
+        that: env_parsed[item].bad == []
+        fail_msg: "{{ item }}: malformed or empty {{ env_parsed[item].bad }}"
+        quiet: true
+      loop: "{{ env_apps.keys() }}"
+
+    - name: Check no key is set twice
+      ansible.builtin.assert:
+        that: env_parsed[item]['keys'] | unique | length == env_parsed[item]['keys'] | length
+        fail_msg: "{{ item }}: duplicate keys"
+        quiet: true
+      loop: "{{ env_apps.keys() }}"
+
+    - name: Check the keys every Rails app needs are there
+      ansible.builtin.assert:
+        that: env_required_keys | difference(env_parsed[item]['keys']) == []
+        fail_msg: "{{ item }}: missing {{ env_required_keys | difference(env_parsed[item]['keys']) }}"
+        quiet: true
+      loop: "{{ env_apps.keys() }}"
+
+    # The Postgres password is stored in several vault files: they must agree
+    - name: Check the apps log in to Postgres with its user and password
+      ansible.builtin.assert:
+        that:
+          - env_parsed[item].env.POSTGRESQL_USERNAME == env_vault_postgresql.postgres_user
+          - env_parsed[item].env.POSTGRESQL_PASSWORD == env_vault_postgresql.postgres_password
+        fail_msg: "{{ item }}: POSTGRESQL_USERNAME/PASSWORD differ from env_vault_postgresql.yaml"
+        quiet: true
+      loop: "{{ env_apps.keys() }}"
+      no_log: true
+
+    - name: Check redis and app-stream share the redis password
+      vars:
+        env_redis: "{{ lookup('template', env_role_dir ~ '/templates/redis.env.j2', template_vars=env_vault_redis) | trim }}"
+      ansible.builtin.assert:
+        that: env_redis == 'REDIS_PASSWORD=' ~ env_parsed['app-stream'].env.REDIS_PASSWORD
+        fail_msg: "redis.env and app-stream's REDIS_PASSWORD differ"
+        quiet: true
+      no_log: true

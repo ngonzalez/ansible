@@ -150,7 +150,7 @@
 
 - name: Install Tigera Operator
   tags: kubernetes
-  command: helm upgrade --install calico projectcalico/tigera-operator --namespace tigera-operator
+  command: helm upgrade --install calico projectcalico/tigera-operator --version v3.30.2 --namespace tigera-operator
 
 # dns
 - name: Add config for coredns
