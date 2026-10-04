@@ -184,11 +184,18 @@
                     lameduck 5s
                 }
                 ready
-                kubernetes cluster.local link12.ddns.net in-addr.arpa ip6.arpa {
+                # link12.ddns.net is the node: pods resolve it without depending on
+                # the No-IP record (which lapses) or on a hairpin through the router
+                hosts {
+                    {{ apiserver_advertise_address }} link12.ddns.net
+                    fallthrough
+                }
+                kubernetes cluster.local in-addr.arpa ip6.arpa {
                     pods insecure
                     fallthrough in-addr.arpa ip6.arpa
                     ttl 30
                 }
+                prometheus :9153
                 forward . /etc/resolv.conf
                 cache 30
                 loop
