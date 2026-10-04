@@ -23,6 +23,42 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f namespace/development.yaml
 
+# TLS certificate for link12.ddns.net, mounted by the nginx deployments
+- name: Include vault tls
+  tags: admin tls
+  include_vars: env_vault_tls.yaml
+  no_log: True
+
+- name: Create TLS certificate temporary file
+  tags: admin tls
+  copy:
+    content: "{{ tls_certificate }}"
+    dest: /tmp/tls.crt
+    mode: 0600
+  no_log: True
+
+- name: Create TLS key temporary file
+  tags: admin tls
+  copy:
+    content: "{{ tls_private_key }}"
+    dest: /tmp/tls.key
+    mode: 0600
+  no_log: True
+
+- name: Create TLS secret
+  tags: admin tls
+  shell:
+    cmd: kubectl -n development create secret tls link12-ddns-net-tls --cert=/tmp/tls.crt --key=/tmp/tls.key --dry-run=client -o yaml | kubectl -n development apply -f -
+
+- name: Remove TLS temporary files
+  tags: admin tls
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /tmp/tls.crt
+    - /tmp/tls.key
+
 # prometheus-community charts
 - name: Add prometheus-community repository
   tags: admin prometheus
