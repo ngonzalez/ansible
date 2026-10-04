@@ -2,14 +2,15 @@
 
 ![logo](https://bit.ly/47WuP1s)
 
-The commands run from the admin repository (`make help` lists them all),
-with this repository checked out next to it in `../ansible`.
+`make help` lists the commands. The admin repository, checked out next to
+this one, runs the same ones as `make ansible-<target>`, `make setup` and
+`make deploy`.
 
 #### Install Ansible
 Installs the versions pinned in `requirements.txt` with pyenv's Python
 (`.python-version`).
 ```shell
-make -C ../admin ansible-install
+make install
 ```
 
 #### Create Inventory
@@ -26,9 +27,9 @@ D5BFA3BCA28:
 
 #### Check the node
 ```shell
-make -C ../admin ansible-ping    # ansible reaches the node
-make -C ../admin ansible-facts   # the facts ansible gathers
-make -C ../admin ansible-tags    # the TAGS setup and deploy accept
+make ping    # ansible reaches the node
+make facts   # the facts ansible gathers
+make tags    # the TAGS setup and deploy accept
 ```
 
 #### Set up the node
@@ -36,20 +37,20 @@ make -C ../admin ansible-tags    # the TAGS setup and deploy accept
 runs every role. The kube role (tag `kubernetes`) resets the cluster with
 `kubeadm reset -f` and builds a new one, so it also needs `CONFIRM=1`.
 ```shell
-make -C ../admin ansible-dry-run TAGS=firewall   # --check --diff: what would change
-make -C ../admin setup TAGS=firewall,vim
+make dry-run TAGS=firewall   # --check --diff: what would change
+make setup TAGS=firewall,vim
 ```
 
 #### Deploy
 `deploy.yml` deploys the applications and the monitoring to the cluster.
 TAGS is required; `TAGS=all` deploys everything.
 ```shell
-make -C ../admin deploy TAGS=nginx-stream,nginx-frontend
-make -C ../admin deploy TAGS=all
+make deploy TAGS=nginx-stream,nginx-frontend
+make deploy TAGS=all
 ```
 
 #### Test
 ```shell
-make -C ../admin ansible-test   # syntax, ansible-lint, tests/*.yml
+make test    # syntax, ansible-lint, tests/*.yml
 ```
 ansible-lint runs at the basic profile.
