@@ -10,7 +10,7 @@
     dest: /root/.zshrc
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
 
 - name: Set zsh as default shell
   tags: zsh

@@ -1,20 +1,37 @@
 # docker
 ---
-- name: Add docker apt key
+- name: Add the docker apt repository key
   tags: docker
-  shell: curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor --yes -o /usr/share/keyrings/docker.gpg
+  get_url:
+    url: https://download.docker.com/linux/debian/gpg
+    dest: /usr/share/keyrings/docker.asc
+    mode: "0644"
+    force: true
 
 # Docker only publishes stable Debian releases, not testing/unstable (forky)
-- name: Add docker apt repository
+- name: Add the docker apt repository
   tags: docker
-  shell: echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker.gpg] https://download.docker.com/linux/debian {{ docker_debian_codename }} stable" | sudo tee /etc/apt/sources.list.d/docker.list
+  copy:
+    dest: /etc/apt/sources.list.d/docker.list
+    mode: "0644"
+    content: >
+      deb [arch={{ docker_arch[ansible_architecture] }} signed-by=/usr/share/keyrings/docker.asc]
+      https://download.docker.com/linux/debian {{ docker_debian_codename }} stable
+
+# Replaced by the .asc key above
+- name: Remove the dearmored docker key
+  tags: docker
+  file:
+    path: /usr/share/keyrings/docker.gpg
+    state: absent
 
 - name: Install docker
   tags: docker
   apt:
     name:
-    - docker-ce
-    - containerd.io
+      - docker-ce
+      - containerd.io
+    update_cache: true
 
 - name: Add docker group
   tags: docker
@@ -42,4 +59,4 @@
   service:
     name: docker
     state: restarted
-    daemon_reload: yes
+    daemon_reload: true

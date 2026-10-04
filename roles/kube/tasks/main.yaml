@@ -16,67 +16,75 @@
   tags: kubernetes
   ansible.posix.sysctl:
     name: net.bridge.bridge-nf-call-iptables
-    reload: True
+    reload: true
     state: present
-    sysctl_set: True
+    sysctl_set: true
     value: 1
 
 - name: Set net.bridge.bridge-nf-call-ip6tables
   tags: kubernetes
   ansible.posix.sysctl:
     name: net.bridge.bridge-nf-call-ip6tables
-    reload: True
+    reload: true
     state: present
-    sysctl_set: True
+    sysctl_set: true
     value: 1
 
 - name: Set net.ipv4.ip_forward
   tags: kubernetes
   ansible.posix.sysctl:
     name: net.ipv4.ip_forward
-    reload: True
+    reload: true
     state: present
-    sysctl_set: True
+    sysctl_set: true
     value: 1
 
-- name: Add kubernetes apt repository key
+- name: Add the kubernetes apt repository key
   tags: kubernetes
-  shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/$KUBERNETES_VERSION/deb/Release.key | gpg --dearmor --yes -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
-  environment:
-    - KUBERNETES_VERSION: v1.37
+  get_url:
+    url: https://pkgs.k8s.io/core:/stable:/{{ kube_version }}/deb/Release.key
+    dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
+    mode: "0644"
+    force: true
 
-- name: Add apt repository
+- name: Add the kubernetes apt repository
   tags: kubernetes
-  shell: echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/$KUBERNETES_VERSION/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list
-  environment:
-    - KUBERNETES_VERSION: v1.37
+  copy:
+    dest: /etc/apt/sources.list.d/kubernetes.list
+    mode: "0644"
+    content: |
+      deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/{{ kube_version }}/deb/ /
 
-- name: Refresh the kubernetes apt repository
+# Replaced by the .asc key above
+- name: Remove the dearmored kubernetes key
   tags: kubernetes
-  shell: apt-get update -o Dir::Etc::sourcelist=sources.list.d/kubernetes.list -o Dir::Etc::sourceparts=- -o APT::Get::List-Cleanup=0
+  file:
+    path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    state: absent
 
 - name: Install binaries
   tags: kubernetes
   apt:
     name:
-    - kubelet
-    - kubeadm
-    - kubectl
+      - kubelet
+      - kubeadm
+      - kubectl
     state: latest
+    update_cache: true
 
 - name: Reset cluster
   tags: kubernetes
-  command: kubeadm reset -f --cri-socket {{ cri_socket }}
+  command: kubeadm reset -f --cri-socket {{ kube_cri_socket }}
 
 - name: Pull images
   tags: kubernetes
-  command: kubeadm config images pull --cri-socket {{ cri_socket }}
+  command: kubeadm config images pull --cri-socket {{ kube_cri_socket }}
 
 - name: Initialize cluster
   tags: kubernetes
   command: kubeadm init --apiserver-advertise-address {{ apiserver_advertise_address }} \
-                        --cri-socket {{ cri_socket }} \
-                        --pod-network-cidr {{ pod_network_cidr }} \
+                        --cri-socket {{ kube_cri_socket }} \
+                        --pod-network-cidr {{ kube_pod_network_cidr }} \
                         --node-name {{ node_name }}
                         # --ignore-preflight-errors=all
 
@@ -87,7 +95,7 @@
     state: directory
     owner: root
     group: root
-    mode: 0755
+    mode: "0755"
 
 - name: Copy configuration file with owner and permissions
   tags: kubernetes
@@ -96,8 +104,8 @@
     dest: /root/.kube/config
     owner: root
     group: root
-    mode: 0400
-    remote_src: True
+    mode: "0400"
+    remote_src: true
 
 - name: Taint node as control-plane
   tags: kubernetes
@@ -108,26 +116,26 @@
   tags: kubernetes
   stat:
     path: /usr/local/bin/helm
-  register: helmexists
-  ignore_errors: True
-  no_log: True
+  register: kube_helm_exists
+  ignore_errors: true
+  no_log: true
 
 - name: Download Helm
   tags: kubernetes
   unarchive:
     src: https://get.helm.sh/helm-canary-linux-amd64.tar.gz
     dest: /tmp
-    remote_src: True
-  when: not helmexists.stat.exists
+    remote_src: true
+  when: not kube_helm_exists.stat.exists
 
 - name: Install Helm
   tags: kubernetes
   copy:
     src: /tmp/linux-amd64/helm
     dest: /usr/local/bin/helm
-    mode: 0751
-    remote_src: True
-  when: not helmexists.stat.exists
+    mode: "0751"
+    remote_src: true
+  when: not kube_helm_exists.stat.exists
 
 # tigera-operator
 - name: Create Tigera Operator Namespace
@@ -189,11 +197,11 @@
 - name: Check if node exists
   tags: kubernetes
   command: kubectl get node {{ node_name }}
-  register: nodeexists
-  ignore_errors: True
-  no_log: True
+  register: kube_node_exists
+  ignore_errors: true
+  no_log: true
 
 - name: Debug
   tags: kubernetes
   debug:
-    var: nodeexists
+    var: kube_node_exists

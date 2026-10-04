@@ -8,22 +8,22 @@
   tags: apt
   apt:
     name:
-    - apt-transport-https
-    - ca-certificates
-    - gnupg
-    - lsb-release
+      - apt-transport-https
+      - ca-certificates
+      - gnupg
+      - lsb-release
 
 # developer
 - name: Install developer packages
   tags: apt
   apt:
     name:
-    - curl
-    - dnsutils
-    - iputils-ping
-    - net-tools
-    - htop
-    - jq
+      - curl
+      - dnsutils
+      - iputils-ping
+      - net-tools
+      - htop
+      - jq
 
 # gpg
 - name: Install gpg

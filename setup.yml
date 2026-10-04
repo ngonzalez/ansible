@@ -1,6 +1,7 @@
 ---
-- hosts: '*'
-  become: True
+- name: Set up the node
+  hosts: '*'
+  become: true
   roles:
     - apt
     - zsh

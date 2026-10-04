@@ -1,27 +1,35 @@
 # Container Runtime Interface
 ---
-- name: Add CRIO-O apt repository key
+- name: Add the CRI-O apt repository key
   tags: crio
-  shell: curl -fsSL https://download.opensuse.org/repositories/isv:/cri-o:/stable:/$CRIO_VERSION/deb/Release.key | gpg --dearmor --yes -o /etc/apt/keyrings/cri-o-apt-keyring.gpg
-  environment:
-    - CRIO_VERSION: v1.37
+  get_url:
+    url: https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ crio_version }}/deb/Release.key
+    dest: /etc/apt/keyrings/cri-o-apt-keyring.asc
+    mode: "0644"
+    force: true
 
-- name: Add CRIO-O apt repository
+- name: Add the CRI-O apt repository
   tags: crio
-  shell: echo "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://download.opensuse.org/repositories/isv:/cri-o:/stable:/$CRIO_VERSION/deb/ /" | tee /etc/apt/sources.list.d/cri-o.list
-  environment:
-    - CRIO_VERSION: v1.37
+  copy:
+    dest: /etc/apt/sources.list.d/cri-o.list
+    mode: "0644"
+    content: |
+      deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.asc] https://download.opensuse.org/repositories/isv:/cri-o:/stable:/{{ crio_version }}/deb/ /
 
-- name: Refresh the CRI-O apt repository
+# Replaced by the .asc key above
+- name: Remove the dearmored CRI-O key
   tags: crio
-  shell: apt-get update -o Dir::Etc::sourcelist=sources.list.d/cri-o.list -o Dir::Etc::sourceparts=- -o APT::Get::List-Cleanup=0
+  file:
+    path: /etc/apt/keyrings/cri-o-apt-keyring.gpg
+    state: absent
 
 - name: Install CRI-O
   tags: crio
   apt:
     name:
-    - cri-o
+      - cri-o
     state: latest
+    update_cache: true
 
 - name: Add bridge configuration
   tags: crio
@@ -35,9 +43,9 @@
   tags: crio
   ansible.posix.sysctl:
     name: fs.inotify.max_user_instances
-    reload: True
+    reload: true
     state: present
-    sysctl_set: True
+    sysctl_set: true
     value: 8192
 
 - name: Start CRI-O
@@ -45,4 +53,4 @@
   service:
     name: crio
     state: restarted
-    daemon_reload: yes
+    daemon_reload: true

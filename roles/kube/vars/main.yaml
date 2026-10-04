@@ -1,5 +1,4 @@
 ---
-apiserver_advertise_address: "{{ ansible_host }}"
-pod_network_cidr: 10.244.0.0/24
-cri_socket: unix:///var/run/crio/crio.sock
-node_name: node-1
+kube_version: v1.37
+kube_pod_network_cidr: 10.244.0.0/24
+kube_cri_socket: unix:///var/run/crio/crio.sock

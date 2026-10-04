@@ -1,2 +1,6 @@
 ---
 ansible_python_interpreter: /usr/bin/python3
+
+# The node, used by the etchosts, kube and admin roles
+apiserver_advertise_address: "{{ ansible_host }}"
+node_name: node-1

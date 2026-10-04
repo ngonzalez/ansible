@@ -6,7 +6,7 @@
   template:
     src: vimrc
     dest: /etc/vim/vimrc.local
-    mode: 0644
+    mode: "0644"
 
 - name: Update vim defaults
   command: "echo 'GIT_EDITOR=vim' > /etc/profile.d/git.sh"
