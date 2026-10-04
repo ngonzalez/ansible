@@ -82,11 +82,13 @@
 
 - name: Initialize cluster
   tags: kubernetes
-  command: kubeadm init --apiserver-advertise-address {{ apiserver_advertise_address }} \
-                        --cri-socket {{ kube_cri_socket }} \
-                        --pod-network-cidr {{ kube_pod_network_cidr }} \
-                        --node-name {{ node_name }}
-                        # --ignore-preflight-errors=all
+  # add --ignore-preflight-errors=all to skip the preflight checks
+  command: >-
+    kubeadm init
+    --apiserver-advertise-address {{ apiserver_advertise_address }}
+    --cri-socket {{ kube_cri_socket }}
+    --pod-network-cidr {{ kube_pod_network_cidr }}
+    --node-name {{ node_name }}
 
 - name: Create .kube folder
   tags: kubernetes
