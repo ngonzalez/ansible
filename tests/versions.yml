@@ -1,0 +1,64 @@
+# Check the versions and networks the roles must agree on, without a node:
+# ansible-playbook tests/versions.yml
+---
+- name: Test the setup roles' versions and pod network
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../roles/crio/vars/main.yaml
+    - ../roles/kube/vars/main.yaml
+  vars:
+    versions_roles_dir: "{{ playbook_dir }}/../roles"
+    versions_roles: >-
+      {{ (lookup('file', playbook_dir ~ '/../setup.yml') | from_yaml)[0].roles
+         + (lookup('file', playbook_dir ~ '/../deploy.yml') | from_yaml)[0].roles }}
+    versions_task_files: >-
+      [{%- for role in versions_roles -%}
+      {%- set dir = versions_roles_dir ~ '/' ~ role ~ '/tasks/' -%}
+      {{ lookup('first_found', [dir ~ 'main.yaml', dir ~ 'main.yml']) | to_json }},
+      {%- endfor -%}]
+    # Every command and shell task's command line, from every role
+    versions_commands: >-
+      [{%- for file in versions_task_files -%}
+      {%- for task in lookup('file', file) | from_yaml -%}
+      {%- set run = task.command | default(task.shell) | default('') -%}
+      {{ (run.cmd | default('') if run is mapping else run) | string | to_json }},
+      {%- endfor -%}{%- endfor -%}]
+  tasks:
+    # CRI-O follows the Kubernetes minor versions: they must match
+    - name: Check CRI-O and Kubernetes use the same minor version
+      ansible.builtin.assert:
+        that:
+          - kube_version is match('^v1\.\d+$')
+          - crio_version == kube_version
+        fail_msg: "crio_version {{ crio_version }} and kube_version {{ kube_version }} differ"
+
+    - name: Check the CNI configuration is valid JSON for the pod network
+      vars:
+        versions_cni: "{{ lookup('template', versions_roles_dir ~ '/crio/templates/cni.conf.j2') }}"
+      ansible.builtin.assert:
+        that:
+          - versions_cni is mapping
+          - versions_cni.ipam.ranges[0][0].subnet == crio_pod_network_cidr
+
+    # kubeadm's pod network must fit in the range CRI-O's CNI hands out
+    - name: Check the kubeadm pod network is inside CRI-O's
+      vars:
+        versions_kube: "{{ kube_pod_network_cidr.split('/') }}"
+        versions_crio: "{{ crio_pod_network_cidr.split('/') }}"
+      ansible.builtin.assert:
+        that:
+          - versions_kube[0] == versions_crio[0]
+          - versions_crio[1] | int <= versions_kube[1] | int
+        fail_msg: "kube_pod_network_cidr {{ kube_pod_network_cidr }} is not inside crio_pod_network_cidr {{ crio_pod_network_cidr }}"
+
+    # An unpinned chart upgrades on the next run, untested
+    - name: Check every helm chart install is pinned
+      vars:
+        versions_installs: "{{ versions_commands | select('search', 'helm upgrade --install') | list }}"
+      ansible.builtin.assert:
+        that:
+          - versions_installs | length > 10
+          - versions_installs | reject('search', '--version ') | list == []
+        fail_msg: "Unpinned: {{ versions_installs | reject('search', '--version ') }}"

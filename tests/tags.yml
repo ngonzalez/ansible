@@ -1,0 +1,86 @@
+# Check the task tags that make setup/deploy TAGS=... select, without a node:
+# ansible-playbook tests/tags.yml
+---
+- name: Test the roles' task tags
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    tags_setup_roles: "{{ (lookup('file', playbook_dir ~ '/../setup.yml') | from_yaml)[0].roles }}"
+    tags_deploy_roles: "{{ (lookup('file', playbook_dir ~ '/../deploy.yml') | from_yaml)[0].roles }}"
+    # Every task as {role, name, tags}, with tags always a list
+    tags_tasks: >-
+      [{% for role in tags_setup_roles + tags_deploy_roles %}
+      {% set dir = playbook_dir ~ '/../roles/' ~ role ~ '/tasks/' %}
+      {% for task in lookup('file', lookup('first_found', [dir ~ 'main.yaml', dir ~ 'main.yml'])) | from_yaml %}
+      {{ {'role': role, 'name': task.name | default('?'),
+          'tags': [task.tags] | flatten if task.tags is defined else []} }},
+      {% endfor %}{% endfor %}]
+    # The tags all of a role's tasks have
+    tags_common: >-
+      {%- set ns = namespace(common={}) -%}
+      {%- for task in tags_tasks -%}
+      {%- set ns.common = ns.common | combine({task.role: task.tags | intersect(ns.common[task.role] | default(task.tags))}) -%}
+      {%- endfor -%}
+      {{ ns.common }}
+  tasks:
+    - name: Check the roles have tasks
+      ansible.builtin.assert:
+        that: tags_tasks | map(attribute='role') | unique | length == (tags_setup_roles + tags_deploy_roles) | length
+        fail_msg: "No tasks read for {{ (tags_setup_roles + tags_deploy_roles) | difference(tags_tasks | map(attribute='role')) }}"
+
+    - name: Check every task is tagged
+      ansible.builtin.assert:
+        that: tags_tasks | selectattr('tags', 'equalto', []) | list == []
+        fail_msg: "Untagged: {{ tags_tasks | selectattr('tags', 'equalto', []) | map(attribute='name') }}"
+
+    # make setup TAGS=<tag> must run a whole role, and nothing from the others
+    - name: Check each setup role's tasks share a tag no other role uses
+      vars:
+        tags_others: "{{ tags_tasks | rejectattr('role', 'equalto', item) | map(attribute='tags') | flatten }}"
+      ansible.builtin.assert:
+        that: tags_common[item] | difference(tags_others) | length > 0
+        fail_msg: "{{ item }}: no tag selects all its tasks and only them (common: {{ tags_common[item] }})"
+        quiet: true
+      loop: "{{ tags_setup_roles }}"
+
+    # always would run with any TAGS, e.g. during make setup TAGS=firewall
+    - name: Check the setup roles don't use always
+      ansible.builtin.assert:
+        that: tags_tasks | selectattr('role', 'in', tags_setup_roles) | selectattr('tags', 'contains', 'always') | list == []
+        fail_msg: "{{ tags_tasks | selectattr('role', 'in', tags_setup_roles) | selectattr('tags', 'contains', 'always') | map(attribute='name') }}"
+
+    # make deploy TAGS=admin runs everything; never is for opt-in tasks
+    - name: Check every deploy task runs with the admin tag, or is opt-in
+      vars:
+        tags_outside: >-
+          {{ tags_tasks | selectattr('role', 'in', tags_deploy_roles)
+             | rejectattr('tags', 'contains', 'admin') | rejectattr('tags', 'contains', 'always')
+             | rejectattr('tags', 'contains', 'never') | map(attribute='name') }}
+      ansible.builtin.assert:
+        that: tags_outside == []
+        fail_msg: "Not tagged admin: {{ tags_outside }}"
+
+    # The deploy tasks run in the admin checkout, so it must run with any TAGS
+    - name: Check the admin checkout runs whatever the tags
+      ansible.builtin.assert:
+        that: >-
+          tags_tasks | selectattr('name', 'equalto', 'Checkout admin repository')
+          | map(attribute='tags') | first | default([]) == ['always']
+
+    # A task that reads vault variables must run with the same tags as the
+    # include that loads them, or TAGS=<tag> renders undefined variables
+    - name: Check each include_vars runs with the tasks after it
+      vars:
+        tags_admin: "{{ tags_tasks | selectattr('role', 'equalto', 'admin') | list }}"
+        tags_includes: >-
+          {{ lookup('file', playbook_dir ~ '/../roles/admin/tasks/main.yaml') | from_yaml
+             | map(attribute='include_vars', default='') | list }}
+        tags_mismatched: >-
+          [{% for i in range(tags_admin | length) if tags_includes[i] %}
+          {% if tags_admin[i + 1].tags | difference(tags_admin[i].tags) %}
+          {{ tags_admin[i].name ~ ' (' ~ tags_includes[i] ~ ')' }},
+          {% endif %}{% endfor %}]
+      ansible.builtin.assert:
+        that: tags_mismatched == []
+        fail_msg: "Tagged differently from the next task: {{ tags_mismatched }}"
