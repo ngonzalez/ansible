@@ -554,17 +554,27 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f storage/loki-persistent-volume.yaml
 
+# The gateway's login: htpasswd of ~/.config/loki-credentials on the admin
+# machine (user:password). Not stored here: create it once with
+#   htpasswd -nbB <user> <password> | kubectl -n development create secret generic loki-gateway-auth --from-file=.htpasswd=/dev/stdin
+- name: Check the loki gateway login secret exists
+  tags: admin loki
+  command: kubectl -n development get secret loki-gateway-auth
+  changed_when: false
+
 - name: Install loki
   tags: admin loki
   shell:
     chdir: "{{ admin_path }}"
     cmd: helm upgrade --install -f helm/loki.yaml loki grafana/loki --version 7.3.0 --namespace development
 
-- name: Set loki service external IP
+# Only the gateway (login required) is reachable from outside the cluster;
+# Alloy and Grafana use the loki service inside it
+- name: Set loki gateway service external IP
   tags: admin loki
   shell:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc loki -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
+    cmd: kubectl -n development patch svc loki-gateway -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 # alloy
 - name: Install alloy
