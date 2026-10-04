@@ -302,12 +302,6 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/app-backend.yaml
 
-- name: Set app-backend service external IP
-  tags: [admin, app-backend]
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc app-backend-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-
 # nginx-backend
 - name: Create nginx-backend deployment
   tags: [admin, nginx-backend]
@@ -388,12 +382,6 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/app-stream.yaml
 
-- name: Set app-stream service external IP
-  tags: [admin, app-stream]
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc app-stream-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
-
 # nginx-stream
 - name: Create nginx-stream Deployment
   tags: [admin, nginx-stream]
@@ -469,12 +457,6 @@
   command:
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f service/app-showcase.yaml
-
-- name: Set app-showcase service external IP
-  tags: [admin, app-showcase]
-  shell:
-    chdir: "{{ admin_path }}"
-    cmd: kubectl -n development patch svc app-showcase-loadbalancer -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
 # nginx-showcase
 - name: Create nginx-showcase Deployment

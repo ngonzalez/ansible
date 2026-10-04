@@ -1,4 +1,4 @@
-# The versions `make -C ../admin ansible-install` installs with pyenv
+# The versions `make install` installs with pyenv
 ansible==10.5.0
 ansible-core==2.17.14
 ansible-lint==26.6.0
