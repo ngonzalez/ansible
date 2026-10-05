@@ -23,7 +23,8 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f namespace/development.yaml
 
-# TLS certificate for link12.ddns.net, mounted by the nginx deployments
+# Cloudflare Origin certificate for appshare.site and *.appshare.site, mounted
+# by the nginx deployments
 - name: Include vault tls
   tags: [admin, tls]
   include_vars: env_vault_tls.yaml
@@ -49,7 +50,7 @@
   tags: [admin, tls]
   shell:
     cmd: >-
-      kubectl -n development create secret tls link12-ddns-net-tls --cert=/tmp/tls.crt --key=/tmp/tls.key
+      kubectl -n development create secret tls appshare-site-tls --cert=/tmp/tls.crt --key=/tmp/tls.key
       --dry-run=client -o yaml | kubectl -n development apply -f -
 
 - name: Remove TLS temporary files
