@@ -38,11 +38,13 @@
     dest: /etc/cni/net.d/100-cni.conf
 
 # CRI-O, the kubelet, Alloy and Loki each hold inotify instances: with the
-# default of 128 CRI-O fails to start with "too many open files"
+# default of 128 CRI-O fails to start with "too many open files", and
+# `journalctl -f` reports "Insufficient watch descriptors"
 - name: Set fs.inotify.max_user_instances
-  tags: crio
+  tags: [crio, kernel]
   ansible.posix.sysctl:
     name: fs.inotify.max_user_instances
+    sysctl_file: /etc/sysctl.d/90-crio.conf
     reload: true
     state: present
     sysctl_set: true
