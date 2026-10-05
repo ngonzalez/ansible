@@ -1,0 +1,54 @@
+# Check the kernel settings and modules survive a reboot, without a node:
+# ansible-playbook tests/kernel.yml
+# systemd-sysctl only reads /etc/sysctl.d (not /etc/sysctl.conf), and a
+# module loaded without `persistent` is gone after the next boot.
+---
+- name: Test the kernel settings are persistent
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    kernel_roles: "{{ (lookup('file', playbook_dir ~ '/../setup.yml') | from_yaml)[0].roles }}"
+    # Every task of the setup roles
+    kernel_tasks: >-
+      [{%- for role in kernel_roles -%}
+      {%- set dir = playbook_dir ~ '/../roles/' ~ role ~ '/tasks/' -%}
+      {%- for task in lookup('file', lookup('first_found', [dir ~ 'main.yaml', dir ~ 'main.yml'])) | from_yaml -%}
+      {{ task | to_json }},
+      {%- endfor -%}{%- endfor -%}]
+    # (selectattr would read the dots of the module names as nested attributes)
+    kernel_sysctls: "[{% for task in kernel_tasks if 'ansible.posix.sysctl' in task %}{{ task | to_json }},{% endfor %}]"
+    kernel_modules: "[{% for task in kernel_tasks if 'community.general.modprobe' in task %}{{ task | to_json }},{% endfor %}]"
+  tasks:
+    - name: Check there are settings and modules to test
+      ansible.builtin.assert:
+        that:
+          - kernel_sysctls | length > 0
+          - kernel_modules | length > 0
+
+    - name: Check every sysctl is written to /etc/sysctl.d
+      ansible.builtin.assert:
+        that: item['ansible.posix.sysctl'].sysctl_file | default('') is match('^/etc/sysctl\.d/[^/]+\.conf$')
+        fail_msg: "{{ item.name }}: set sysctl_file to a file in /etc/sysctl.d"
+        quiet: true
+      loop: "{{ kernel_sysctls }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Check every module is loaded at boot too
+      ansible.builtin.assert:
+        that: item['community.general.modprobe'].persistent | default('') == 'present'
+        fail_msg: "{{ item.name }}: set persistent: present"
+        quiet: true
+      loop: "{{ kernel_modules }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    - name: Check they are tagged kernel, so they apply without the cluster reset
+      ansible.builtin.assert:
+        that: "'kernel' in ([item.tags] | flatten)"
+        fail_msg: "{{ item.name }}: add the kernel tag"
+        quiet: true
+      loop: "{{ kernel_sysctls + kernel_modules }}"
+      loop_control:
+        label: "{{ item.name }}"

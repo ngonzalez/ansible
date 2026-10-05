@@ -1,39 +1,51 @@
 # Kubernetes
+#
+# The kernel settings and modules are tagged kernel too, so
+# `make setup TAGS=kernel` applies them without the cluster reset below. They
+# go to /etc/sysctl.d and /etc/modules-load.d: systemd-sysctl doesn't read
+# /etc/sysctl.conf, so settings there are lost at the next boot.
 ---
 - name: Load kernel module overlay
-  tags: kubernetes
+  tags: [kubernetes, kernel]
   community.general.modprobe:
     name: overlay
     state: present
+    # also at boot (/etc/modules-load.d)
+    persistent: present
 
 - name: Load kernel module br_netfilter
-  tags: kubernetes
+  tags: [kubernetes, kernel]
   community.general.modprobe:
     name: br_netfilter
     state: present
+    # also at boot (/etc/modules-load.d)
+    persistent: present
 
 - name: Set net.bridge.bridge-nf-call-iptables
-  tags: kubernetes
+  tags: [kubernetes, kernel]
   ansible.posix.sysctl:
     name: net.bridge.bridge-nf-call-iptables
+    sysctl_file: /etc/sysctl.d/90-kubernetes.conf
     reload: true
     state: present
     sysctl_set: true
     value: 1
 
 - name: Set net.bridge.bridge-nf-call-ip6tables
-  tags: kubernetes
+  tags: [kubernetes, kernel]
   ansible.posix.sysctl:
     name: net.bridge.bridge-nf-call-ip6tables
+    sysctl_file: /etc/sysctl.d/90-kubernetes.conf
     reload: true
     state: present
     sysctl_set: true
     value: 1
 
 - name: Set net.ipv4.ip_forward
-  tags: kubernetes
+  tags: [kubernetes, kernel]
   ansible.posix.sysctl:
     name: net.ipv4.ip_forward
+    sysctl_file: /etc/sysctl.d/90-kubernetes.conf
     reload: true
     state: present
     sysctl_set: true
