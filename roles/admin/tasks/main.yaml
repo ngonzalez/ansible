@@ -312,11 +312,13 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/nginx-backend.yaml
 
+# apply, not replace --force: the service keeps its address, which
+# nginx-frontend's SNI router resolves once when it starts
 - name: Create nginx-backend loadbalancer
   tags: [admin, nginx-backend]
   command:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f service/nginx-backend.yaml
+    cmd: kubectl -n development apply -f service/nginx-backend.yaml
 
 - name: Set nginx-backend service external IP
   tags: [admin, nginx-backend]
@@ -392,11 +394,13 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/nginx-stream.yaml
 
+# apply, not replace --force: the service keeps its address, which
+# nginx-frontend's SNI router resolves once when it starts
 - name: Create nginx-stream loadbalancer
   tags: [admin, nginx-stream]
   command:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f service/nginx-stream.yaml
+    cmd: kubectl -n development apply -f service/nginx-stream.yaml
 
 - name: Set nginx-stream service external IP
   tags: [admin, nginx-stream]
@@ -468,11 +472,13 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development replace --force -f deploy/nginx-showcase.yaml
 
+# apply, not replace --force: the service keeps its address, which
+# nginx-frontend's SNI router resolves once when it starts
 - name: Create nginx-showcase loadbalancer
   tags: [admin, nginx-showcase]
   command:
     chdir: "{{ admin_path }}"
-    cmd: kubectl -n development replace --force -f service/nginx-showcase.yaml
+    cmd: kubectl -n development apply -f service/nginx-showcase.yaml
 
 - name: Set nginx-showcase service external IP
   tags: [admin, nginx-showcase]
