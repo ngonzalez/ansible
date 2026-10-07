@@ -94,6 +94,17 @@
       loop: "{{ env_apps.keys() }}"
       no_log: true
 
+    # The web registration site (app-showcase) encrypts the payloads for the
+    # backend and authenticates with the backend's registration token
+    - name: Check app-showcase and app-backend share the web registration secrets
+      ansible.builtin.assert:
+        that:
+          - env_parsed['app-showcase'].env.WEB_REGISTRATION_ENCRYPTION_KEY == env_parsed['app-backend'].env.WEB_REGISTRATION_ENCRYPTION_KEY
+          - env_parsed['app-showcase'].env.NGINX_WEB_REGISTRATION_TOKEN == env_parsed['app-backend'].env.WEB_REGISTRATION_API_TOKEN
+        fail_msg: "app-showcase's WEB_REGISTRATION_ENCRYPTION_KEY or NGINX_WEB_REGISTRATION_TOKEN differ from app-backend's"
+        quiet: true
+      no_log: true
+
     - name: Check redis and app-stream share the redis password
       vars:
         env_redis: "{{ lookup('template', env_role_dir ~ '/templates/redis.env.j2', template_vars=env_vault_redis) | trim }}"
