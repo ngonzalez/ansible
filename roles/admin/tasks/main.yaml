@@ -575,6 +575,7 @@
 # The gateway's login: htpasswd of ~/.config/loki-credentials on the admin
 # machine (user:password). Not stored here: create it once with
 #   htpasswd -nbB <user> <password> | kubectl -n development create secret generic loki-gateway-auth --from-file=.htpasswd=/dev/stdin
+#   IFS=: read -r u p < ~/.config/loki-credentials || [ -n "$p" ]; htpasswd -nbB "$u" "$p" | ssh root@192.168.1.14 kubectl -n development create secret generic loki-gateway-auth --from-file=.htpasswd=/dev/stdin
 - name: Check the loki gateway login secret exists
   tags: [admin, loki]
   command: kubectl -n development get secret loki-gateway-auth
@@ -656,6 +657,7 @@
     var: admin_dashboard_token
 
 # azure storage cleanup: only runs when asked for, e.g.
+# make deploy TAGS=azure-cleanup
 #   ansible-playbook deploy.yml --tags azure-cleanup                          (dry run)
 #   ansible-playbook deploy.yml --tags azure-cleanup -e azure_cleanup_confirm=1
 - name: Purge orphaned azure storage files and unattached blobs
