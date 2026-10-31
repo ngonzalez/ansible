@@ -1,4 +1,5 @@
-# Render the apps' environment files from the vault, without a node:
+# Render the apps' environment files from the vault, and check the backup
+# secret's, without a node:
 # ansible-playbook tests/admin-env.yml
 # Needs the vault password (vault_password_file in ansible.cfg). Secrets are
 # never printed: the assertions only name the keys that fail.
@@ -31,7 +32,7 @@
       ansible.builtin.include_vars:
         file: "{{ env_role_dir }}/vars/{{ item }}"
         name: "env_vault_{{ item | regex_replace('^env_vault_|\\.yaml$', '') }}"
-      loop: "{{ env_apps.values() | flatten | union(['env_vault_postgresql.yaml']) }}"
+      loop: "{{ env_apps.values() | flatten | union(['env_vault_postgresql.yaml', 'env_vault_backup.yaml']) }}"
       no_log: true
 
     - name: Render the templates
@@ -113,3 +114,38 @@
         fail_msg: "redis.env and app-stream's REDIS_PASSWORD differ"
         quiet: true
       no_log: true
+
+    # postgresql-backup PUTs each dump to "$URL/postgresql/<file>?$SAS":
+    # the URL is the container's alone, the SAS the token alone (the portal's
+    # "Blob SAS URL" in backup_azure_url broke the uploads once). The asserts
+    # print their messages, never the values: no no_log, so failures read
+    - name: Check the backup URL is an Azure container URL, without a query
+      ansible.builtin.assert:
+        that: env_vault_backup.backup_azure_url is match('^https://[a-z0-9]{3,24}\\.blob\\.core\\.windows\\.net/[a-z0-9-]{3,63}$')
+        fail_msg: "backup_azure_url must be https://<account>.blob.core.windows.net/<container>, nothing after it"
+        quiet: true
+
+    - name: Check the backup SAS is a token that can create blobs and hasn't expired
+      vars:
+        env_sas: "{{ env_vault_backup.backup_azure_sas }}"
+        env_sas_fields: "{{ env_sas.split('&') | map('split', '=', 1) | community.general.dict }}"
+      ansible.builtin.assert:
+        that:
+          - env_sas is not match('^\\?')
+          - env_sas_fields.sig is defined
+          - env_sas_fields.sv is defined
+          - env_sas_fields.sp | default('') is search('[cw]')
+          - (env_sas_fields.se | default('1970-01-01'))[:10] | to_datetime('%Y-%m-%d') > now(utc=true)
+        fail_msg: >-
+          backup_azure_sas must be the SAS token alone (no leading ?, with sv=, sp= including c or w,
+          sig=) and not expired: create one on the backup container
+        quiet: true
+
+    - name: Check the backup SAS doesn't expire within 30 days
+      vars:
+        env_sas_fields: "{{ env_vault_backup.backup_azure_sas.split('&') | map('split', '=', 1) | community.general.dict }}"
+        env_sas_days: "{{ ((env_sas_fields.se[:10] | to_datetime('%Y-%m-%d')) - now(utc=true)).days }}"
+      ansible.builtin.assert:
+        that: env_sas_days | int >= 30
+        fail_msg: "backup_azure_sas expires in {{ env_sas_days }} days: renew it, or the nightly uploads fail"
+        quiet: true

@@ -295,7 +295,7 @@
     owner: root
     group: root
     mode: "0644"
-  no_log: True
+  no_log: true
 
 - name: Create environment secret
   tags: [admin, app-backend]
@@ -379,7 +379,7 @@
     owner: root
     group: root
     mode: "0644"
-  no_log: True
+  no_log: true
 
 - name: Create environment secret
   tags: [admin, app-stream]
@@ -457,7 +457,7 @@
     owner: root
     group: root
     mode: "0644"
-  no_log: True
+  no_log: true
 
 - name: Create environment secret
   tags: [admin, app-showcase]
@@ -596,7 +596,8 @@
 # The gateway's login: htpasswd of ~/.config/loki-credentials on the admin
 # machine (user:password). Not stored here: create it once with
 #   htpasswd -nbB <user> <password> | kubectl -n development create secret generic loki-gateway-auth --from-file=.htpasswd=/dev/stdin
-#   IFS=: read -r u p < ~/.config/loki-credentials || [ -n "$p" ]; htpasswd -nbB "$u" "$p" | ssh root@192.168.1.14 kubectl -n development create secret generic loki-gateway-auth --from-file=.htpasswd=/dev/stdin
+#   IFS=: read -r u p < ~/.config/loki-credentials || [ -n "$p" ]; htpasswd -nbB "$u" "$p" \
+#     | ssh root@192.168.1.14 kubectl -n development create secret generic loki-gateway-auth --from-file=.htpasswd=/dev/stdin
 - name: Check the loki gateway login secret exists
   tags: [admin, loki]
   command: kubectl -n development get secret loki-gateway-auth
