@@ -191,6 +191,27 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl -n development patch svc prometheus-postgres-exporter -p '{"spec":{"externalIPs":["{{ apiserver_advertise_address }}"]}}'
 
+# postgresql backup (admin cronjob/postgresql-backup.yaml)
+- name: Include vault backup
+  tags: [admin, postgresql, backup]
+  include_vars: env_vault_backup.yaml
+  no_log: true
+
+- name: Create postgresql-backup Azure secret
+  tags: [admin, postgresql, backup]
+  no_log: true
+  shell:
+    cmd: >-
+      kubectl -n development create secret generic postgresql-backup-azure
+      --from-literal=URL='{{ backup_azure_url }}' --from-literal=SAS='{{ backup_azure_sas }}'
+      --dry-run=client -o yaml | kubectl -n development apply -f -
+
+- name: Create postgresql-backup cronjob
+  tags: [admin, postgresql, backup]
+  command:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f cronjob/postgresql-backup.yaml
+
 # redis
 - name: Include vault redis
   tags: [admin, redis]
