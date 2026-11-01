@@ -1,0 +1,20 @@
+---
+# The .NET SDK on the Mac, for MauiApp's tests (dotnet test MauiApp1.Tests);
+# the MAUI app itself builds in Visual Studio on Windows
+- name: Install the .NET SDK with Homebrew
+  tags: dotnet
+  community.general.homebrew:
+    name: "{{ dotnet_formula }}"
+    state: present
+
+- name: Put dotnet on the PATH in ~/.zshrc
+  tags: dotnet
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    create: true
+    mode: "0644"
+    marker: "# {mark} ANSIBLE MANAGED: dotnet"
+    block: |
+      export DOTNET_ROOT="{{ dotnet_prefix }}/libexec"
+      export PATH="{{ dotnet_prefix }}/bin:$PATH"
+      export DOTNET_CLI_TELEMETRY_OPTOUT=1

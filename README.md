@@ -52,6 +52,15 @@ make deploy
 make deploy TAGS=nginx-stream,nginx-frontend
 ```
 
+#### Set up the Mac
+`mac.yml` configures this Mac, without sudo: the .NET 9 SDK (Homebrew's
+keg-only `dotnet@9`, the target of MauiApp's tests) and its `DOTNET_ROOT` and
+`PATH` in a managed block of `~/.zshrc`.
+```shell
+make mac
+cd ../MauiApp && dotnet test MauiApp1.Tests   # in a new terminal
+```
+
 #### Test
 ```shell
 make test    # syntax, ansible-lint, tests/*.yml
