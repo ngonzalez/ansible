@@ -35,7 +35,7 @@ tags: ## List the TAGS that setup and deploy accept
 .PHONY: tags
 
 test: ## Test: syntax, lint, role tests (no node needed)
-	@$(PLAYBOOK) setup.yml deploy.yml --syntax-check
+	@$(PLAYBOOK) setup.yml deploy.yml mac.yml --syntax-check
 	@ansible-lint
 	@for t in tests/*.yml; do ansible-playbook "$$t" || exit 1; done
 .PHONY: test
@@ -49,6 +49,10 @@ dry-run: ## Show what setup.yml would change on the node (--check --diff)
 setup: ## Configure the node with setup.yml (all roles, or TAGS)
 	@$(PLAYBOOK) setup.yml --diff $(if $(filter-out all,$(TAGS)),--tags $(TAGS))
 .PHONY: setup
+
+mac: ## Set up this Mac with mac.yml (the .NET SDK for MauiApp's tests), without sudo
+	@ansible-playbook -i localhost, mac.yml --diff $(if $(filter-out all,$(TAGS)),--tags $(TAGS))
+.PHONY: mac
 
 deploy: ## Deploy to the cluster with deploy.yml (all projects, or TAGS)
 	@$(PLAYBOOK) deploy.yml --diff $(if $(filter-out all,$(TAGS)),--tags $(TAGS))

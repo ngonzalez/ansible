@@ -1,0 +1,4 @@
+---
+# The .NET SDK the MauiApp tests target (net9.0); keg-only in Homebrew
+dotnet_formula: dotnet@9
+dotnet_prefix: "/opt/homebrew/opt/{{ dotnet_formula }}"

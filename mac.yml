@@ -1,0 +1,9 @@
+---
+# The developer's Mac (this machine), without sudo: make mac
+- name: Set up the Mac
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  gather_subset: [min]
+  roles:
+    - dotnet
