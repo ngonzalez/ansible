@@ -212,6 +212,27 @@
     chdir: "{{ admin_path }}"
     cmd: kubectl apply -f cronjob/postgresql-backup.yaml
 
+# appshare.site DNS on the public IP (admin cronjob/cloudflare-ddns.yaml)
+- name: Include vault cloudflare
+  tags: [admin, cloudflare-ddns]
+  include_vars: env_vault_cloudflare.yaml
+  no_log: true
+
+- name: Create cloudflare-ddns secret
+  tags: [admin, cloudflare-ddns]
+  no_log: true
+  shell:
+    cmd: >-
+      kubectl -n development create secret generic cloudflare-ddns
+      --from-literal=CLOUDFLARE_API_TOKEN='{{ cloudflare_dns_api_token }}'
+      --dry-run=client -o yaml | kubectl -n development apply -f -
+
+- name: Create cloudflare-ddns cronjob
+  tags: [admin, cloudflare-ddns]
+  command:
+    chdir: "{{ admin_path }}"
+    cmd: kubectl apply -f cronjob/cloudflare-ddns.yaml
+
 # redis
 - name: Include vault redis
   tags: [admin, redis]
